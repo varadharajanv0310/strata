@@ -1,0 +1,192 @@
+/* ============================================================
+   strata — mobile shell + phone frame + single-column overrides
+   Reuses tokens.css + app.css; this layers mobile on top.
+   ============================================================ */
+
+/* ---------- stage + phone frame ---------- */
+html, body { background: #060708; }
+.m-stage {
+  position: fixed; inset: 0;
+  display: grid; place-items: center;
+  background:
+    radial-gradient(120vw 80vh at 50% 120%, rgba(42,91,255,0.12), transparent 60%),
+    #060708;
+  overflow: hidden;
+}
+.phone-scale { transform-origin: center center; }
+.phone {
+  position: relative;
+  width: 402px; height: 872px;
+  border-radius: 60px;
+  background: linear-gradient(160deg, #1b1d22, #0a0b0e 60%);
+  padding: 13px;
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.06),
+    0 40px 120px rgba(0,0,0,0.7),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.phone-screen {
+  position: relative;
+  width: 100%; height: 100%;
+  border-radius: 48px;
+  overflow: hidden;
+  background: var(--near-black);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.8);
+}
+/* dynamic island */
+.phone::after {
+  content: "";
+  position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 34px; border-radius: 999px;
+  background: #000; z-index: 50;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* ---------- mobile app shell ---------- */
+.mobile-app {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--near-black);
+  overflow: hidden;
+}
+.mobile-app::before {
+  content: ""; position: absolute; left: 50%; bottom: -30%;
+  width: 150%; height: 70%; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(74,124,255,calc(0.26 * var(--glow-strength))), transparent 70%);
+  pointer-events: none; z-index: 0;
+  animation: glowPulse 9s ease-in-out infinite;
+}
+.mobile-app::after {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(1px 1px at 22% 18%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1px 1px at 72% 12%, rgba(255,255,255,0.35), transparent),
+    radial-gradient(1px 1px at 84% 30%, rgba(255,255,255,0.4), transparent),
+    radial-gradient(1px 1px at 32% 26%, rgba(255,255,255,0.3), transparent);
+  opacity: 0.5;
+}
+
+/* top bar */
+.m-top {
+  position: relative; z-index: 5; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 60px 18px 12px;
+}
+.m-top .wordmark { font-size: 18px; }
+
+/* scroll content */
+.m-scroll {
+  position: relative; z-index: 2; flex: 1;
+  overflow-y: auto; overflow-x: hidden;
+  padding: 6px 14px 108px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.m-scroll::-webkit-scrollbar { width: 0; height: 0; }
+.m-sheet { scrollbar-width: none; }
+.m-sheet::-webkit-scrollbar { width: 0; }
+
+/* bottom tab bar */
+.m-bottom {
+  position: absolute; left: 12px; right: 12px; bottom: 14px; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 8px;
+  border-radius: 26px;
+  background: rgba(16,18,26,0.78);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(24px) saturate(1.2);
+  box-shadow: 0 16px 44px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.m-tab {
+  flex: 1; border: none; background: transparent; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 7px 2px; border-radius: 18px; color: var(--t3);
+  font-family: var(--font); font-size: 9.5px; font-weight: 600; letter-spacing: 0.01em;
+  transition: color 0.2s, background 0.2s;
+}
+.m-tab svg { width: 21px; height: 21px; }
+.m-tab.active { color: #fff; background: linear-gradient(180deg, rgba(42,91,255,0.28), rgba(0,51,255,0.14)); }
+.m-tab.active svg { filter: drop-shadow(0 0 6px rgba(74,124,255,0.7)); }
+
+/* ---------- collapse desktop grids to single column ---------- */
+.mobile-app .grid { grid-template-columns: 1fr !important; }
+.mobile-app .wrap, .mobile-app .wrap-wide { max-width: 100%; }
+.mobile-app .shell-pad { padding: 0; }
+.mobile-app .display { font-size: 38px !important; line-height: 0.98; }
+.mobile-app .h1 { font-size: 27px !important; }
+.mobile-app .h2 { font-size: 21px !important; }
+.mobile-app .h3 { font-size: 17px; }
+.mobile-app .sec-head { flex-direction: column; align-items: flex-start; gap: 10px; }
+.mobile-app .card { padding: 15px; border-radius: 18px; }
+.mobile-app .card.tight { padding: 13px; }
+.mobile-app .seg { flex-wrap: wrap; max-width: 100%; }
+.mobile-app .seg button { padding: 6px 11px; font-size: 11.5px; }
+.mobile-app .pillnav { display: none; }
+.mobile-app .fav-shelf { width: 100%; }
+.mobile-app .body { font-size: 14px; }
+
+/* Countries: 7-market strip wraps into a grid on phone (no side-scroll) */
+.mobile-app .country-strip-card { overflow-x: visible !important; }
+.mobile-app .country-strip {
+  min-width: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+.mobile-app .country-strip > button { min-width: 0; }
+.mobile-app .country-strip > button .tnum { font-size: 15px !important; }
+
+/* Mobile-native Job Score board:
+   give the role name the room it needs so it never collapses to empty */
+.mobile-app .rank-row {
+  grid-template-columns: 22px 1fr auto 16px;
+  gap: 10px; padding: 13px 12px;
+}
+.mobile-app .rank-row > :nth-child(3) { display: none; }   /* D/P/O component bars */
+.mobile-app .rank-row .score-pill { font-size: 16px; }
+.mobile-app .rank-row .pctile { font-size: 10px; }
+/* the search + filter row should stack cleanly, segments scroll-free */
+.mobile-app .roles-controls { flex-direction: column; align-items: stretch; }
+.mobile-app .roles-controls > * { width: 100%; }
+
+/* keep wide tables/charts swipeable instead of squished */
+.mobile-app .tbl { min-width: 460px; }
+.m-xscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* role/country picker popovers fit screen */
+.mobile-app .pill { font-size: 12.5px; }
+
+/* hide the desktop tweaks mount on mobile */
+.mobile-app #tweaks-root { display: none; }
+
+/* ---------- mobile explore ---------- */
+.m-hero { text-align: center; padding: 6px 4px 0; position: relative; }
+.m-globe-wrap { display: grid; place-items: center; margin: 4px 0 10px; }
+.m-cta { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.m-stats { display: flex; justify-content: center; gap: 18px; margin-top: 22px; }
+.m-stats .n { font-size: 19px; font-weight: 700; color: #fff; }
+.m-stats .l { font-size: 10px; color: var(--t3); letter-spacing: 0.03em; }
+
+/* ---------- bottom sheet ---------- */
+.m-sheet-scrim { position: absolute; inset: 0; z-index: 60; background: rgba(0,0,0,0.55); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.m-sheet-scrim.show { opacity: 1; pointer-events: auto; }
+.m-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 61;
+  background: rgba(16,18,26,0.97); backdrop-filter: blur(26px);
+  border-top-left-radius: 26px; border-top-right-radius: 26px;
+  border-top: 1px solid var(--glass-line);
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.6);
+  transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+  padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
+  max-height: 70%; overflow-y: auto;
+}
+.m-sheet.show { transform: translateY(0); }
+.m-sheet-grip { width: 38px; height: 4px; border-radius: 999px; background: rgba(255,255,255,0.2); margin: 4px auto 14px; }
+.m-sheet-item {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 14px 12px; border-radius: 14px; border: none; cursor: pointer;
+  background: transparent; color: var(--t1); font-family: var(--font);
+  font-size: 15px; font-weight: 600; text-align: left;
+}
+.m-sheet-item:active { background: rgba(255,255,255,0.06); }
+.m-sheet-item .ic { width: 20px; text-align: center; color: var(--sky); }

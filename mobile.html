@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>strata — mobile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="m-stage">
+    <div class="phone-scale" id="phone-scale">
+      <div class="phone">
+        <div class="phone-screen">
+          <div id="mroot">
+            <div style="position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;letter-spacing:0.04em;">loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main-mobile.jsx"></script>
+
+  <script>
+    (function () {
+      const el = document.getElementById("phone-scale");
+      const W = 428, H = 898; // phone outer incl. padding
+      function fit() {
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const s = Math.min((vw - 24) / W, (vh - 24) / H, 1.15);
+        el.style.transform = "scale(" + s + ")";
+      }
+      window.addEventListener("resize", fit);
+      fit();
+    })();
+  </script>
+</body>
+</html>
