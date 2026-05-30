@@ -23,8 +23,10 @@ DIMENSIONS = {
             currency_code   VARCHAR NOT NULL,      -- INR GBP USD EUR
             nat_factor      DOUBLE,                -- salary scale vs US (seed calibration)
             ppp_rate        DOUBLE,                -- base PPP conversion (also in dim_ppp by year)
+            transparency    DOUBLE,                -- base salary-disclosure rate
             flag_c1         VARCHAR,
-            flag_c2         VARCHAR
+            flag_c2         VARCHAR,
+            ord             INTEGER                -- canonical display order
         )""",
     "dim_role": """
         CREATE TABLE IF NOT EXISTS dim_role (
@@ -35,7 +37,8 @@ DIMENSIONS = {
             family_hue     INTEGER,
             blurb          VARCHAR,
             cluster_lineage VARCHAR,               -- JSON: titles/centroids feeding the cluster
-            is_seed        BOOLEAN DEFAULT FALSE
+            is_seed        BOOLEAN DEFAULT FALSE,
+            ord            INTEGER                 -- catalog display order
         )""",
     "dim_experience": """
         CREATE TABLE IF NOT EXISTS dim_experience (
