@@ -162,6 +162,34 @@ SOURCES = [
     "Developer community survey", "Platform learner-interest signals",
 ]
 
+# Sample profiles for the résumé "use a sample" demo (NOT a user's real data).
+RESUME_SAMPLE = {
+    "name": "Parsed profile", "title": "Senior Backend Engineer", "years": 6,
+    "skills": ["Python", "Go", "Kubernetes", "AWS", "SQL", "System Design", "Observability", "Terraform"],
+    "matchRoles": ["backend", "devops", "sre", "cloud-arch", "ml-eng"],
+    "axes": [
+        {"axis": "Backend depth", "you": 86, "market": 70},
+        {"axis": "Cloud / Infra", "you": 78, "market": 64},
+        {"axis": "Data & ML", "you": 41, "market": 58},
+        {"axis": "System design", "you": 82, "market": 66},
+        {"axis": "Leadership", "you": 55, "market": 60},
+        {"axis": "Frontend", "you": 30, "market": 52},
+    ],
+}
+RESUME_B = {
+    "name": "Profile B", "title": "Data Scientist", "years": 5,
+    "skills": ["Python", "Statistics", "Machine Learning", "SQL", "PyTorch", "A/B Testing"],
+    "matchRoles": ["data-sci", "ml-eng", "data-analyst"],
+    "axes": [
+        {"axis": "Backend depth", "you": 48, "market": 70},
+        {"axis": "Cloud / Infra", "you": 44, "market": 64},
+        {"axis": "Data & ML", "you": 88, "market": 58},
+        {"axis": "System design", "you": 60, "market": 66},
+        {"axis": "Leadership", "you": 50, "market": 60},
+        {"axis": "Frontend", "you": 35, "market": 52},
+    ],
+}
+
 
 def round_nice(v: float, code: str) -> int:
     if code == "IN":
@@ -267,37 +295,10 @@ def build_seed_dataset() -> dict:
             "topScore": [r["id"] for r in top_score[:5]],
         }
 
-    resume_sample = {
-        "name": "Parsed profile", "title": "Senior Backend Engineer", "years": 6,
-        "skills": ["Python", "Go", "Kubernetes", "AWS", "SQL", "System Design", "Observability", "Terraform"],
-        "matchRoles": ["backend", "devops", "sre", "cloud-arch", "ml-eng"],
-        "axes": [
-            {"axis": "Backend depth", "you": 86, "market": 70},
-            {"axis": "Cloud / Infra", "you": 78, "market": 64},
-            {"axis": "Data & ML", "you": 41, "market": 58},
-            {"axis": "System design", "you": 82, "market": 66},
-            {"axis": "Leadership", "you": 55, "market": 60},
-            {"axis": "Frontend", "you": 30, "market": 52},
-        ],
-    }
-    resume_b = {
-        "name": "Profile B", "title": "Data Scientist", "years": 5,
-        "skills": ["Python", "Statistics", "Machine Learning", "SQL", "PyTorch", "A/B Testing"],
-        "matchRoles": ["data-sci", "ml-eng", "data-analyst"],
-        "axes": [
-            {"axis": "Backend depth", "you": 48, "market": 70},
-            {"axis": "Cloud / Infra", "you": 44, "market": 64},
-            {"axis": "Data & ML", "you": 88, "market": 58},
-            {"axis": "System design", "you": 60, "market": 66},
-            {"axis": "Leadership", "you": 50, "market": 60},
-            {"axis": "Frontend", "you": 35, "market": 52},
-        ],
-    }
-
     return {
         "countries": COUNTRIES, "families": FAMILIES, "roles": roles,
         "years": YEARS, "fyears": FYEARS, "marketPulse": market_pulse,
-        "resume_sample": resume_sample, "resume_b": resume_b,
+        "resume_sample": RESUME_SAMPLE, "resume_b": RESUME_B,
         "sources": SOURCES, "is_seed": True,
     }
 
