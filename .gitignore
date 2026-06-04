@@ -1,0 +1,73 @@
+# ============================================================
+#  strata — gitignore
+#  Keeps secrets, generated data, model weights, and large
+#  ingest artifacts out of version control.
+# ============================================================
+
+# ---- secrets / local env ----
+.env
+.env.*
+!.env.example
+
+# ---- node / frontend ----
+node_modules/
+dist/
+.vite/
+*.local
+
+# ---- python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+# virtualenvs
+.venv/
+venv/
+env/
+ENV/
+
+# ---- databases / warehouse / generated data ----
+backend/data/
+*.duckdb
+*.duckdb.wal
+*.sqlite
+*.sqlite3
+*.db
+
+# ---- large ingest artifacts (raw landing, crawl, parquet) ----
+*.parquet
+*.warc
+*.warc.gz
+*.wet
+*.wet.gz
+*.arc.gz
+raw/
+staging/
+warehouse/data/
+
+# ---- model weights / ML caches ----
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.faiss
+*.index
+models/
+.cache/
+.embeddings_cache/
+huggingface/
+
+# ---- orchestration ----
+.prefect/
+
+# ---- os / editor ----
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
