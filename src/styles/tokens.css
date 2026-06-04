@@ -1,0 +1,121 @@
+/* ============================================================
+   strata — design tokens
+   Two registers, one identity: atmospheric (dark, glow, space)
+   and data (dense, structured, glassy). Palette per brief.
+   ============================================================ */
+
+:root {
+  /* ---- grounds ---- */
+  --black: #000000;          /* deepest grounds */
+  --near-black: #0a0b0e;     /* app base, a hair cooler than #1A1A1A */
+  --ink: #131419;            /* raised surface */
+  --ink-2: #1a1b21;          /* higher surface */
+
+  /* ---- accent (use sparingly) ---- */
+  --cobalt: #0033ff;
+  --cobalt-bright: #2a5bff;
+  --cobalt-deep: #0026bf;
+
+  /* ---- atmospheric glow (light from behind) ---- */
+  --sky: #4a7cff;
+  --sky-hot: #bcd2ff;
+
+  /* ---- type ---- */
+  --white: #ffffff;
+  --t1: rgba(255, 255, 255, 0.93);   /* primary */
+  --t2: rgba(255, 255, 255, 0.62);   /* secondary */
+  --t3: rgba(255, 255, 255, 0.40);   /* muted / labels */
+  --t4: rgba(255, 255, 255, 0.26);   /* faintest */
+
+  /* ---- lines & glass ---- */
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.13);
+  --line-strong: rgba(255, 255, 255, 0.22);
+  --glass: rgba(122, 150, 255, 0.045);
+  --glass-2: rgba(132, 158, 255, 0.07);
+  --glass-line: rgba(150, 175, 255, 0.12);
+
+  /* ---- semantic data colors (durability, confidence) ---- */
+  --good: #4fd99b;
+  --warn: #ffcc4d;
+  --bad: #ff6b6b;
+  --good-dim: rgba(79, 217, 155, 0.18);
+  --warn-dim: rgba(255, 204, 77, 0.18);
+  --bad-dim: rgba(255, 107, 107, 0.18);
+
+  /* ---- radii (pills everywhere) ---- */
+  --r-pill: 999px;
+  --r-lg: 22px;
+  --r-md: 16px;
+  --r-sm: 11px;
+
+  /* ---- type family ---- */
+  --font: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+
+  /* ---- tweakable (overridden by Tweaks panel) ---- */
+  --glow-strength: 1;
+  --accent-h: 230;          /* hue knob feeds nothing critical; cobalt stays */
+  --density: 1;             /* 0.85 compact … 1.15 roomy */
+  --glass-opacity: 1;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--black);
+  color: var(--t1);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { overflow: hidden; } /* app owns its own scroll regions */
+
+::selection { background: rgba(42, 91, 255, 0.4); color: #fff; }
+
+/* tabular figures everywhere a number lives */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+
+/* uppercase micro-label — the "SINCE 2003" voice */
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--t3);
+  font-weight: 600;
+}
+
+/* scrollbars: quiet */
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.09);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* ---- type scale ---- */
+.display { font-size: clamp(54px, 7vw, 104px); font-weight: 700; letter-spacing: -0.04em; line-height: 0.95; }
+.h1 { font-size: clamp(34px, 4vw, 52px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.02; }
+.h2 { font-size: 30px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; }
+.h3 { font-size: 21px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.15; }
+.body { font-size: 15px; font-weight: 400; line-height: 1.6; color: var(--t2); }
+.small { font-size: 13px; line-height: 1.5; color: var(--t2); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* entrance reveals intentionally do NOT hide content by default:
+   some render contexts pause CSS animations, which would leave
+   opacity:0 stuck. Visibility is guaranteed; motion is a bonus. */
+.enter, .surface-enter { opacity: 1; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes glowPulse {
+  0%, 100% { opacity: calc(0.55 * var(--glow-strength)); }
+  50% { opacity: calc(0.85 * var(--glow-strength)); }
+}
+@keyframes drawIn { from { stroke-dashoffset: var(--dash); } to { stroke-dashoffset: 0; } }
+@keyframes spinSlow { to { transform: rotate(360deg); } }
