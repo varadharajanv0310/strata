@@ -135,6 +135,9 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.fn(args)
+    except NotImplementedError as e:
+        log.warning("stage needs more setup before it can run: %s", e)
+        return 0
     except ModuleNotFoundError as e:
         log.error("stage not available yet (%s). It lands in a later build phase.", e)
         return 2
