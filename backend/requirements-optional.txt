@@ -1,0 +1,7 @@
+# strata backend — OPTIONAL deps (orchestration + validation).
+# Both are import-guarded: the pipeline runs without them (Prefect → sequential
+# fallback; Great Expectations → built-in lightweight checks). Install for the full
+# stack:  pip install -r backend/requirements-optional.txt
+
+prefect==3.1.11                   # Prefect-backed flows (else sequential runner)
+great-expectations==1.3.1         # richer between-stage validation (else built-in checks)
