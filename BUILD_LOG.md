@@ -89,3 +89,15 @@ Running audit trail for the backend & data-platform build. Newest entries at the
 - **`ml/forecasting.py` (runnable, GPU-free):** **back-tested** — holds out the last K periods, scores predicted-vs-actual (`fact_forecast_backtest`), then forecasts the horizon with a **confidence band derived from real back-test error that widens with horizon**. Validated: MAE 1.42 on held-out 2023–2025. Uses darts/statsmodels if the ML extras are present.
 - **GPU-guarded (need `requirements-ml` + ingested data):** `skill_norm` (sentence-transformers + FAISS taxonomy NN), `entity_resolution` (embedding + blocking dedup), `role_derivation` (title clustering with the volume floor). Real algorithm bodies; import-guarded; report clearly when run without extras/data.
 - **CHECK passed:** `job_score` + `forecasting` run on the warehouse and produce sane, validated output; guarded stages report cleanly; seed restored after validation so the live UI stays identical.
+
+## Phase 5 — Résumé + orchestration  ✅
+
+- **Résumé** (`app/resume_service.py` + `POST /api/resume/parse`): upload (PDF via pdfminer / DOCX via python-docx / TXT) → extract text → match skills to the taxonomy → build a profile in the sample-profile shape → the frontend prices the whole profile per country. **Inviolable user-data rule enforced:** returns ONLY the uploaded résumé's analysis; never invents a Resume B; anonymous = parsed in memory, nothing stored; logged-in + `store=true` saves only the structured profile (never raw PII). Verified: a text CV parsed to "Backend Engineer / 7 yrs / 8 skills", matched [backend, swe, ml-eng].
+- **Orchestration** (`pipelines/flows.py`): idempotent stages `ingest → gpu_normalize → build_warehouse → compute → materialize`. **Prefect-optional** — uses Prefect `@flow/@task` when installed, else a sequential runner, so the pipeline always runs. Flows: `seed | ingest | compute | marts | full`. Verified: `compute` and `seed` flows run end-to-end.
+
+## Phase 6 — Accounts, favourites, provenance  ✅
+
+- **Accounts** (`routers/auth.py`, `app/deps.py`): register / login (bcrypt + JWT) / me. Anonymous works everywhere; auth only gates account features. Verified: register 200, login 200, bad login 401.
+- **Favourites** (`routers/favourites.py`): list / add (idempotent) / delete for the quiet saved shelf (no digests/feed). Verified: add, idempotent dedup, anon → 401, delete 204.
+- **Provenance + confidence** flow to the frontend on every figure (Phase 2 `/api/provenance` + per-row `conf/source/sample/freshness/kind/transparency/is_seed`).
+- Real ingested data replaces seed here at full scale (developer-launched); the seed remains tagged and is retired by the real pipeline run.
