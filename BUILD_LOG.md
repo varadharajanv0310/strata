@@ -51,6 +51,11 @@ Running audit trail for the backend & data-platform build. Newest entries at the
 
 ---
 
-## Phase 0 — Scaffold
+## Phase 0 — Scaffold  ✅
 
-_(entries appended as work proceeds)_
+- Repo structure created under `backend/` (`app/ core/ ingest/ warehouse/ marts/ ml/ pipelines/ alembic/ tests/`) + `cli.py`. Frontend left untouched at repo root.
+- `core/config.py` — typed pydantic-settings (DB URLs, crawl scope, Job-Score weights, volume floor, source keys, GPU/batch). `core/logging.py`, `core/db.py` (SQLAlchemy + DuckDB sessions), `core/security.py` (bcrypt + PyJWT).
+- `cli.py` — argparse dispatcher (`init-db`, `seed`, `serve`, `ingest`, `warehouse-build`, `marts-materialize`, `ml`, `jobscore`, `pipeline`); stages import lazily.
+- Core deps installed (API + warehouse stack); Prefect + Great-Expectations deferred to their phases (import-guarded), torch/faiss/etc. in `requirements-ml.txt`.
+- **CHECK passed:** `backend.core` imports; SQLAlchemy `SELECT 1` ✓; DuckDB connects (v1.5.3) ✓; bcrypt + JWT round-trip ✓. (Fixed: ensure `backend/data/` exists before SQLite opens its file.)
+- Installed runtime versions may differ slightly from the pins in `requirements.txt` (unpinned install for resolver flexibility on py3.13); pins reconciled in Phase 8.
