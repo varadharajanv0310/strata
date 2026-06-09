@@ -18,6 +18,7 @@ from backend.core.logging import get_logger, stage_timer
 from backend.core.db import duckdb_connect
 from backend.app import models as _app_models  # noqa: F401  (register metadata)
 from backend.marts import models as M
+from backend.warehouse.seed import RESUME_SAMPLE, RESUME_B
 
 log = get_logger("marts.materialize")
 
@@ -151,6 +152,7 @@ def materialize_from_warehouse() -> None:
                 "years": meta_years, "fyears": meta_fyears, "is_seed": is_seed_overall,
                 "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             }))
+            db.add(M.MartMeta(key="profiles", value={"sample": RESUME_SAMPLE, "b": RESUME_B}))
 
         # fill skill durability/trend from dim_skill (separate pass to keep insert simple)
         sk_meta = dict(duck.execute("SELECT name, durability FROM dim_skill").fetchall())
