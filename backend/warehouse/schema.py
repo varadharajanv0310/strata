@@ -159,6 +159,22 @@ FACTS = {
             is_seed      BOOLEAN DEFAULT FALSE,
             PRIMARY KEY (role_id, country_code, year)
         )""",
+    # Job Score: components persisted so the frontend can show them clickable
+    "fact_job_score": """
+        CREATE TABLE IF NOT EXISTS fact_job_score (
+            role_id      VARCHAR,
+            country_code VARCHAR,
+            year         INTEGER,
+            total        DOUBLE,
+            demand_score DOUBLE,
+            pay_score    DOUBLE,
+            opp_score    DOUBLE,
+            rank         INTEGER,
+            pctile       INTEGER,
+            source_id    VARCHAR,
+            is_seed      BOOLEAN DEFAULT FALSE,
+            PRIMARY KEY (role_id, country_code, year)
+        )""",
     # back-test record: what the model predicted for a held-out period vs actual
     "fact_forecast_backtest": """
         CREATE TABLE IF NOT EXISTS fact_forecast_backtest (
