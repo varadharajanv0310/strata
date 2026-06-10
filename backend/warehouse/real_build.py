@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from backend.core.logging import get_logger
 from backend.ingest.adzuna_salaries import load_cache
+from backend.ingest.worldbank_ppp import latest_ppp
 from backend.warehouse.seed import COUNTRIES, ROLE_DEFS, build_seed_dataset, round_nice
 
 log = get_logger("warehouse.real_build")
@@ -51,6 +52,19 @@ def build_real_dataset() -> dict:
     for s in (REAL_SOURCE, MODELED_SOURCE, MIXED_SOURCE):
         if s not in ds["sources"]:
             ds["sources"].append(s)
+
+    # Real World Bank PPP overrides the curated pppRate (the last fabricated number
+    # in the country dimension). Copy the country dicts so the seed globals stay clean.
+    real_ppp = latest_ppp()
+    ds["countries"] = [dict(c) for c in ds["countries"]]
+    ppp_applied = 0
+    for co in ds["countries"]:
+        if co["code"] in real_ppp:
+            co["pppRate"] = round(real_ppp[co["code"]], 4)
+            ppp_applied += 1
+    if ppp_applied:
+        log.info("applied real World Bank PPP to %d/%d countries (headline rate)",
+                 ppp_applied, len(ds["countries"]))
 
     # per-country max posting volume, for demand scaling
     max_count: dict[str, int] = {}
