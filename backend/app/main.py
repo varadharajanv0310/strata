@@ -11,10 +11,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import func, select
 
 from backend.app.routers import (
+    auth,
     compare,
     countries,
     dataset,
     explore,
+    favourites,
     provenance,
     resume,
     roles,
@@ -44,7 +46,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (dataset, roles, countries, explore, compare, provenance, resume):
+for r in (dataset, roles, countries, explore, compare, provenance, resume, auth, favourites):
     app.include_router(r.router)
 
 
