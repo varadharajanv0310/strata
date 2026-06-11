@@ -1,0 +1,18 @@
+# strata backend — GPU / ML deps (the ml/ pipeline only).
+# Install separately from requirements.txt (BUILD_LOG D2). The core API and
+# warehouse do NOT depend on these; ml/ modules import-guard them.
+#
+# RTX 5080 is Blackwell (sm_120) and needs CUDA 12.8 wheels. Install torch with:
+#   pip install torch --index-url https://download.pytorch.org/whl/cu128
+# then:  pip install -r backend/requirements-ml.txt
+#
+# faiss: faiss-gpu has no Windows pip wheel; faiss-cpu is used (our NN scale fits
+# CPU comfortably). Swap to faiss-gpu via conda on Linux if desired.
+
+torch>=2.7.0                      # install from the cu128 index URL above
+sentence-transformers==3.3.1
+faiss-cpu==1.9.0.post1
+scikit-learn==1.6.0
+statsmodels==0.14.4
+darts==0.31.0                     # forecasting with back-testing + confidence intervals
+hdbscan==0.8.40                   # density clustering for role derivation
