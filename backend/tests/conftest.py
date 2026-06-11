@@ -1,5 +1,17 @@
-"""Test fixtures — build the seed warehouse/marts once, expose a TestClient."""
+"""Test fixtures — build the seed warehouse/marts once, expose a TestClient.
+
+ISOLATION: tests build into a throwaway temp DuckDB + SQLite so they can never
+reseed/clobber the persistent warehouse or marts (the real data). This runs
+before any ``backend`` import so the settings singleton picks up the temp paths.
+"""
 from __future__ import annotations
+
+import os
+import tempfile
+
+_TMP = tempfile.mkdtemp(prefix="strata_test_")
+os.environ["DUCKDB_PATH"] = os.path.join(_TMP, "warehouse.duckdb")
+os.environ["DATABASE_URL"] = "sqlite:///" + os.path.join(_TMP, "app.db").replace("\\", "/")
 
 import pytest
 
