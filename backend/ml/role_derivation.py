@@ -60,9 +60,19 @@ def _canon_title(title: str) -> str:
     return " ".join(s.split())
 
 
+_MODEL = None
+
+
+def _get_model():
+    global _MODEL
+    if _MODEL is None:
+        from sentence_transformers import SentenceTransformer
+        _MODEL = SentenceTransformer(settings.embed_model, device=settings.ml_device)
+    return _MODEL
+
+
 def _cluster_embed(titles: list[str]) -> list[int]:
     import numpy as np
-    from sentence_transformers import SentenceTransformer
     try:
         from hdbscan import HDBSCAN as Clusterer
         kw = {"min_cluster_size": max(10, settings.role_volume_floor // 10)}
@@ -70,7 +80,7 @@ def _cluster_embed(titles: list[str]) -> list[int]:
         from sklearn.cluster import AgglomerativeClustering as Clusterer
         kw = {"n_clusters": None, "distance_threshold": 0.35, "metric": "cosine", "linkage": "average"}
 
-    model = SentenceTransformer(settings.embed_model, device=settings.ml_device)
+    model = _get_model()
     emb = model.encode(titles, batch_size=settings.embed_batch_size,
                        normalize_embeddings=True, show_progress_bar=False)
     labels = Clusterer(**kw).fit_predict(np.asarray(emb, dtype="float32"))
@@ -95,6 +105,8 @@ def run() -> dict:
         import pandas as pd
 
         posts = pd.read_parquet(path)
+        if "country" not in posts.columns:
+            posts["country"] = posts.get("country_code")
         if posts.empty:
             log.warning("role_derivation: postings parquet is empty")
             return {"postings": 0, "derived": 0, "written": False, "mode": "skipped"}
