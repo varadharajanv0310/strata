@@ -421,3 +421,273 @@
   .pillnav .tab { padding: 8px 12px; font-size: 13px; }
   .brand-meta { display: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   POLISH LAYER — the observatory pass.
+   Appended overrides + new ornament classes. Layout rules above are
+   untouched; everything here is decorative. Same identity, more light.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────── 1 · ATMOSPHERE (the living canvas) ─────────────── */
+.atmos {
+  position: absolute; inset: 0; z-index: 0;
+  overflow: hidden; pointer-events: none;
+}
+.atmos .aur { position: absolute; border-radius: 50%; will-change: transform; }
+.atmos .aur.a {
+  width: 74vw; height: 58vh; left: -14vw; top: -20vh;
+  background: radial-gradient(closest-side, var(--aurora-a), transparent 70%);
+  animation: auroraA 90s ease-in-out infinite alternate;
+}
+.atmos .aur.b {
+  width: 62vw; height: 62vh; right: -20vw; top: -10vh;
+  background: radial-gradient(closest-side, var(--aurora-b), transparent 72%);
+  animation: auroraB 72s ease-in-out infinite alternate;
+}
+.atmos .aur.c {
+  width: 52vw; height: 44vh; left: 28vw; bottom: -24vh;
+  background: radial-gradient(closest-side, var(--aurora-c), transparent 70%);
+  animation: auroraA 116s ease-in-out infinite alternate-reverse;
+}
+.atmos .stars { position: absolute; inset: 0; }
+.atmos .stars.s1 {
+  background-image:
+    radial-gradient(1.2px 1.2px at 8% 12%, rgba(255,255,255,0.7), transparent),
+    radial-gradient(1px 1px at 28% 38%, rgba(190,210,255,0.55), transparent),
+    radial-gradient(1.4px 1.4px at 44% 9%, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 61% 52%, rgba(190,210,255,0.45), transparent),
+    radial-gradient(1.2px 1.2px at 78% 28%, rgba(255,255,255,0.55), transparent),
+    radial-gradient(1px 1px at 93% 64%, rgba(190,210,255,0.5), transparent),
+    radial-gradient(1px 1px at 15% 71%, rgba(255,255,255,0.4), transparent);
+  animation: twinkle 7s ease-in-out infinite;
+}
+.atmos .stars.s2 {
+  background-image:
+    radial-gradient(1px 1px at 19% 23%, rgba(190,210,255,0.5), transparent),
+    radial-gradient(1.3px 1.3px at 37% 62%, rgba(255,255,255,0.45), transparent),
+    radial-gradient(1px 1px at 53% 33%, rgba(255,255,255,0.5), transparent),
+    radial-gradient(1.2px 1.2px at 69% 14%, rgba(190,210,255,0.6), transparent),
+    radial-gradient(1px 1px at 85% 44%, rgba(255,255,255,0.42), transparent),
+    radial-gradient(1px 1px at 50% 81%, rgba(190,210,255,0.35), transparent);
+  animation: twinkle 11s ease-in-out 2.4s infinite;
+}
+.atmos .comet {
+  position: absolute; width: 150px; height: 1px; opacity: 0;
+  background: linear-gradient(90deg, transparent, rgba(190,212,255,0.9), transparent);
+  box-shadow: 0 0 8px rgba(150,180,255,0.6);
+}
+.atmos .comet.c1 { top: 16%; left: -12%; --comet-rot: 17deg; animation: cometFly 17s ease-in 5s infinite; }
+.atmos .comet.c2 { top: 44%; left: -12%; --comet-rot: 11deg; animation: cometFly 29s ease-in 14s infinite; }
+.atmos .vig {
+  position: absolute; inset: 0;
+  background: radial-gradient(120% 92% at 50% 38%, transparent 56%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* film grain — kills banding on the deep gradients, adds texture */
+.grain {
+  position: fixed; inset: 0; z-index: 120; pointer-events: none;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.62'/%3E%3C/svg%3E");
+  background-size: 280px 280px;
+  animation: grainShift 9s linear infinite;
+}
+
+/* content fades out under the fixed nav */
+.top-fade {
+  position: fixed; top: 0; left: 0; right: 0; height: 110px;
+  z-index: 30; pointer-events: none;
+  background: linear-gradient(180deg, rgba(5, 6, 10, 0.8), transparent);
+}
+
+/* deepen the ground glow a touch (still tweakable) */
+.app::before {
+  background: radial-gradient(
+    closest-side,
+    rgba(74, 124, 255, calc(0.36 * var(--glow-strength))),
+    rgba(42, 91, 255, calc(0.12 * var(--glow-strength))) 45%,
+    transparent 72%
+  );
+}
+
+/* ─────────────── 2 · GLASS 2.0 (cards that catch light) ─────────────── */
+.card {
+  --spot: transparent;
+  background:
+    radial-gradient(560px circle at var(--mx, -500px) var(--my, -500px), var(--spot), transparent 46%),
+    linear-gradient(180deg, rgba(255,255,255,calc(0.048 * var(--glass-opacity))), rgba(255,255,255,calc(0.013 * var(--glass-opacity))) 42%, rgba(122,150,255,calc(0.022 * var(--glass-opacity)))),
+    rgba(12, 14, 21, 0.56);
+  border-color: rgba(150, 175, 255, 0.13);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.42), inset 0 1px 0 rgba(255,255,255,0.07);
+  transition: border-color 0.3s, box-shadow 0.3s, --spot 0.45s;
+}
+.card:hover { --spot: rgba(96, 140, 255, 0.09); border-color: rgba(160, 188, 255, 0.22); }
+/* gradient edge ring — light catching the top-left, cobalt pooling bottom-right */
+.card::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: linear-gradient(165deg, var(--edge-hi), rgba(255,255,255,0.05) 30%, transparent 55%, var(--edge-lo) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  opacity: 0.55; transition: opacity 0.3s; pointer-events: none;
+}
+.card:hover::after { opacity: 1; }
+.lift:hover {
+  box-shadow: 0 32px 84px rgba(0,0,0,0.55), 0 0 44px rgba(42,91,255,0.13), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* ─────────────── 3 · TYPE (luminous, confident) ─────────────── */
+.display { font-weight: 800; letter-spacing: -0.045em; line-height: 0.92; }
+.sec-eyebrow { display: flex; align-items: center; gap: 10px; }
+.sec-eyebrow::before {
+  content: ""; width: 20px; height: 1px; flex-shrink: 0;
+  background: linear-gradient(90deg, var(--cobalt-bright), transparent);
+  box-shadow: 0 0 8px rgba(42, 91, 255, 0.8);
+}
+.score-pill {
+  background: linear-gradient(180deg, #ffffff 40%, #a9c0ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 10px rgba(74, 124, 255, 0.3));
+}
+
+/* ─────────────── 4 · NAV, PILLS, CONTROLS ─────────────── */
+.pillnav {
+  position: relative; overflow: hidden;
+  background: rgba(13, 15, 23, 0.62);
+  border-color: rgba(150, 180, 255, 0.16);
+  box-shadow: 0 14px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.pillnav::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 36%;
+  background: linear-gradient(100deg, transparent, rgba(165, 192, 255, 0.07), transparent);
+  transform: translateX(-160%) skewX(-18deg);
+  animation: navSheen 9s ease-in-out 3s infinite;
+  pointer-events: none;
+}
+.pillnav .tab.active {
+  background: linear-gradient(180deg, rgba(64, 110, 255, 0.42), rgba(0, 51, 255, 0.26));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 6px 24px rgba(0,51,255,0.45), 0 0 18px rgba(42,91,255,0.22);
+  text-shadow: 0 0 12px rgba(190, 210, 255, 0.45);
+}
+.pill { transition: all 0.22s cubic-bezier(0.3, 0.7, 0.3, 1); }
+.pill:active { transform: scale(0.97); }
+.pill.solid {
+  position: relative; overflow: hidden;
+  background: linear-gradient(180deg, #2a5bff, #0033ff 55%, #0026bf);
+  box-shadow: 0 8px 28px rgba(0,51,255,0.55), inset 0 1px 0 rgba(255,255,255,0.34), inset 0 -1px 0 rgba(0,0,0,0.28);
+}
+.pill.solid::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: -40%; width: 36%;
+  background: linear-gradient(100deg, transparent, rgba(255,255,255,0.32), transparent);
+  transform: skewX(-18deg); transition: transform 0.55s ease;
+  pointer-events: none;
+}
+.pill.solid:hover {
+  background: linear-gradient(180deg, #3e6bff, #0f3eff 55%, #0030e8);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 36px rgba(0,51,255,0.65), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.28);
+}
+.pill.solid:hover::after { transform: translateX(420%) skewX(-18deg); }
+.iconbtn { transition: all 0.22s; }
+.iconbtn:hover {
+  box-shadow: 0 0 20px rgba(42, 91, 255, 0.25);
+  border-color: rgba(130, 165, 255, 0.4);
+}
+.seg button { transition: all 0.22s; }
+.seg button.on {
+  background: linear-gradient(180deg, rgba(64, 110, 255, 0.4), rgba(0, 51, 255, 0.22));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), 0 2px 12px rgba(0,51,255,0.32);
+  text-shadow: 0 0 10px rgba(190, 210, 255, 0.35);
+}
+.input { transition: all 0.25s; }
+.input:focus {
+  box-shadow: 0 0 0 3px rgba(42, 91, 255, 0.16), 0 0 26px rgba(42, 91, 255, 0.1);
+  caret-color: var(--cobalt-bright);
+}
+
+/* wordmark: the three bars breathe, staggered */
+.logomark span { animation: logoBreathe 3.6s ease-in-out infinite; }
+.logomark span:nth-child(2) { animation-delay: 0.5s; }
+.logomark span:nth-child(3) { animation-delay: 1s; }
+
+/* ─────────────── 5 · DATA JEWELRY ─────────────── */
+.conf .dot { animation: confPulse 2.6s ease-in-out infinite; }
+.rank-row { position: relative; transition: background 0.2s, border-color 0.2s; }
+.rank-row::before {
+  content: ""; position: absolute; left: 5px; top: 20%; bottom: 20%; width: 2px;
+  border-radius: 2px; opacity: 0; transition: opacity 0.25s;
+  background: linear-gradient(180deg, var(--cobalt-bright), rgba(74, 124, 255, 0.15));
+  box-shadow: 0 0 10px rgba(42, 91, 255, 0.8);
+}
+.rank-row:hover::before, .rank-row.open::before { opacity: 1; }
+.rank-row:hover {
+  background:
+    radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(96, 140, 255, 0.07), transparent 46%),
+    rgba(255, 255, 255, 0.03);
+}
+.rank-n.top {
+  background: linear-gradient(180deg, #9db8ff, #2a5bff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 8px rgba(42, 91, 255, 0.55));
+}
+.delta.up { text-shadow: 0 0 12px rgba(79, 217, 155, 0.45); }
+.delta.down { text-shadow: 0 0 12px rgba(255, 107, 107, 0.4); }
+.tag { transition: border-color 0.2s, color 0.2s; }
+.tbl th { color: rgba(190, 210, 255, 0.42); }
+.tbl tbody tr { transition: background 0.18s; }
+.tbl tbody tr:hover { background: rgba(74, 124, 255, 0.05); }
+.comp-bar > span { box-shadow: 0 0 10px rgba(42, 91, 255, 0.5); }
+.dura-fill { transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+
+/* ─────────────── 6 · CHART CHROME ─────────────── */
+/* sheen that sweeps across ranked/comparison bars */
+.glowbar { position: relative; overflow: hidden; }
+.glowbar::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(105deg, transparent 32%, rgba(255, 255, 255, 0.22) 50%, transparent 68%);
+  transform: translateX(-170%);
+  animation: barSheen 4.6s ease-in-out infinite;
+}
+/* projected forecast line marches; the live point breathes */
+.march { animation: march 1.5s linear infinite; }
+.pulse-dot {
+  transform-box: fill-box; transform-origin: center;
+  animation: pulseDot 2.4s ease-out infinite;
+}
+
+/* ─────────────── 7 · GLASS OVERLAYS ─────────────── */
+.prov-pop {
+  background: rgba(13, 16, 26, 0.92);
+  border-color: rgba(160, 188, 255, 0.2);
+  box-shadow: 0 30px 70px rgba(0,0,0,0.65), 0 0 40px rgba(42,91,255,0.08), inset 0 1px 0 rgba(255,255,255,0.07);
+}
+.fav-shelf {
+  border-left-color: rgba(160, 188, 255, 0.18);
+  box-shadow: -30px 0 80px rgba(0,0,0,0.55), -6px 0 50px rgba(42,91,255,0.07);
+}
+.dropzone:hover {
+  border-color: rgba(74, 124, 255, 0.55);
+  background: rgba(42, 91, 255, 0.04);
+  box-shadow: inset 0 0 70px rgba(42, 91, 255, 0.07);
+}
+
+/* ─────────────── 8 · GLOBE STAGE ─────────────── */
+.globe-wrap::before {
+  background: radial-gradient(closest-side,
+    rgba(74, 124, 255, calc(0.5 * var(--glow-strength))),
+    rgba(42, 91, 255, calc(0.15 * var(--glow-strength))) 50%, transparent 72%);
+}
+.globe-halo {
+  position: absolute; inset: -9%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, transparent 60%, rgba(74, 124, 255, 0.09) 71%, transparent 78%);
+}
+.globe-orbit {
+  position: absolute; inset: -6.5%; border-radius: 50%; pointer-events: none;
+  border: 1px dashed rgba(120, 160, 255, 0.13);
+  animation: orbitSpin 80s linear infinite;
+}
+.globe-orbit::before {
+  content: ""; position: absolute; top: -3px; left: 50%; width: 5px; height: 5px;
+  border-radius: 50%; background: #cfe0ff;
+  box-shadow: 0 0 12px #4a7cff, 0 0 26px rgba(74, 124, 255, 0.6);
+}

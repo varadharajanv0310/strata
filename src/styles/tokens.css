@@ -119,3 +119,118 @@ body { overflow: hidden; } /* app owns its own scroll regions */
 }
 @keyframes drawIn { from { stroke-dashoffset: var(--dash); } to { stroke-dashoffset: 0; } }
 @keyframes spinSlow { to { transform: rotate(360deg); } }
+
+/* ════════════════════════════════════════════════════════════
+   POLISH LAYER — extended tokens, motion vocabulary, utilities.
+   Identity unchanged: near-black · cobalt · glow · glass.
+   All ambient motion is LOOPING — content is never hidden behind
+   a one-shot reveal (see the entrance note above).
+   ════════════════════════════════════════════════════════════ */
+:root {
+  /* atmosphere (blue family; violet/cyan whispers sanctioned by the accent set) */
+  --aurora-a: rgba(42, 91, 255, 0.13);
+  --aurora-b: rgba(91, 60, 255, 0.085);
+  --aurora-c: rgba(10, 147, 194, 0.065);
+  /* glass edge light */
+  --edge-hi: rgba(190, 212, 255, 0.32);
+  --edge-lo: rgba(0, 51, 255, 0.16);
+}
+
+/* cursor spotlight — registered so the wash can fade smoothly */
+@property --spot {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
+/* ---- luminous type utilities ---- */
+.display-ink {
+  background: linear-gradient(180deg, #ffffff 32%, #cdd9ff 74%, #93a8e0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.display-ghost {
+  background: linear-gradient(95deg, #6e8cff 0%, #4a7cff 38%, #9db8ff 68%, #e8efff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 28px rgba(74, 124, 255, 0.4));
+}
+.big-lum {
+  background: linear-gradient(180deg, #ffffff 38%, #bcd2ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 18px rgba(120, 160, 255, 0.22));
+}
+
+/* ---- focus & a11y ---- */
+:focus-visible {
+  outline: 2px solid rgba(74, 124, 255, 0.75);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---- motion vocabulary (ambient loops only) ---- */
+@keyframes auroraA {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  50%  { transform: translate3d(6vw, 3vh, 0) scale(1.12); }
+  100% { transform: translate3d(-4vw, -2vh, 0) scale(0.96); }
+}
+@keyframes auroraB {
+  0%   { transform: translate3d(0, 0, 0) scale(1.05); }
+  50%  { transform: translate3d(-7vw, 4vh, 0) scale(0.92); }
+  100% { transform: translate3d(5vw, -3vh, 0) scale(1.1); }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 0.85; }
+}
+@keyframes cometFly {
+  0%    { transform: translate3d(0, 0, 0) rotate(var(--comet-rot, 16deg)); opacity: 0; }
+  4%    { opacity: 0.85; }
+  12%   { opacity: 0; }
+  13%, 100% { transform: translate3d(120vw, 26vh, 0) rotate(var(--comet-rot, 16deg)); opacity: 0; }
+}
+@keyframes grainShift { to { background-position: 280px 280px; } }
+@keyframes navSheen {
+  0%, 72%  { transform: translateX(-160%) skewX(-18deg); }
+  88%, 100% { transform: translateX(380%) skewX(-18deg); }
+}
+@keyframes barSheen {
+  0%, 62%  { transform: translateX(-170%); }
+  86%, 100% { transform: translateX(220%); }
+}
+@keyframes march { to { stroke-dashoffset: -20; } }
+@keyframes pulseDot {
+  0%   { transform: scale(0.55); opacity: 0.85; }
+  70%  { transform: scale(2.7); opacity: 0; }
+  100% { transform: scale(2.7); opacity: 0; }
+}
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+@keyframes confPulse {
+  0%, 100% { box-shadow: 0 0 6px currentColor; }
+  50%      { box-shadow: 0 0 14px currentColor, 0 0 26px currentColor; }
+}
+@keyframes logoBreathe {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+
+/* scrollbar: luminous thumb */
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(120, 152, 255, 0.32), rgba(255, 255, 255, 0.1));
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(140, 170, 255, 0.5), rgba(255, 255, 255, 0.18));
+}
+
+/* respect reduced motion — kill the ambience, keep the content */
+@media (prefers-reduced-motion: reduce) {
+  .atmos .aur, .atmos .stars, .atmos .comet, .grain,
+  .pillnav::after, .glowbar::after, .march, .pulse-dot,
+  .globe-orbit, .conf .dot, .logomark span, .m-tab.active::before {
+    animation: none !important;
+  }
+}
