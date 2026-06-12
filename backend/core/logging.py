@@ -20,6 +20,12 @@ def setup_logging(level: str | None = None) -> None:
     if _CONFIGURED:
         return
     lvl = (level or settings.log_level).upper()
+    # Windows consoles default to cp1252 and choke on glyphs (→ ▶ ✓ ◊). Force UTF-8.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[union-attr]
+        except Exception:
+            pass
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(
         logging.Formatter(
