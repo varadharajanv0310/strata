@@ -33,3 +33,16 @@ graceful degradation, per-stage budgets, checkpointed/resumable. Councils logged
   - `common_crawl` ✅ FIXED + 101 postings. 🧠 **MEASURED salary-disclosure rate = 54.5% (55/101)** on Ashby JSON-LD at scale — refutes the earlier "0/6" verdict. (agent did the work but didn't return the schema.)
   - `ml_fusion` ✅ `build_warehouse_from_staging` works: **1,748** fact_salary_person (SO 1738 + H-1B 10). 🧠 precedence: Adzuna=headline job-level, SO=authoritative person-level, H-1B corroborates US, CC+GH=demand, Trends=interest.
 - `01:31` — 🔧 **GPU embedding path FIXED**: removed torchvision (torch 2.11 ABI mismatch) + `USE_TF=0` (Keras-3 conflict) → sentence-transformers embeds **1000 texts in 221ms on the RTX 5080**. The GPU pipeline will use real embeddings, not the lexical fallback.
+- `01:43` — ▶ **baselines** start (budget 20m)
+- `01:44` — ▶ **baselines** start (budget 20m)
+- `01:44` — ✅ **baselines** 0s — **32 anchors**
+- `01:45` — ▶ **h1b** start (budget 45m)
+- `01:50` — ✅ **h1b** 337s — **30 US wage cells**
+- `01:51` — ▶ **gh_archive** start (budget 120m)
+- `02:13` — ✅ **gh_archive** 1322s — **116 demand records**
+- `02:14` — ▶ **google_trends** start (budget 50m)
+- `02:18` — ✅ **google_trends** 258s — **112 interest rows**
+- `02:19` — ▶ **common_crawl** start (budget 480m)
+- `09:03` — ⚠️ **common_crawl STALL.** Started 02:19, ~6.5h with no progress (postings stuck at the smoke's 101). Root cause: `land_raw` fetched WARC records **sequentially** + `per_unit = target/crawls ≈ 13,300` → the first unit never completed → nothing written/checkpointed. NOT a network/retry issue.
+- `09:10` — 🧠 **DECISION (council-style):** fix throughput, not retry — (1) parallelize WARC fetches (ThreadPoolExecutor×16), (2) cap `per_unit`≤500 + divide by units (crawl×domain) so units complete + checkpoint incrementally, (3) fetch timeout 90→30s + 240s/unit wall-cap. Killed the hung job (API preserved).
+- `09:12` — ✅ **CC fix verified:** ~60 postings/unit in ~20s → **3,734 staged postings** (US 2960, IN 98, GB 70, SG 66, CA 51, DE 41, AU 11). Disclosure 9.6% blended (Ashby 54% / Workday ~0%). Widening corpus now.
