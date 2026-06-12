@@ -48,11 +48,11 @@ PY = sys.executable
 # name -> (python expr run as a budgeted subprocess, budget_seconds)
 STAGES: dict[str, tuple[str, int]] = {
     "so_survey": ("from backend.ingest.so_survey import fetch_and_aggregate; print(fetch_and_aggregate())", 900),
-    "h1b": ("from backend.ingest.h1b import run; print(run(years=['FY2025','FY2024','FY2023']))", 2700),
+    "h1b": ("from backend.ingest.h1b import run; print(run(years=['FY2025','FY2024','FY2023'], time_cap_s=2400))", 2700),
     "gh_archive": ("from backend.ingest.gh_archive import run; print(run(years=[2022,2023,2024,2025]))", 7200),
     "google_trends": ("from backend.ingest.google_trends import run; print(run(max_units=None))", 3000),
     "baselines": ("from backend.ingest.baselines import run; print(run())", 1200),
-    "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_postings=40000))", 28800),
+    "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
     "gpu_normalize": (
         "from backend.ml.skill_norm import run as s; from backend.ml.entity_resolution import run as e; "
         "from backend.ml.role_derivation import run as r; "

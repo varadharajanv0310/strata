@@ -47,19 +47,31 @@ from backend.core.config import settings
 from backend.core.logging import get_logger
 from backend.ingest import checkpoint
 from backend.ingest.base import BaseConnector
+from backend.ingest.tech_filter import classify as is_tech
 from backend.warehouse.seed import COUNTRIES
 
 log = get_logger("ingest.common_crawl")
 
-# Default targets: ATS hosts that reliably emit JobPosting JSON-LD (probed live).
-# greenhouse dropped (SPA, no JSON-LD); lever/smartrecruiters captures are listing
-# pages w/o posting JSON-LD. Override via CC_TARGET_DOMAINS in .env if desired.
+# Default targets: ATS hosts that reliably emit JobPosting JSON-LD (probed live
+# 2026-06). All four confirmed to carry schema.org/JobPosting on posting pages.
+# Crucially the last two are how we de-skew from US:
+#   * *.pinpointhq.com   -> GB/AU/CA/SG/IE/US spread (Accenture etc. global boards)
+#   * *.jobs.personio.com -> DE/EU heavy (the only reliable Germany source)
+# greenhouse dropped (SPA, no JSON-LD); lever/smartrecruiters/workable/recruitee/
+# teamtailor/bamboohr CDX captures are landing/marketing pages w/o posting JSON-LD
+# (probed — 0 JobPosting). Override via CC_TARGET_DOMAINS in .env if desired.
 DEFAULT_DOMAINS = [
-    "jobs.ashbyhq.com",          # primary — every posting carries JobPosting JSON-LD
-    "*.myworkdayjobs.com",       # secondary — /job/ posting pages carry it
+    "jobs.ashbyhq.com",          # tech-heavy — every posting carries JobPosting JSON-LD
+    "*.pinpointhq.com",          # non-US spread (GB/AU/CA/SG/IE) — /postings/ pages
+    "*.jobs.personio.com",       # DE/EU — /job/ pages (Germany floor depends on this)
+    "*.myworkdayjobs.com",       # large but US/retail-skewed — TECH FILTER does the work
 ]
 # domains whose *individual posting* URLs are worth fetching (filter noise on big hosts)
-_URL_HINTS = {"*.myworkdayjobs.com": "/job/"}
+_URL_HINTS = {
+    "*.myworkdayjobs.com": "/job/",
+    "*.pinpointhq.com": "/postings/",
+    "*.jobs.personio.com": "/job/",
+}
 
 CDX_HOST = "https://index.commoncrawl.org"
 DATA_HOST = "https://data.commoncrawl.org"
@@ -307,39 +319,160 @@ class CommonCrawlConnector(BaseConnector):
                     out.append(node)
         return out
 
+    # -------- JobPosting -> normalized row + tech gate --------
+    @staticmethod
+    def _country_of(jp: dict) -> str | None:
+        loc = jp.get("jobLocation") or {}
+        if isinstance(loc, list):
+            loc = loc[0] if loc else {}
+        addr = loc.get("address", {}) if isinstance(loc, dict) else {}
+        return _country_code(addr.get("addressCountry")) if isinstance(addr, dict) else None
+
+    @classmethod
+    def _jp_row(cls, jp: dict) -> dict:
+        """Flatten a JobPosting node to our staging row (also used at land time)."""
+        loc = jp.get("jobLocation") or {}
+        if isinstance(loc, list):
+            loc = loc[0] if loc else {}
+        addr = loc.get("address", {}) if isinstance(loc, dict) else {}
+        sal = jp.get("baseSalary")
+        has_salary = bool(sal) and not (isinstance(sal, dict) and not sal)
+        org = jp.get("hiringOrganization") or {}
+        # employmentType / addressCountry may be str OR list in JSON-LD — flatten to a
+        # plain string so the column is homogeneous (pyarrow rejects mixed obj cols).
+        emp_type = jp.get("employmentType")
+        if isinstance(emp_type, list):
+            emp_type = ", ".join(str(x) for x in emp_type if x) or None
+        elif emp_type is not None and not isinstance(emp_type, str):
+            emp_type = str(emp_type)
+        raw_country = addr.get("addressCountry") if isinstance(addr, dict) else None
+        if isinstance(raw_country, dict):
+            raw_country = raw_country.get("name") or raw_country.get("@id")
+        if raw_country is not None and not isinstance(raw_country, str):
+            raw_country = str(raw_country)
+        title = jp.get("title")
+        if isinstance(title, list):
+            title = next((str(x) for x in title if x), None)
+        elif title is not None and not isinstance(title, str):
+            title = str(title)
+        employer = org.get("name") if isinstance(org, dict) else None
+        if employer is not None and not isinstance(employer, str):
+            employer = str(employer)
+        date_posted = jp.get("datePosted")
+        if date_posted is not None and not isinstance(date_posted, str):
+            date_posted = str(date_posted)
+        return {
+            "title": title,
+            "description": (jp.get("description") or "")[:4000],
+            "country_code": _country_code(addr.get("addressCountry"))
+                            if isinstance(addr, dict) else None,
+            "raw_country": raw_country,
+            "employer": employer,
+            "date_posted": date_posted,
+            "employment_type": emp_type,
+            "has_salary": has_salary,
+            "remote": jp.get("jobLocationType") == "TELECOMMUTE",
+            "is_tech": is_tech(jp.get("title"), jp.get("description")),
+            "source_url": jp.get("_source_url"),
+            "crawl": jp.get("_crawl"),
+        }
+
     # -------- filesystem --------
     def _raw_dir(self):
         d = settings.staging_dir / self.name / "raw"
         d.mkdir(parents=True, exist_ok=True)
         return d
 
-    # -------- main scan --------
+    # -------- main scan: tech-filtered, per-country balanced, heartbeat'd --------
     def land_raw(self, target_postings: int | None = None,
-                 crawls: list[str] | None = None) -> int:
-        target = target_postings or 300
+                 crawls: list[str] | None = None,
+                 target_per_country: int = 300, time_cap_s: int = 10800) -> int:
+        """Scan (crawl, host) units, keeping only TECH-and-adjacent postings, and
+        prioritising the most UNDER-represented of our 7 countries each pass.
+
+        STREAMS a heartbeat (flush) after every unit, writes raw INCREMENTALLY per
+        unit (resumable), and self-terminates when:
+          * every country clears ``target_per_country`` (floor), OR
+          * total tech postings reach ``target_postings`` (if given), OR
+          * elapsed exceeds ``time_cap_s``.
+        Returns the number of TECH postings landed this run.
+        """
+        target = target_postings  # may be None -> floor-driven
         domains = settings.cc_target_domains_list or DEFAULT_DOMAINS
         crawl_ids = self._recent_crawls(crawls, settings.cc_recent_crawls)
         if not crawl_ids:
             raise NotImplementedError(
                 "Common Crawl index unreachable — code ready; run with network access."
             )
-        # cap per-unit so each (crawl, host) unit COMPLETES quickly, writes its raw
-        # file, and checkpoints — incremental + resumable. Spread across many units.
-        units = max(1, len(crawl_ids) * len(domains))
-        per_unit = min(500, max(60, target // units))
-        total = 0
+        codes = [c["code"] for c in COUNTRIES]
+        # which host best serves which under-represented country (probed 2026-06)
+        host_affinity = {
+            "*.jobs.personio.com": {"DE"},
+            "*.pinpointhq.com": {"GB", "AU", "CA", "SG"},
+            "jobs.ashbyhq.com": {"US", "IN", "GB", "CA"},
+            "*.myworkdayjobs.com": {"US", "IN", "CA", "GB", "AU", "SG", "DE"},
+        }
+
+        per_country: dict[str, int] = {c: 0 for c in codes}
+        # seed counts from any raw already on disk (resumable across runs)
+        for f in self._raw_dir().glob("*__*.json"):
+            try:
+                for jp in json.loads(f.read_text(encoding="utf-8")):
+                    if is_tech(jp.get("title"), jp.get("description")):
+                        c = self._country_of(jp)
+                        if c in per_country:
+                            per_country[c] += 1
+            except Exception:  # noqa: BLE001
+                continue
+        total_tech = sum(per_country.values())
+        t_start = time.time()
+
+        # build the (crawl, host) work queue, ordered so under-served countries' hosts
+        # come first each crawl. We re-sort dynamically as counts evolve.
+        def host_priority(domain: str) -> int:
+            served = host_affinity.get(domain, set(codes))
+            # lower deficit-sum -> later; we want hosts serving the biggest deficits first
+            deficit = sum(max(0, target_per_country - per_country[c]) for c in served)
+            return -deficit
+
+        def floor_met() -> bool:
+            return all(per_country[c] >= target_per_country for c in codes)
+
+        units_done = 0
         for crawl in crawl_ids:
-            for domain in domains:
-                if total >= target:
-                    return total
+            for domain in sorted(domains, key=host_priority):
+                elapsed = time.time() - t_start
+                if elapsed > time_cap_s:
+                    log.warning("CC time_cap %ss reached — stopping (tech=%d)",
+                                time_cap_s, total_tech)
+                    self._stream(per_country, total_tech, elapsed, "TIME-CAP")
+                    return total_tech
+                if floor_met():
+                    log.info("CC floor %d met for all 7 — stopping early", target_per_country)
+                    self._stream(per_country, total_tech, elapsed, "FLOOR-MET")
+                    return total_tech
+                if target is not None and total_tech >= target:
+                    self._stream(per_country, total_tech, elapsed, "TARGET")
+                    return total_tech
+
                 unit = f"{crawl}:{domain}"
                 if checkpoint.is_done(self.name, unit):
                     continue
+
+                # how many we still want from this unit's served countries
+                served = host_affinity.get(domain, set(codes))
+                deficit = sum(max(0, target_per_country - per_country[c]) for c in served)
+                if deficit <= 0:
+                    # this host only serves already-satisfied countries — skip cheaply
+                    checkpoint.mark_done(self.name, unit)
+                    continue
+                per_unit = min(600, max(80, deficit + 40))
+
                 recs = self._resolve_index(crawl, domain, per_unit)
-                landed: list[dict] = []
+                landed_tech: list[dict] = []
+                seen_total = 0
                 t0 = time.time()
-                # parallel byte-range WARC fetches (the sequential loop was the bottleneck)
-                cand = recs[: per_unit * 3]
+                cand = recs[: per_unit * 4]
                 with ThreadPoolExecutor(max_workers=16) as ex:
                     futs = {ex.submit(self._fetch_record, rec): rec for rec in cand}
                     for fut in as_completed(futs):
@@ -352,57 +485,66 @@ class CommonCrawlConnector(BaseConnector):
                             for jp in self._extract_jobpostings(raw):
                                 jp["_source_url"] = rec.get("url")
                                 jp["_crawl"] = crawl
-                                landed.append(jp)
-                        if len(landed) >= per_unit or time.time() - t0 > 240:
+                                seen_total += 1
+                                if is_tech(jp.get("title"), jp.get("description")):
+                                    landed_tech.append(jp)
+                                    c = self._country_of(jp)
+                                    if c in per_country:
+                                        per_country[c] += 1
+                        # stop the unit once we've satisfied this host's deficit or hit caps
+                        if (len(landed_tech) >= per_unit
+                                or time.time() - t0 > 240
+                                or time.time() - t_start > time_cap_s):
                             break
-                if landed:
+
+                if landed_tech:
                     fname = f"{crawl}__{domain.replace('*.', '').replace('/', '_')}.json"
+                    # INCREMENTAL write per unit (progress never lost)
                     self._raw_dir().joinpath(fname).write_text(
-                        json.dumps(landed, ensure_ascii=False), encoding="utf-8")
-                    total += len(landed)
-                    log.info("CC %s @ %-22s -> %d postings (running %d)",
-                             crawl, domain, len(landed), total)
+                        json.dumps(landed_tech, ensure_ascii=False), encoding="utf-8")
+                    total_tech += len(landed_tech)
                 checkpoint.mark_done(self.name, unit)
-        return total
+                units_done += 1
+                share = (len(landed_tech) / seen_total) if seen_total else 0.0
+                log.info("CC %s @ %-22s -> +%d tech / %d seen (%.0f%% tech)",
+                         crawl, domain, len(landed_tech), seen_total, 100 * share)
+                self._stream(per_country, total_tech, time.time() - t_start, unit)
+
+        self._stream(per_country, total_tech, time.time() - t_start, "DONE")
+        return total_tech
+
+    @staticmethod
+    def _stream(per_country: dict, total: int, elapsed: float, tag: str) -> None:
+        """STREAMING heartbeat — running total + per-country dict + elapsed (flush)."""
+        pc = " ".join(f"{k}={v}" for k, v in per_country.items())
+        print(f"[CC heartbeat] {tag:22s} total_tech={total:5d} | {pc} | "
+              f"elapsed={elapsed:6.0f}s", flush=True)
 
     # -------- normalize + probe --------
     def build_staging(self) -> int:
         import pandas as pd
 
         rows = []
+        seen_all = 0          # every JobPosting on disk (tech + non-tech) for tech_share
+        tech_all = 0
         for f in self._raw_dir().glob("*__*.json"):
             try:
                 blocks = json.loads(f.read_text(encoding="utf-8"))
             except Exception:  # noqa: BLE001
                 continue
             for jp in blocks:
-                loc = jp.get("jobLocation") or {}
-                if isinstance(loc, list):
-                    loc = loc[0] if loc else {}
-                addr = loc.get("address", {}) if isinstance(loc, dict) else {}
-                sal = jp.get("baseSalary")
-                has_salary = bool(sal) and not (isinstance(sal, dict) and not sal)
-                org = jp.get("hiringOrganization") or {}
-                rows.append({
-                    "title": jp.get("title"),
-                    "description": (jp.get("description") or "")[:4000],
-                    "country_code": _country_code(addr.get("addressCountry"))
-                                    if isinstance(addr, dict) else None,
-                    "raw_country": addr.get("addressCountry") if isinstance(addr, dict) else None,
-                    "employer": org.get("name") if isinstance(org, dict) else None,
-                    "date_posted": jp.get("datePosted"),
-                    "employment_type": jp.get("employmentType"),
-                    "has_salary": has_salary,
-                    "remote": jp.get("jobLocationType") == "TELECOMMUTE",
-                    "source_url": jp.get("_source_url"),
-                    "crawl": jp.get("_crawl"),
-                })
+                seen_all += 1
+                row = self._jp_row(jp)
+                if not row["is_tech"]:
+                    continue        # land_raw already filters, but guard re-runs/old raw
+                tech_all += 1
+                rows.append(row)
         sd = settings.staging_dir / self.name
         sd.mkdir(parents=True, exist_ok=True)
         if not rows:
             (sd / "probe.json").write_text(json.dumps(
                 {"total_postings": 0, "salary_disclosure_rate": None,
-                 "country_breakdown": {}}), encoding="utf-8")
+                 "country_breakdown": {}, "tech_share": None}), encoding="utf-8")
             return 0
         df = pd.DataFrame(rows).drop_duplicates(
             subset=["title", "employer", "raw_country", "date_posted"])
@@ -423,27 +565,41 @@ class CommonCrawlConnector(BaseConnector):
             "salary_disclosure_rate": round(disclosed / n, 4) if n else None,
             "country_breakdown": {k: int(v) for k, v in cb.items()},
             "mapped_country_share": round(df["country_code"].notna().mean(), 4),
+            # tech_share = tech postings / ALL extracted postings (the filter's yield)
+            "tech_share": round(tech_all / seen_all, 4) if seen_all else None,
+            "extracted_total": seen_all,
+            "tech_total": tech_all,
+            "disclosure": ("Common Crawl JobPosting JSON-LD, TECH-and-adjacent only "
+                           "(host-agnostic title/description classifier). Balanced "
+                           "across 7 countries by prioritising under-represented hosts."),
             "hosts": sorted({(u or "").split("/")[2] for u in df["source_url"].dropna()
                              if (u or "").count("/") > 2}),
         }
         (sd / "probe.json").write_text(json.dumps(probe, indent=2), encoding="utf-8")
-        log.info("CC staging: %d postings, salary-disclosure %.1f%%, countries=%s",
-                 n, 100 * (disclosed / n if n else 0), cb)
+        log.info("CC staging: %d tech postings (%.0f%% tech of %d), salary %.1f%%, countries=%s",
+                 n, 100 * (tech_all / seen_all if seen_all else 0), seen_all,
+                 100 * (disclosed / n if n else 0), cb)
         return n
 
 
 # -------- top-level orchestrator entrypoint --------
-def run(target_postings: int = 300, crawls: list[str] | None = None) -> dict:
-    """Scan Common Crawl for JobPosting JSON-LD; land postings.parquet + probe.json.
+def run(target_per_country: int = 300, time_cap_s: int = 10800,
+        crawls: list[str] | None = None, target_postings: int | None = None) -> dict:
+    """Scan Common Crawl for TECH JobPosting JSON-LD, BALANCED across our 7 countries.
 
     Args:
-        target_postings: how many postings to aim for (collect_all widens this).
+        target_per_country: per-country floor; the scan prioritises under-represented
+            countries' hosts and stops once all 7 clear this (or time_cap/target).
+        time_cap_s: hard wall-clock budget; land_raw self-terminates and returns
+            partial when exceeded (default 3h).
         crawls: explicit crawl ids (e.g. ['CC-MAIN-2026-25', ...]); default = most
-                recent settings.cc_recent_crawls crawls.
+            recent settings.cc_recent_crawls crawls.
+        target_postings: optional absolute total cap (collect_all may pass one).
     Returns a summary dict (also the SMOKE self-check payload).
     """
     c = CommonCrawlConnector()
-    raw = c.land_raw(target_postings=target_postings, crawls=crawls)
+    raw = c.land_raw(target_postings=target_postings, crawls=crawls,
+                     target_per_country=target_per_country, time_cap_s=time_cap_s)
     staging = c.build_staging()
     probe = {}
     p = settings.staging_dir / c.name / "probe.json"
@@ -455,4 +611,7 @@ def run(target_postings: int = 300, crawls: list[str] | None = None) -> dict:
 
 
 if __name__ == "__main__":
-    print(json.dumps(run(target_postings=300), indent=2))
+    import sys
+    tpc = int(sys.argv[1]) if len(sys.argv) > 1 else 300
+    cap = int(sys.argv[2]) if len(sys.argv) > 2 else 10800
+    print(json.dumps(run(target_per_country=tpc, time_cap_s=cap), indent=2))
