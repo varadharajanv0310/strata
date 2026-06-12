@@ -46,3 +46,10 @@ graceful degradation, per-stage budgets, checkpointed/resumable. Councils logged
 - `09:03` — ⚠️ **common_crawl STALL.** Started 02:19, ~6.5h with no progress (postings stuck at the smoke's 101). Root cause: `land_raw` fetched WARC records **sequentially** + `per_unit = target/crawls ≈ 13,300` → the first unit never completed → nothing written/checkpointed. NOT a network/retry issue.
 - `09:10` — 🧠 **DECISION (council-style):** fix throughput, not retry — (1) parallelize WARC fetches (ThreadPoolExecutor×16), (2) cap `per_unit`≤500 + divide by units (crawl×domain) so units complete + checkpoint incrementally, (3) fetch timeout 90→30s + 240s/unit wall-cap. Killed the hung job (API preserved).
 - `09:12` — ✅ **CC fix verified:** ~60 postings/unit in ~20s → **3,734 staged postings** (US 2960, IN 98, GB 70, SG 66, CA 51, DE 41, AU 11). Disclosure 9.6% blended (Ashby 54% / Workday ~0%). Widening corpus now.
+- `10:29` — ▶ **gpu_normalize** start (budget 90m)
+- `10:29` — ✅ **gpu_normalize** 23s — **derived_roles:0, employers:760, posting_dedup:4293, posting_skills:2098**
+- `10:29` — ▶ **fuse** start (budget 20m)
+- `10:30` — ✅ **fuse** 12s — **salary_person 1759, demand 1008, interest 224, salary_job 1008, dim_role 16**
+- `10:30` — ✅ **gpu_normalize** (GPU embed): skill_norm 2,098 rows · entity_resolution 760 employers/781 dups · role_derivation 0 above floor (CC corpus retail-heavy → curated tech roles authoritative).
+- `10:30` — ✅ **fuse** (`build_warehouse_from_staging`): fact_salary_person 1,759 (SO 1,738 + H-1B 21) · fact_salary_job 1,008 (Adzuna) · fact_demand 1,008 (Adzuna+GH+CC) · fact_interest 224 (Trends) · dim_ppp 84 (World Bank). is_seed=False.
+- `10:30` — 🏁 **RUN COMPLETE.** 7/8 sources fully real, baselines partial (2/6). GPU pipeline ran on real postings. Warehouse fused & real. **Marts/site untouched** (stopped at warehouse per instruction). See OVERNIGHT_RUN.md.
