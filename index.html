@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#05060a" />
   <title>strata — tech job-market intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -10,8 +11,12 @@
 </head>
 <body>
   <div id="root">
-    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#05060a;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;letter-spacing:0.04em;">
-      loading the market…
+    <div style="position:fixed;inset:0;display:grid;place-items:center;background:radial-gradient(80vw 60vh at 50% 115%, rgba(42,91,255,0.14), transparent 65%), #05060a;color:rgba(255,255,255,0.45);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;letter-spacing:0.04em;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="width:7px;height:7px;border-radius:999px;background:#2a5bff;box-shadow:0 0 14px rgba(42,91,255,0.9);animation:ldpulse 1.2s ease-in-out infinite;"></span>
+        loading the market…
+      </div>
+      <style>@keyframes ldpulse{0%,100%{opacity:1}50%{opacity:.3}}</style>
     </div>
   </div>
   <script type="module" src="/src/main-desktop.jsx"></script>

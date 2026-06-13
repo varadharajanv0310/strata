@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#05060a" />
   <title>strata — mobile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,7 +15,13 @@
       <div class="phone">
         <div class="phone-screen">
           <div id="mroot">
-            <div style="position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;letter-spacing:0.04em;">loading…</div>
+            <div style="position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,0.45);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;letter-spacing:0.04em;">
+              <div style="display:flex;align-items:center;gap:9px;">
+                <span style="width:6px;height:6px;border-radius:999px;background:#2a5bff;box-shadow:0 0 12px rgba(42,91,255,0.9);animation:ldpulse 1.2s ease-in-out infinite;"></span>
+                loading…
+              </div>
+              <style>@keyframes ldpulse{0%,100%{opacity:1}50%{opacity:.3}}</style>
+            </div>
           </div>
         </div>
       </div>
