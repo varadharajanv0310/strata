@@ -71,3 +71,7 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/
+
+# ---- agent / session tooling + ephemeral logs ----
+.claude/
+.logs/
