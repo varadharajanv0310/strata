@@ -102,7 +102,7 @@ import { Countries } from "./countries.jsx";
             <UI.InteractiveGlobe size={264} active={code} onSelect={app.setCountry} />
             <div className="coords" style={{ opacity: 0.6, marginTop: 2 }}>DRAG · TAP A COUNTRY</div>
           </div>
-          <h1 className="display" style={{ color: "#fff" }}>The whole<br />job market.</h1>
+          <h1 className="display"><span className="display-ink">The whole<br />job</span> <span className="display-ghost">market.</span></h1>
           <p className="body" style={{ maxWidth: 320, margin: "12px auto 0" }}>Tap the globe to explore <strong style={{ color: "var(--t1)" }}>{S().C[code].name}</strong> — pay, demand, skills and rankings.</p>
           <div className="m-cta">
             <button className="pill solid" onClick={() => app.go("roles")}>Browse roles →</button>
@@ -289,6 +289,13 @@ import { Countries } from "./countries.jsx";
 
     return (
       <div className="mobile-app">
+        {/* living atmosphere — purely decorative (see mobile.css POLISH LAYER) */}
+        <div className="m-atmos" aria-hidden="true">
+          <span className="aur a"></span><span className="aur b"></span>
+          <span className="stars s1"></span>
+        </div>
+        <div className="m-grain" aria-hidden="true"></div>
+
         <div className="m-top">
           <UI.Wordmark onClick={() => go("explore")} />
           <div className="row gap8">

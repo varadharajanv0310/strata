@@ -53,8 +53,13 @@ import { STRATA } from "../data/mock.js";
           <svg width="100%" height={height} style={{ display: "block", overflow: "visible" }}>
             <defs>
               <linearGradient id={"sal" + code} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2a5bff" stopOpacity="0.34" />
+                <stop offset="0%" stopColor="#2a5bff" stopOpacity="0.4" />
                 <stop offset="100%" stopColor="#2a5bff" stopOpacity="0" />
+              </linearGradient>
+              <linearGradient id={"salstk" + code} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#2a5bff" />
+                <stop offset="62%" stopColor="#7aa0ff" />
+                <stop offset="100%" stopColor="#bcd2ff" />
               </linearGradient>
             </defs>
             {[0, 0.5, 1].map(g => (
@@ -62,8 +67,13 @@ import { STRATA } from "../data/mock.js";
                 stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
             ))}
             <path d={area} fill={"url(#sal" + code + ")"} />
-            <path d={d} fill="none" stroke="#4a7cff" strokeWidth="2.5"
-              strokeLinecap="round" style={{ filter: "drop-shadow(0 0 6px rgba(74,124,255,0.5))" }} />
+            <path d={d} fill="none" stroke={"url(#salstk" + code + ")"} strokeWidth="2.5"
+              strokeLinecap="round" style={{ filter: "drop-shadow(0 0 8px rgba(74,124,255,0.55))" }} />
+            {/* the live point breathes */}
+            <circle className="pulse-dot" cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="5"
+              fill="rgba(188,210,255,0.55)" />
+            <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="3" fill="#e8efff"
+              style={{ filter: "drop-shadow(0 0 6px rgba(188,210,255,0.9))" }} />
             {series.map((s, i) => (
               <g key={i}>
                 <circle cx={x(i)} cy={y(s.value)} r={hi === i ? 4.5 : 0} fill="#fff" />
@@ -81,9 +91,10 @@ import { STRATA } from "../data/mock.js";
         {hi != null && (
           <div style={{
             position: "absolute", left: `${(hi / (series.length - 1)) * 100}%`, top: -6,
-            transform: "translateX(-50%)", background: "rgba(16,18,26,0.96)", border: "1px solid var(--glass-line)",
-            borderRadius: 9, padding: "6px 10px", fontSize: 12, fontWeight: 700, color: "#fff",
-            pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "0 8px 24px rgba(0,0,0,0.5)"
+            transform: "translateX(-50%)", background: "rgba(13,16,26,0.88)", border: "1px solid rgba(160,188,255,0.24)",
+            borderRadius: 10, padding: "6px 11px", fontSize: 12, fontWeight: 700, color: "#fff",
+            pointerEvents: "none", whiteSpace: "nowrap", backdropFilter: "blur(12px)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.55), 0 0 22px rgba(42,91,255,0.12), inset 0 1px 0 rgba(255,255,255,0.08)"
           }}>
             <span style={{ color: "var(--t3)", fontWeight: 600, marginRight: 6 }}>{series[hi].year}</span>
             {STRATA.fmtCur(series[hi].value, code)}
@@ -134,9 +145,10 @@ import { STRATA } from "../data/mock.js";
         {hi != null && (
           <div style={{
             position: "absolute", left: `${((hi + 0.5) / series.length) * 100}%`, top: -4,
-            transform: "translateX(-50%)", background: "rgba(16,18,26,0.96)", border: "1px solid var(--glass-line)",
-            borderRadius: 8, padding: "4px 9px", fontSize: 11.5, fontWeight: 700, color: "#fff",
-            pointerEvents: "none", whiteSpace: "nowrap"
+            transform: "translateX(-50%)", background: "rgba(13,16,26,0.88)", border: "1px solid rgba(160,188,255,0.24)",
+            borderRadius: 9, padding: "4px 10px", fontSize: 11.5, fontWeight: 700, color: "#fff",
+            pointerEvents: "none", whiteSpace: "nowrap", backdropFilter: "blur(12px)",
+            boxShadow: "0 10px 26px rgba(0,0,0,0.5), 0 0 18px rgba(42,91,255,0.1)"
           }}>{series[hi].year} · {series[hi].value} demand</div>
         )}
       </div>
@@ -163,17 +175,26 @@ import { STRATA } from "../data/mock.js";
       <div ref={ref} style={{ width: "100%" }}>
         {w > 0 && (
           <svg width="100%" height={height} style={{ display: "block", overflow: "visible" }}>
+            <defs>
+              <linearGradient id="fcBand" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#4a7cff" stopOpacity="0.24" />
+                <stop offset="100%" stopColor="#4a7cff" stopOpacity="0.07" />
+              </linearGradient>
+            </defs>
             {[0, 0.5, 1].map(g => (
               <line key={g} x1={padL} x2={padL + iw} y1={padT + g * ih} y2={padT + g * ih}
                 stroke="rgba(255,255,255,0.06)" />
             ))}
             <line x1={last[0]} x2={last[0]} y1={padT} y2={padT + ih} stroke="rgba(255,255,255,0.16)" strokeDasharray="3 4" />
-            <path d={bandD} fill="rgba(74,124,255,0.16)" />
-            <path d={smoothPath(hPts)} fill="none" stroke="#4a7cff" strokeWidth="2.5" strokeLinecap="round" />
-            <path d={linePath([last, ...fPts])} fill="none" stroke="#7aa0ff" strokeWidth="2.5"
-              strokeDasharray="5 5" strokeLinecap="round" />
-            {fPts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="3" fill="#bcd2ff" />)}
-            <text x={last[0] + 6} y={padT + 11} fill="rgba(255,255,255,0.4)" fontSize="9.5" letterSpacing="0.1em">PROJECTED</text>
+            <path d={bandD} fill="url(#fcBand)" />
+            <path d={smoothPath(hPts)} fill="none" stroke="#4a7cff" strokeWidth="2.5" strokeLinecap="round"
+              style={{ filter: "drop-shadow(0 0 7px rgba(74,124,255,0.5))" }} />
+            {/* the projection marches — honest motion: clearly alive, clearly not history */}
+            <path className="march" d={linePath([last, ...fPts])} fill="none" stroke="#7aa0ff" strokeWidth="2.5"
+              strokeDasharray="5 5" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 6px rgba(122,160,255,0.45))" }} />
+            {fPts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="3" fill="#bcd2ff"
+              style={{ filter: "drop-shadow(0 0 5px rgba(188,210,255,0.7))" }} />)}
+            <text x={last[0] + 6} y={padT + 11} fill="rgba(188,210,255,0.55)" fontSize="9.5" letterSpacing="0.1em">PROJECTED</text>
             {[...history, ...forecast].filter((_, i) => i % 2 === 0).map((s, idx) => {
               const i = idx * 2;
               return <text key={i} x={x(i)} y={height - 6} fill="rgba(255,255,255,0.32)" fontSize="10"
@@ -202,7 +223,7 @@ import { STRATA } from "../data/mock.js";
             onMouseLeave={clickable ? e => e.currentTarget.style.background = "transparent" : undefined}>
             <div style={{ width: 132, fontSize: 13, color: "var(--t1)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", padding: clickable ? "2px 0 2px 6px" : 0 }}>{it.label}</div>
             <div style={{ flex: 1, height, background: "rgba(255,255,255,0.05)", borderRadius: 7, overflow: "hidden", position: "relative" }}>
-              <div style={{
+              <div className="glowbar" style={{
                 width: `${(g(it) / mx) * 100}%`, height: "100%", borderRadius: 7,
                 background: accentFn ? accentFn(it) : "linear-gradient(90deg,#0033ff,#4a7cff)",
                 transition: "width 0.7s cubic-bezier(0.2,0.7,0.2,1)", minWidth: 4,
@@ -364,7 +385,7 @@ import { STRATA } from "../data/mock.js";
           </svg>
         )}
         {hi != null && (
-          <div style={{ position: "absolute", left: `${(hi / (len - 1)) * 100}%`, top: -8, transform: "translateX(-50%)", background: "rgba(16,18,26,0.97)", border: "1px solid var(--glass-line)", borderRadius: 9, padding: "7px 10px", pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "0 8px 24px rgba(0,0,0,0.5)", zIndex: 5 }}>
+          <div style={{ position: "absolute", left: `${(hi / (len - 1)) * 100}%`, top: -8, transform: "translateX(-50%)", background: "rgba(13,16,26,0.88)", border: "1px solid rgba(160,188,255,0.24)", borderRadius: 10, padding: "7px 11px", pointerEvents: "none", whiteSpace: "nowrap", backdropFilter: "blur(12px)", boxShadow: "0 10px 30px rgba(0,0,0,0.55), 0 0 22px rgba(42,91,255,0.12), inset 0 1px 0 rgba(255,255,255,0.08)", zIndex: 5 }}>
             <div style={{ fontSize: 10.5, color: "var(--t3)", fontWeight: 600, marginBottom: 3 }}>{data[0].points[hi].year}</div>
             {data.map((s, si) => (
               <div key={si} className="row gap8" style={{ alignItems: "center", fontSize: 11.5 }}>

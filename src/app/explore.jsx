@@ -130,7 +130,7 @@ import { Charts } from "./charts.jsx";
                     <span style={{ fontSize: 13, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{it.label}</span>
                   </div>
                   <div style={{ flex: 1, height: 24, background: "rgba(255,255,255,0.05)", borderRadius: 7, overflow: "hidden" }}>
-                    <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: accent, boxShadow: "0 0 14px rgba(74,124,255,0.4)", transition: "width 0.7s cubic-bezier(0.2,0.7,0.2,1)", minWidth: 4 }} />
+                    <div className="glowbar" style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: accent, boxShadow: "0 0 14px rgba(74,124,255,0.4)", transition: "width 0.7s cubic-bezier(0.2,0.7,0.2,1)", minWidth: 4 }} />
                   </div>
                   <div className="tnum row gap8" style={{ width: 100, justifyContent: "flex-end", alignItems: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>
                     {fmtFn(it.value)}
@@ -218,8 +218,8 @@ import { Charts } from "./charts.jsx";
           <div className="wrap" style={{ position: "relative", zIndex: 2, width: "100%", pointerEvents: "none" }}>
             <div style={{ maxWidth: 680, pointerEvents: "auto" }}>
               <div className="eyebrow enter" style={{ animationDelay: "0.05s" }}>Global tech job-market intelligence · 7 countries</div>
-              <h1 className="display enter" style={{ marginTop: 22, color: "#fff", animationDelay: "0.12s" }}>
-                The whole tech<br />job market,<br /><span style={{ color: "var(--t2)" }}>worth exploring.</span>
+              <h1 className="display enter" style={{ marginTop: 22, animationDelay: "0.12s" }}>
+                <span className="display-ink">The whole tech<br />job market,</span><br /><span className="display-ghost">worth exploring.</span>
               </h1>
               <p className="body enter" style={{ maxWidth: 430, marginTop: 26, fontSize: 16.5, animationDelay: "0.2s" }}>
                 Salaries, demand, skills and rankings for every tech role across 7 markets. Spin the globe and tap a country — the whole page redraws around <strong style={{ color: "var(--t1)" }}>{S().C[code].name}</strong>.

@@ -241,7 +241,7 @@ import { Charts } from "./charts.jsx";
               {best.map(it => (
                 <button key={it.code} onClick={() => setCountry(it.code)} className="row gap12" style={{ alignItems: "center", background: it.code === country ? "rgba(42,91,255,0.08)" : "transparent", border: "1px solid " + (it.code === country ? "rgba(74,124,255,0.3)" : "transparent"), borderRadius: 9, padding: "6px 9px", cursor: "pointer", width: "100%", textAlign: "left" }}>
                   <span style={{ width: 140 }}><Uc.CountryTag code={it.code} sm /></span>
-                  <div style={{ flex: 1, height: 16, background: "rgba(255,255,255,0.05)", borderRadius: 5, overflow: "hidden" }}><div style={{ width: `${(it.ppp / mxBest) * 100}%`, height: "100%", borderRadius: 5, background: "linear-gradient(90deg,#0033ff,#7aa0ff)" }} /></div>
+                  <div style={{ flex: 1, height: 16, background: "rgba(255,255,255,0.05)", borderRadius: 5, overflow: "hidden" }}><div className="glowbar" style={{ width: `${(it.ppp / mxBest) * 100}%`, height: "100%", borderRadius: 5, background: "linear-gradient(90deg,#0033ff,#7aa0ff)", boxShadow: "0 0 12px rgba(74,124,255,0.35)" }} /></div>
                   <span className="tnum" style={{ width: 96, textAlign: "right", fontSize: 13, fontWeight: 700, color: "#fff" }}>{S().fmtCompact(it.native, it.code)}</span>
                 </button>
               ))}

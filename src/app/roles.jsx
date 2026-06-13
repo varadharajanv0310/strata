@@ -306,7 +306,7 @@ import { Charts } from "./charts.jsx";
           }}>
             <span style={{ width: 150 }}><UI.CountryTag code={it.code} /></span>
             <div style={{ flex: 1, height: 20, background: "rgba(255,255,255,0.05)", borderRadius: 6, overflow: "hidden" }}>
-              <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 6, background: it.code === highlight ? "linear-gradient(90deg,#0033ff,#7aa0ff)" : "linear-gradient(90deg,#22397f,#3f64c4)", transition: "width 0.7s" }} />
+              <div className="glowbar" style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 6, background: it.code === highlight ? "linear-gradient(90deg,#0033ff,#7aa0ff)" : "linear-gradient(90deg,#22397f,#3f64c4)", transition: "width 0.7s" }} />
             </div>
             <span className="tnum" style={{ width: 120, textAlign: "right", fontSize: 13.5, fontWeight: 700, color: "#fff" }}>
               {ppp ? "◊" + Math.round(it.ppp / 1000) + "k" : S().fmtCompact(it.native, it.code)}

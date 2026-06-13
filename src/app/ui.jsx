@@ -187,6 +187,8 @@ let LAND_CACHE = null;
         onPointerEnter={() => { overRef.current = true; }}
         onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp}
         onPointerLeave={() => { dragRef.current = null; hoverRef.current = null; overRef.current = false; }}>
+        <div className="globe-halo" aria-hidden="true"></div>
+        <div className="globe-orbit" aria-hidden="true"></div>
         <canvas ref={canvasRef} style={{ width: size, height: size, display: "block", position: "relative", zIndex: 1 }} />
       </div>
     );
@@ -286,7 +288,7 @@ let LAND_CACHE = null;
   // ---- big salary headline ----
   function BigSalary({ value, code, size = 44 }) {
     const animated = useCountUp(value, 900, [code]);
-    return <span className="tnum" style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
+    return <span className="tnum big-lum" style={{ fontSize: size, fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1 }}>
       {S().fmtCur(Math.round(animated), code)}
     </span>;
   }

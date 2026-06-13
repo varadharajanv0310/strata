@@ -10,6 +10,9 @@ import "./styles/app.css";
 import { loadDataset } from "./data/mock.js";
 import { API_BASE } from "./data/api.js";
 import { StrataApp } from "./app/main.jsx";
+import { initFX } from "./app/fx.js";
+
+initFX(); // presentation-only cursor spotlight (see app/fx.js)
 
 // Fetch the dataset from the real API, then render (preserves all components).
 loadDataset()

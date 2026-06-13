@@ -239,7 +239,7 @@ import { Charts } from "./charts.jsx";
               <div key={it.code} className="row gap12" style={{ alignItems: "center" }}>
                 <span style={{ width: 150 }}><Uc.CountryTag code={it.code} /></span>
                 <div style={{ flex: 1, height: 22, background: "rgba(255,255,255,0.05)", borderRadius: 7, overflow: "hidden" }}>
-                  <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: "linear-gradient(90deg,#0033ff,#7aa0ff)", boxShadow: "0 0 14px rgba(74,124,255,0.4)", transition: "width 0.7s" }} />
+                  <div className="glowbar" style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: "linear-gradient(90deg,#0033ff,#7aa0ff)", boxShadow: "0 0 14px rgba(74,124,255,0.4)", transition: "width 0.7s" }} />
                 </div>
                 <span className="tnum" style={{ width: 130, textAlign: "right", fontSize: 14, fontWeight: 700, color: "#fff" }}>
                   {metric === "median" ? (app.ppp ? "◊" + Math.round(it.value / 1000) + "k" : S().fmtCompact(it.native, it.code)) : metric === "score" ? it.value.toFixed(1) : it.value}

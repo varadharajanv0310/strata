@@ -109,7 +109,7 @@ import { Charts } from "./charts.jsx";
                   <div key={r.id} className="row gap12" style={{ alignItems: "center" }}>
                     <span style={{ width: 150, fontSize: 13, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span>
                     <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 9, overflow: "hidden" }}>
-                      <div style={{ width: `${t * 100}%`, height: "100%", borderRadius: 9, background: t >= 0.6 ? "var(--good)" : t >= 0.4 ? "var(--warn)" : "var(--bad)" }} />
+                      <div className="glowbar" style={{ width: `${t * 100}%`, height: "100%", borderRadius: 9, background: t >= 0.6 ? "var(--good)" : t >= 0.4 ? "var(--warn)" : "var(--bad)", boxShadow: "0 0 10px " + (t >= 0.6 ? "rgba(79,217,155,0.35)" : t >= 0.4 ? "rgba(255,204,77,0.3)" : "rgba(255,107,107,0.3)") }} />
                     </div>
                     <span className="tnum" style={{ width: 40, textAlign: "right", fontSize: 13, fontWeight: 700, color: "#fff" }}>{Math.round(t * 100)}%</span>
                   </div>

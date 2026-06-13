@@ -167,6 +167,16 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
 
     return (
       <div className="app">
+        {/* living atmosphere — purely decorative (see app.css POLISH LAYER) */}
+        <div className="atmos" aria-hidden="true">
+          <span className="aur a"></span><span className="aur b"></span><span className="aur c"></span>
+          <span className="stars s1"></span><span className="stars s2"></span>
+          <span className="comet c1"></span><span className="comet c2"></span>
+          <span className="vig"></span>
+        </div>
+        <div className="top-fade" aria-hidden="true"></div>
+        <div className="grain" aria-hidden="true"></div>
+
         {/* topbar */}
         <div className="topbar">
           <div className="row gap16" style={{ alignItems: "center" }}>
