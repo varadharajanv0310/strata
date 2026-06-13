@@ -30,7 +30,7 @@ import { Charts } from "./charts.jsx";
         <div className={"dropzone" + (hot ? " hot" : "")}
           onDragOver={e => { e.preventDefault(); setHot(true); }} onDragLeave={() => setHot(false)}
           onDrop={e => { e.preventDefault(); setHot(false); onParse(); }} onClick={onParse}>
-          <div style={{ fontSize: 34, marginBottom: 14 }}>⤓</div>
+          <div className="drop-orb" aria-hidden="true">⤓</div>
           <div className="h3" style={{ color: "#fff" }}>Drop a résumé to price your profile</div>
           <div className="body" style={{ maxWidth: 420, margin: "10px auto 0" }}>PDF or DOCX — a 5-second action. We parse skills and experience, then value the whole profile per country. Nothing required, nothing stored.</div>
           <div className="row gap10 center mt24"><span className="pill solid">Choose file</span><span className="pill ghost">or use a sample profile</span></div>
@@ -216,7 +216,7 @@ import { Charts } from "./charts.jsx";
             <ProfilePanel profile={profile} country={country} accent="#4a7cff" app={app} badge="A" />
             <ProfilePanel profile={profileB} country={country} accent="#ffcc4d" app={app} badge="B" />
           </div>
-          <div className="sec-head" style={{ margin: "30px 0 18px" }}><div><div className="sec-eyebrow">Head to head</div><div className="h2" style={{ color: "#fff" }}>Where they diverge</div></div></div>
+          <div className="sec-head" style={{ margin: "30px 0 18px" }}><div><div className="sec-eyebrow">Head to head</div><div className="h2 display-ink">Where they <span className="display-ghost">diverge</span></div></div></div>
           <DeepCompare a={profile} b={profileB} country={country} />
           <div style={{ height: 40 }}></div>
         </div>
@@ -324,7 +324,7 @@ import { Charts } from "./charts.jsx";
     return (
       <div className="wrap-wide surface-enter">
         <div className="sec-head" style={{ marginBottom: 30 }}>
-          <div><div className="sec-eyebrow">Résumé</div><div className="h1" style={{ color: "#fff" }}>What's your profile worth?</div>
+          <div><div className="sec-eyebrow">Résumé</div><div className="h1 display-ink">What's your profile <span className="display-ghost">worth?</span></div>
             <div className="body" style={{ marginTop: 8, maxWidth: 540 }}>Drop a résumé and get a whole-profile valuation per country, role matches, a skills-gap plan, and an in-depth head-to-head against another profile.</div></div>
         </div>
         {!parsed ? <Dropzone onParse={() => setParsed(true)} /> : <ResumeResults app={app} profile={S().RESUME_SAMPLE} />}

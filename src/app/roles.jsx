@@ -82,7 +82,7 @@ import { Charts } from "./charts.jsx";
         <div className="sec-head" style={{ marginBottom: 28 }}>
           <div>
             <div className="sec-eyebrow">Roles</div>
-            <div className="h1" style={{ color: "#fff" }}>Browse every tech role</div>
+            <div className="h1 display-ink">Browse every <span className="display-ghost">tech role</span></div>
             <div className="body" style={{ marginTop: 8, maxWidth: 480 }}>Search a role to open its full dashboard — pay, trend, skills, ladder, demand and forecast, all traceable.</div>
           </div>
           <Uc.CountrySelect value={code} onChange={app.setCountry} />
@@ -171,7 +171,7 @@ import { Charts } from "./charts.jsx";
             <button className="pill ghost sm" style={{ alignSelf: "flex-start" }} onClick={() => app.back()}>← Back</button>
             <div className="row gap12" style={{ alignItems: "center", flexWrap: "wrap" }}>
               <ui.FamilyDot family={role.family} size={11} />
-              <h1 className="h1" style={{ color: "#fff" }}>{role.name}</h1>
+              <h1 className="h1 display-ink">{role.name}</h1>
             </div>
             <div className="body" style={{ maxWidth: 560, marginTop: 2 }}>{role.blurb}</div>
           </div>
@@ -197,7 +197,7 @@ import { Charts } from "./charts.jsx";
           <StatCard>
             <span className="stat-label">Job Score</span>
             <div className="row gap10 mt16" style={{ alignItems: "baseline" }}>
-              <span className="tnum" style={{ fontSize: 46, fontWeight: 700, color: "#fff", lineHeight: 1 }}>{cd.score.total.toFixed(1)}</span>
+              <span className="tnum big-lum" style={{ fontSize: 46, fontWeight: 800, lineHeight: 1 }}>{cd.score.total.toFixed(1)}</span>
               <span style={{ color: "var(--t3)", fontSize: 15 }}>/10</span>
             </div>
             <div className="row between mt12"><span className="pctile" style={{ fontSize: 13 }}>top {cd.score.pctile}% of roles</span><span className="small" style={{ color: "var(--t3)" }}>rank #{cd.score.rank}</span></div>

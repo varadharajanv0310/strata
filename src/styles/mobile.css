@@ -276,3 +276,18 @@ html, body { background: #060708; }
   box-shadow: 0 -24px 70px rgba(0,0,0,0.65), 0 -2px 40px rgba(42,91,255,0.08);
 }
 .m-top .wordmark { text-shadow: 0 0 18px rgba(120, 160, 255, 0.25); }
+
+/* ---- luminous hero stats ---- */
+.m-stats .n {
+  background: linear-gradient(180deg, #fff 38%, #bcd2ff);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 12px rgba(120, 160, 255, 0.25));
+}
+
+/* ---- ticker fits the phone ---- */
+.mobile-app .ticker { margin: 14px -4px 0; }
+.mobile-app .ticker-track { animation-duration: 55s; }
+.mobile-app .ticker-label { left: 6px; padding: 4px 9px; font-size: 8.5px; }
+.mobile-app .tick-chip { padding: 5px 11px; gap: 7px; }
+.mobile-app .tick-name { font-size: 11px; }
+.mobile-app .tick-val { font-size: 11.5px; }

@@ -91,7 +91,7 @@ import { Charts } from "./charts.jsx";
         <div className="row between wrap-f gap16" style={{ marginBottom: 22 }}>
           <div>
             <div className="sec-eyebrow">Explore mode</div>
-            <div className="h3" style={{ color: "#fff" }}>Pick an axis. The market redraws.</div>
+            <div className="h3 display-ink">Pick an axis. The market redraws.</div>
             <div className="small" style={{ marginTop: 6, color: "var(--t3)" }}>{sub}</div>
           </div>
           <div className="col gap10" style={{ alignItems: "flex-end" }}>
@@ -202,6 +202,38 @@ import { Charts } from "./charts.jsx";
     );
   }
 
+  // ---- live market ticker: the whole market streaming by (presentation of
+  // already-hydrated STRATA data; chips open the existing role quick-menu) ----
+  function Ticker({ app }) {
+    const code = app.country;
+    const items = S().roles.map(r => {
+      const cd = r.countries[code];
+      const prev = cd.series[cd.series.length - 2].value;
+      const yoy = prev ? ((cd.median - prev) / prev) * 100 : 0;
+      return { id: r.id, name: r.name, median: cd.median, yoy };
+    });
+    const Chip = ({ it }) => (
+      <button className="tick-chip" onClick={(e) => window.openRoleMenu(it.id, e.clientX, e.clientY)}>
+        <span className="tick-name">{it.name}</span>
+        <span className="tick-val tnum">{S().fmtCompact(it.median, code)}</span>
+        <span className={"tick-delta tnum " + (it.yoy >= 0 ? "up" : "down")}>
+          {it.yoy >= 0 ? "▲" : "▼"} {Math.abs(it.yoy).toFixed(1)}%
+        </span>
+      </button>
+    );
+    return (
+      <div className="ticker">
+        <span className="ticker-label"><span className="tick-dot"></span>LIVE · {code}</span>
+        <div className="ticker-clip">
+          <div className="ticker-track">
+            <div className="tick-set">{items.map(it => <Chip key={it.id} it={it} />)}</div>
+            <div className="tick-set" aria-hidden="true">{items.map(it => <Chip key={"d" + it.id} it={it} />)}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   function Explore({ app }) {
     const code = app.country;
     const mp = S().marketPulse[code];
@@ -231,11 +263,16 @@ import { Charts } from "./charts.jsx";
               </div>
               <div className="row gap24 mt40 enter wrap-f" style={{ animationDelay: "0.36s", color: "var(--t3)" }}>
                 {[["16", "tech roles"], ["7", "countries"], ["9 yrs", "of trend data"], ["100%", "traceable"]].map(([n, l]) => (
-                  <div key={l}><div className="tnum" style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{n}</div><div style={{ fontSize: 11.5, letterSpacing: "0.04em" }}>{l}</div></div>
+                  <div key={l}><div className="tnum big-lum" style={{ fontSize: 22, fontWeight: 800 }}>{n}</div><div style={{ fontSize: 11.5, letterSpacing: "0.04em" }}>{l}</div></div>
                 ))}
               </div>
             </div>
           </div>
+        </div>
+
+        {/* ---- live market ticker ---- */}
+        <div className="wrap">
+          <Ticker app={app} />
         </div>
 
         {/* ---- market pulse ---- */}
@@ -243,7 +280,7 @@ import { Charts } from "./charts.jsx";
           <div className="sec-head">
             <div>
               <div className="sec-eyebrow">Market pulse</div>
-              <div className="h2" style={{ color: "#fff" }}>What's moving in {S().C[code].name}</div>
+              <div className="h2 display-ink">What's moving in <span className="display-ghost">{S().C[code].name}</span></div>
             </div>
             <UI.CountrySelect value={code} onChange={app.setCountry} />
           </div>
@@ -263,4 +300,4 @@ import { Charts } from "./charts.jsx";
     );
   }
 
-export { Explore };
+export { Explore, Ticker };

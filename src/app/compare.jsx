@@ -72,7 +72,7 @@ import { Charts } from "./charts.jsx";
                     <tr key={m.k} style={{ cursor: "default" }}>
                       <td style={{ color: "var(--t3)" }}>{m.k}</td>
                       {roles.map((r, i) => (
-                        <td key={r.id} className="num" style={{ fontWeight: raws && raws[i] === best ? 700 : 500, color: raws && raws[i] === best ? "#fff" : "var(--t2)" }}>
+                        <td key={r.id} className="num" style={{ fontWeight: raws && raws[i] === best ? 700 : 500, color: raws && raws[i] === best ? "#fff" : "var(--t2)", background: raws && raws[i] === best ? "rgba(42,91,255,0.08)" : "transparent", textShadow: raws && raws[i] === best ? "0 0 14px rgba(120,160,255,0.35)" : "none" }}>
                           {m.get(r)} {raws && raws[i] === best && <span style={{ color: "var(--sky)", fontSize: 10, marginLeft: 4 }}>▲</span>}
                         </td>
                       ))}
@@ -364,7 +364,7 @@ import { Charts } from "./charts.jsx";
         <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           {[[a, sa], [b, sb]].map(([code, s]) => (
             <div key={code} className="card pooled">
-              <div className="row gap10" style={{ marginBottom: 18, alignItems: "center" }}><Uc.CountryDot code={code} size={16} /><span className="h3" style={{ color: "#fff" }}>{S().C[code].name}</span></div>
+              <div className="row gap10" style={{ marginBottom: 18, alignItems: "center" }}><Uc.CountryDot code={code} size={16} /><span className="h3 display-ink">{S().C[code].name}</span></div>
               <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
                 <div><div className="stat-label">Avg pay (PPP)</div><div className="tnum" style={{ fontSize: 24, fontWeight: 700, color: "#fff", marginTop: 4 }}>◊{Math.round(s.avgPPP / 1000)}k</div></div>
                 <div><div className="stat-label">5-yr growth</div><div className="tnum" style={{ fontSize: 24, fontWeight: 700, color: "var(--good)", marginTop: 4 }}>+{Math.round(s.growth * 100)}%</div></div>
@@ -408,7 +408,7 @@ import { Charts } from "./charts.jsx";
     return (
       <div className="wrap-wide surface-enter">
         <div className="sec-head" style={{ marginBottom: 22 }}>
-          <div><div className="sec-eyebrow">Compare</div><div className="h1" style={{ color: "#fff" }}>Hold anything side by side</div>
+          <div><div className="sec-eyebrow">Compare</div><div className="h1 display-ink">Hold anything <span className="display-ghost">side by side</span></div>
             <div className="body" style={{ marginTop: 8, maxWidth: 520 }}>Any role × country × year. Pin up to four, switch axes freely, normalize for purchasing power. Fully unrestricted.</div></div>
         </div>
         <div className="seg" style={{ marginBottom: 26 }}>

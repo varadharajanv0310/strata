@@ -29,7 +29,7 @@ import { Charts } from "./charts.jsx";
     return (
       <div className="wrap-wide surface-enter">
         <div className="sec-head" style={{ marginBottom: 24 }}>
-          <div><div className="sec-eyebrow">Countries</div><div className="h1" style={{ color: "#fff" }}>Markets, end to end</div>
+          <div><div className="sec-eyebrow">Countries</div><div className="h1 display-ink">Markets, <span className="display-ghost">end to end</span></div>
             <div className="body" style={{ marginTop: 8, maxWidth: 520 }}>A standing dashboard per market — pay landscape, what's moving, and how openly salaries are disclosed.</div></div>
         </div>
 
@@ -54,7 +54,7 @@ import { Charts } from "./charts.jsx";
         {/* country header stats */}
         <div className="grid" style={{ gridTemplateColumns: "1.4fr 1fr 1fr 1.2fr", gap: 16, marginBottom: 16 }}>
           <div className="card pooled" style={{ justifyContent: "space-between" }}>
-            <div className="row gap12" style={{ alignItems: "center" }}><ui.CountryDot code={code} size={20} /><div className="h2" style={{ color: "#fff" }}>{c.name}</div></div>
+            <div className="row gap12" style={{ alignItems: "center" }}><ui.CountryDot code={code} size={20} /><div className="h2 display-ink">{c.name}</div></div>
             <div className="row between mt20"><div><div className="stat-label">Currency</div><div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginTop: 4 }}>{c.cur} {c.curCode}</div></div>
               <button className="pill sm" onClick={() => app.go("compare", { mode: "mirror" })}>Mirror →</button></div>
           </div>

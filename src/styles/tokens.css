@@ -230,7 +230,8 @@ body { overflow: hidden; } /* app owns its own scroll regions */
 @media (prefers-reduced-motion: reduce) {
   .atmos .aur, .atmos .stars, .atmos .comet, .grain,
   .pillnav::after, .glowbar::after, .march, .pulse-dot,
-  .globe-orbit, .conf .dot, .logomark span, .m-tab.active::before {
+  .globe-orbit, .conf .dot, .logomark span, .m-tab.active::before,
+  .ticker-track, .tick-dot, .drop-orb, .dropzone::before {
     animation: none !important;
   }
 }

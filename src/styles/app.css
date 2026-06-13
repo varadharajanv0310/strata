@@ -691,3 +691,72 @@
   border-radius: 50%; background: #cfe0ff;
   box-shadow: 0 0 12px #4a7cff, 0 0 26px rgba(74, 124, 255, 0.6);
 }
+
+/* ─────────────── 9 · LIVE MARKET TICKER ─────────────── */
+.ticker {
+  position: relative;
+  margin: 2px 0 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.ticker-clip {
+  overflow: hidden; padding: 9px 0;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 9%, #000 94%, transparent);
+          mask: linear-gradient(90deg, transparent, #000 9%, #000 94%, transparent);
+}
+.ticker-track { display: flex; width: max-content; animation: tickerScroll 75s linear infinite; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.tick-set { display: flex; gap: 8px; padding-right: 8px; }
+.tick-chip {
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 6px 13px; border-radius: 999px; border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03); cursor: pointer;
+  font-family: var(--font); white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.tick-chip:hover {
+  background: rgba(42, 91, 255, 0.12);
+  border-color: rgba(74, 124, 255, 0.5);
+  transform: translateY(-1px);
+}
+.tick-name { font-size: 12px; font-weight: 600; color: var(--t2); }
+.tick-val { font-size: 12.5px; font-weight: 700; color: #fff; }
+.tick-delta { font-size: 10.5px; font-weight: 700; }
+.tick-delta.up { color: var(--good); text-shadow: 0 0 10px rgba(79, 217, 155, 0.5); }
+.tick-delta.down { color: var(--bad); text-shadow: 0 0 10px rgba(255, 107, 107, 0.45); }
+.ticker-label {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 2;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 999px;
+  background: rgba(10, 12, 18, 0.94); border: 1px solid rgba(150, 180, 255, 0.24);
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--sky-hot);
+  backdrop-filter: blur(8px);
+}
+.tick-dot {
+  width: 6px; height: 6px; border-radius: 999px; flex-shrink: 0;
+  background: var(--good); color: var(--good);
+  animation: confPulse 2.2s ease-in-out infinite;
+}
+@keyframes tickerScroll { to { transform: translateX(-50%); } }
+
+/* ─────────────── 10 · DROPZONE (the résumé entry moment) ─────────────── */
+.dropzone { position: relative; overflow: hidden; }
+.dropzone::before {
+  content: ""; position: absolute; left: 50%; top: 40%; width: 420px; height: 420px;
+  transform: translate(-50%, -50%); pointer-events: none;
+  background: radial-gradient(closest-side, rgba(42, 91, 255, 0.15), transparent 70%);
+  animation: glowPulse 5s ease-in-out infinite;
+}
+.drop-orb {
+  width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 999px;
+  display: grid; place-items: center; font-size: 26px; color: #cfe0ff;
+  position: relative;
+  background: linear-gradient(180deg, rgba(64, 110, 255, 0.32), rgba(0, 51, 255, 0.14));
+  border: 1px solid rgba(130, 165, 255, 0.4);
+  box-shadow: 0 0 30px rgba(42, 91, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  animation: orbFloat 4.5s ease-in-out infinite;
+}
+@keyframes orbFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.dropzone:hover .drop-orb, .dropzone.hot .drop-orb {
+  box-shadow: 0 0 46px rgba(42, 91, 255, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}

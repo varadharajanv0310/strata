@@ -2,6 +2,7 @@ import React from "react";
 import { STRATA } from "../data/mock.js";
 import { UI } from "./ui.jsx";
 import { Charts } from "./charts.jsx";
+import { Ticker } from "./explore.jsx";
 import { Roles } from "./roles.jsx";
 import { Compare } from "./compare.jsx";
 import { Resume } from "./resume.jsx";
@@ -113,6 +114,9 @@ import { Countries } from "./countries.jsx";
           </div>
         </div>
 
+        {/* live market ticker */}
+        <Ticker app={app} />
+
         {/* market pulse */}
         <div className="mt32">
           <div className="row between" style={{ marginBottom: 12 }}>
@@ -138,7 +142,7 @@ import { Countries } from "./countries.jsx";
         {/* mini explore canvas */}
         <div className="mt32">
           <div className="sec-eyebrow">Explore mode</div>
-          <div className="h3" style={{ color: "#fff", marginBottom: 12 }}>Rank roles by any axis</div>
+          <div className="h3 display-ink" style={{ marginBottom: 12 }}>Rank roles by any axis</div>
           <div className="seg" style={{ marginBottom: 16 }}>
             {Object.keys(metricMeta).map(m => <button key={m} className={mode === m ? "on" : ""} onClick={() => setMode(m)}>{metricMeta[m][0]}</button>)}
           </div>
@@ -203,7 +207,7 @@ import { Countries } from "./countries.jsx";
     return (
       <div className="surface-enter">
         <div className="sec-eyebrow">Roles</div>
-        <h1 className="h1" style={{ color: "#fff" }}>Browse every tech role</h1>
+        <h1 className="h1 display-ink">Browse every <span className="display-ghost">tech role</span></h1>
         <p className="body" style={{ marginTop: 8 }}>Tap a role for its full dashboard — pay, trend, skills, ladder and forecast.</p>
 
         <div className="col gap10" style={{ marginTop: 16, marginBottom: 18 }}>
