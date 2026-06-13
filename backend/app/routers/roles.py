@@ -20,6 +20,26 @@ def roles(
     return services.list_roles(db, q, family)
 
 
+# NOTE: /roles/resolve and /roles/typeahead MUST precede /roles/{role_id},
+# else Starlette matches them as role_id="resolve"/"typeahead".
+@router.get("/roles/resolve", summary="Never-dead-end resolver (confidence + honest copy)")
+def resolve(
+    q: str = Query(..., min_length=1, description="any typed role string"),
+    limit: int = Query(8, ge=1, le=50),
+    db: Session = Depends(get_db),
+) -> dict:
+    return services.resolve_roles(db, q, limit)
+
+
+@router.get("/roles/typeahead", summary="Per-keystroke role suggestions")
+def typeahead(
+    q: str = Query(..., min_length=1, description="search-box prefix"),
+    limit: int = Query(8, ge=1, le=50),
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    return services.typeahead_roles(db, q, limit)
+
+
 @router.get("/roles/{role_id}", response_model=RoleOut, summary="Role Dashboard (full)")
 def role(role_id: str, db: Session = Depends(get_db)):
     r = services.get_role(db, role_id)

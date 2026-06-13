@@ -106,23 +106,36 @@ def get_meta(db: Session) -> dict:
 
 
 def list_roles(db: Session, q: str | None = None, family: str | None = None) -> list[dict]:
+    """Search / browse roles. A query is routed through the never-dead-end resolver
+    (exact → fuzzy → embedding) so a miss returns the *nearest* roles, never ``[]``."""
+    if q and q.strip():
+        from backend.app.resolver import get_resolver
+        results = get_resolver(db).resolve(q, limit=50)["results"]
+        if family and family != "all":
+            results = [r for r in results if r["family"]["id"] == family]
+        return [{"id": r["id"], "name": r["name"], "family": r["family"], "blurb": r["blurb"]}
+                for r in results]
     roles = list(db.scalars(select(M.MartRole).order_by(M.MartRole.ord)))
-    skills_by_role: dict[str, list] = defaultdict(list)
-    for s in db.scalars(select(M.MartRoleSkill)):
-        skills_by_role[s.role_id].append(s.name.lower())
     out = []
     for r in roles:
         if family and family != "all" and r.family_id != family:
             continue
-        if q:
-            ql = q.lower()
-            hay = [r.name.lower()] + skills_by_role.get(r.id, [])
-            if not any(ql in h for h in hay):
-                continue
         out.append({"id": r.id, "name": r.name,
                     "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue},
                     "blurb": r.blurb})
     return out
+
+
+def resolve_roles(db: Session, q: str, limit: int = 8) -> dict:
+    """Full resolver payload (confidence + honest copy + ranked candidates)."""
+    from backend.app.resolver import get_resolver
+    return get_resolver(db).resolve(q, limit=limit)
+
+
+def typeahead_roles(db: Session, q: str, limit: int = 8) -> list[dict]:
+    """Per-keystroke suggestions; never blanks for a non-trivial prefix."""
+    from backend.app.resolver import get_resolver
+    return get_resolver(db).typeahead(q, limit=limit)
 
 
 def get_role(db: Session, role_id: str) -> dict | None:
