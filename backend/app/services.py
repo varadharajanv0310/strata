@@ -175,12 +175,39 @@ def provenance(db: Session, role_id: str, country: str) -> dict | None:
     rc = db.get(M.MartRoleCountry, (role_id, country))
     if not rc:
         return None
-    return {
+    out = {
         "role_id": role_id, "country": country,
         "source": rc.source, "sample": rc.sample, "confidence": rc.conf,
         "kind": rc.kind, "freshness": rc.freshness, "transparency": rc.transparency,
         "is_seed": rc.is_seed,
     }
+    # thread the full lineage tuple from the provenance manifest (best-effort join
+    # on source name; the manifest table may not exist on older marts)
+    try:
+        prov = db.scalars(
+            select(M.MartProvenance).where(M.MartProvenance.source_name == rc.source)
+        ).first()
+        if prov:
+            out.update({
+                "snapshot_hash": prov.snapshot_hash or None,
+                "transform_version": prov.transform_version,
+                "row_count": prov.row_count,
+                "as_of": prov.as_of or None,
+            })
+    except Exception:  # noqa: BLE001 — mart_provenance absent on legacy marts
+        pass
+    return out
+
+
+def list_provenance(db: Session) -> list[dict]:
+    """The full per-source provenance manifest (the /data 'receipts' surface)."""
+    try:
+        rows = db.scalars(select(M.MartProvenance).order_by(M.MartProvenance.source_id)).all()
+    except Exception:  # noqa: BLE001
+        return []
+    return [{"source_id": p.source_id, "source_name": p.source_name, "kind": p.kind,
+             "snapshot_hash": p.snapshot_hash, "transform_version": p.transform_version,
+             "row_count": p.row_count, "as_of": p.as_of} for p in rows]
 
 
 def market_pulse(db: Session, country: str) -> dict:

@@ -122,3 +122,38 @@ class MartMeta(Base):
 
     key: Mapped[str] = mapped_column(String(60), primary_key=True)
     value: Mapped[dict] = mapped_column(JSON)
+
+
+class MartRoleAlias(Base):
+    """Served slice of the role alias graph — backs the never-dead-end resolver.
+
+    Materialized from warehouse ``dim_role_alias``. The resolver also carries the
+    curated seed in-process, so this table is an enrichment (the full alias graph),
+    not a hard dependency.
+    """
+
+    __tablename__ = "mart_role_alias"
+
+    alias_id: Mapped[str] = mapped_column(String(20), primary_key=True)
+    surface: Mapped[str] = mapped_column(String(200))
+    norm: Mapped[str] = mapped_column(String(200), index=True)
+    role_id: Mapped[str] = mapped_column(String(120), index=True)
+    source: Mapped[str] = mapped_column(String(20))
+    lang: Mapped[str] = mapped_column(String(6), default="en")
+    weight: Mapped[float] = mapped_column(Float, default=1.0)
+
+
+class MartProvenance(Base):
+    """Per-source provenance manifest — the (source_id, snapshot_hash,
+    transform_version, row_count, as_of) tuple threaded into the served layer so a
+    number's full lineage is answerable, not just its source name."""
+
+    __tablename__ = "mart_provenance"
+
+    source_id: Mapped[str] = mapped_column(String(60), primary_key=True)
+    source_name: Mapped[str] = mapped_column(String(160), index=True)
+    kind: Mapped[str] = mapped_column(String(20))            # person-level | job-level | demand | ...
+    snapshot_hash: Mapped[str] = mapped_column(String(40))   # sha1 of the staging snapshot (or '')
+    transform_version: Mapped[str] = mapped_column(String(40))
+    row_count: Mapped[int] = mapped_column(Integer, default=0)
+    as_of: Mapped[str] = mapped_column(String(40))           # ISO timestamp of the snapshot

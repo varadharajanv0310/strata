@@ -166,3 +166,51 @@ def materialize_from_warehouse() -> None:
                  len(countries), len(roles), len(rc_rows), len(pulse_rows))
     finally:
         duck.close()
+
+
+def materialize_aliases() -> int:
+    """Materialize the warehouse alias graph (``dim_role_alias``) → ``mart_role_alias``.
+
+    Additive to materialize_from_warehouse: backs the resolver with the full alias
+    graph (the resolver also carries the curated seed in-process, so a missing table
+    is non-fatal). Returns the row count.
+    """
+    Base.metadata.create_all(engine)
+    duck = duckdb_connect(read_only=True)
+    try:
+        rows = duck.execute(
+            "SELECT alias_id, surface, norm, role_id, source, lang, weight FROM dim_role_alias"
+        ).fetchall()
+    except Exception:  # noqa: BLE001 — table absent (taxonomy not built yet)
+        log.info("dim_role_alias absent — run build_taxonomy first; skipping alias mart")
+        return 0
+    finally:
+        duck.close()
+    with session_scope() as db:
+        db.execute(delete(M.MartRoleAlias))
+        db.add_all([M.MartRoleAlias(alias_id=a, surface=s, norm=n, role_id=r,
+                                    source=src, lang=lang, weight=w)
+                    for (a, s, n, r, src, lang, w) in rows])
+    log.info("mart_role_alias: %d aliases", len(rows))
+    return len(rows)
+
+
+def materialize_provenance() -> int:
+    """Materialize the per-source provenance manifest → ``mart_provenance``.
+
+    Threads (source_id, snapshot_hash, transform_version, row_count, as_of) into the
+    served layer so a number's full lineage is answerable. Returns the row count.
+    """
+    from backend.warehouse.provenance import collect_provenance
+
+    Base.metadata.create_all(engine)
+    duck = duckdb_connect(read_only=True)
+    try:
+        manifest = collect_provenance(duck)
+    finally:
+        duck.close()
+    with session_scope() as db:
+        db.execute(delete(M.MartProvenance))
+        db.add_all([M.MartProvenance(**m) for m in manifest])
+    log.info("mart_provenance: %d sources", len(manifest))
+    return len(manifest)

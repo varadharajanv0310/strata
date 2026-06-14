@@ -102,6 +102,21 @@ class ProvenanceOut(BaseModel):
     freshness: str
     transparency: float
     is_seed: bool
+    # full lineage tuple (threaded from the staging snapshot), when available
+    snapshot_hash: str | None = None
+    transform_version: str | None = None
+    row_count: int | None = None
+    as_of: str | None = None
+
+
+class SourceProvenanceOut(BaseModel):
+    source_id: str
+    source_name: str
+    kind: str
+    snapshot_hash: str
+    transform_version: str
+    row_count: int
+    as_of: str
 
 
 class HealthOut(BaseModel):
