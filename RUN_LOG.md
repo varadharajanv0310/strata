@@ -82,4 +82,6 @@ Two git tracks. **Track A** = older data-pipeline work, fixed + PUSHED to origin
 - Sanity: `backup/*` tags present (prior rebuild evidence); dangling `6c92fcc` is a harmless pre-rebuild dup of the 06-07 build-log commit (same content lives as `ea8d9c6`); no stashes; no stranded work.
 
 ### Track B — build (local only on `build-pass`, never pushed)
-- `housekeeping` — RUN_LOG Track-A record + gitignore `.claude/` `.logs/`.
+- `housekeeping` — RUN_LOG Track-A record + gitignore `.claude/` `.logs/`. (`b78bea9`)
+- `01:42` — ✅ **taxonomy schema + loader** (`b83c593`). `dim_role_alias` (canonical-node + alias graph), `dim_role_crosswalk` (7-system gov codes), `dim_seniority`/`dim_specialization` as orthogonal axes, append-only `dim_role_birth`. `normalize_surface` strips seniority, keeps c++/node.js/ci/cd. Verified on in-memory DuckDB: **839 aliases (725 from the staging O*NET zip)**, 33 crosswalk, 16 births. ESCO/Lightcast/crosswalk-file loaders stubbed (graceful) + emergent-role miner TODO.
+- `01:46` — ✅ **never-dead-end resolver** (`70c2db8`). Killed the `services.list_roles` `if ql in h` empty-list bug. 3-tier cascade exact→fuzzy(stdlib trigram+token+seq)→embedding ANN (lazy MiniLM/faiss, graceful). `/api/roles/resolve` + `/api/roles/typeahead` (ordered before `/{role_id}`). Verified on real 16-role app.db: SDET→QA, RoR→Backend, 'data scientsit'→Data Scientist (0.93), appsec→Security; **never empty (asserted incl. 'zzzzz')**; embedding tier loaded (faiss AVX2 + MiniLM, 16 centroids).
