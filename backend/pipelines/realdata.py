@@ -31,8 +31,35 @@ def _write_state(**kw) -> None:
         log.warning("could not write run_state.json: %s", e)
 
 
+def _apply_real_ppp_to_warehouse() -> int:
+    """Refine dim_ppp with real per-(country,year) World Bank PPP. Returns rows updated."""
+    from backend.ingest.worldbank_ppp import ppp_filled
+    filled = ppp_filled()
+    if not filled:
+        return 0
+    from backend.core.db import duckdb_connect
+    con = duckdb_connect()
+    try:
+        con.execute("BEGIN TRANSACTION")
+        n = 0
+        for code, yrs in filled.items():
+            for year, val in yrs.items():
+                con.execute(
+                    "UPDATE dim_ppp SET ppp_factor=?, source='worldbank:PA.NUS.PPP' "
+                    "WHERE country_code=? AND year=?", [val, code, year])
+                n += 1
+        con.execute("COMMIT")
+        return n
+    except Exception:
+        con.execute("ROLLBACK")
+        raise
+    finally:
+        con.close()
+
+
 def run_realdata(fetch: bool = True, throttle: float = 2.5) -> dict:
     from backend.ingest.adzuna_salaries import fetch_all
+    from backend.ingest.worldbank_ppp import fetch_ppp
     from backend.warehouse.real_build import build_real_dataset
     from backend.warehouse.build import build_warehouse_from_dataset
     from backend.ml.job_score import compute_job_scores
@@ -45,15 +72,23 @@ def run_realdata(fetch: bool = True, throttle: float = 2.5) -> dict:
         summary = fetch_all(throttle=throttle)
         _write_state(stage="ingest", adzuna=summary)
         log.info("ingest done: %s", summary)
+    # World Bank PPP — one cheap cached call; always ensured (cheap, idempotent)
+    try:
+        ppp = fetch_ppp()
+        log.info("World Bank PPP ready: %d countries", len(ppp))
+    except Exception as e:  # noqa: BLE001 — keep curated PPP on failure
+        log.warning("World Bank PPP fetch failed (%s) — keeping curated PPP", e)
 
     log.info("STAGE 2/5 — overlay real numbers onto curated taxonomy")
     _write_state(stage="overlay")
     ds = build_real_dataset()
     real, tot, modeled = ds["_real_count"], ds["_total_count"], ds["_modeled_count"]
 
-    log.info("STAGE 3/5 — load warehouse (is_seed=False)")
+    log.info("STAGE 3/5 — load warehouse (is_seed=False) + real per-year PPP")
     _write_state(stage="warehouse", real=real, total=tot, modeled=modeled)
     build_warehouse_from_dataset(ds, is_seed=False)
+    ppp_rows = _apply_real_ppp_to_warehouse()
+    log.info("dim_ppp refined with real World Bank PPP: %d rows", ppp_rows)
 
     log.info("STAGE 4/5 — recompute real Job Score + back-tested forecast")
     _write_state(stage="compute")
