@@ -39,15 +39,20 @@ Running audit trail for the backend & data-platform build. Newest entries at the
 
 | Phase | Status | Notes |
 |---|---|---|
-| 0 — Scaffold | in progress | repo structure, config, DB wiring |
-| 1 — Warehouse & app schema | pending | |
-| 2 — API + frontend wiring (seed) | pending | the early live-app win |
-| 3 — Ingestion connectors | pending | credential-graceful |
-| 4 — GPU pipeline | pending | developer-launched on real data |
-| 5 — Analytics & marts | pending | |
-| 6 — Full wiring & features | pending | resume, accounts, provenance |
-| 7 — Validation + full-scale config | pending | |
-| 8 — Reports & handoff | pending | |
+| 0 — Scaffold | ✅ | repo structure, config, DB wiring |
+| 1 — Warehouse & app schema | ✅ | DuckDB star schema + Postgres/SQLite marts + Alembic |
+| 2 — API + frontend wiring (seed) | ✅ | **live app** on the real API (desktop + mobile), seed-backed |
+| 3 — Ingestion connectors | ◑ | framework + Common Crawl + Adzuna full; 14 sources scaffolded (credential-graceful) |
+| 4 — GPU pipeline | ◑ | Job Score + forecasting runnable (GPU-free, validated); skill/ER/role GPU-guarded |
+| 5 — Analytics & marts | ✅ | marts materialized; back-tested forecasts; Job Score (§4) |
+| 6 — Full wiring & features | ✅ | résumé (user-data rule), accounts, favourites, provenance — on seed; real data developer-launched |
+| 7 — Validation + full-scale config | ✅ | 15 tests green; bounded slice validated; full-scale run documented |
+| 8 — Reports & handoff | ✅ | FEATURE_COVERAGE.md, backend/README.md, this log; deps reconciled |
+
+**Build status: complete (seed-backed, production-grade software).** Real-data
+ingestion + GPU run at scale is configured and developer-launched (needs source
+credentials + GPU-days; see backend/README §4). **Git: local commits only — awaiting
+explicit approval to push (see Version control).**
 
 ---
 
@@ -101,3 +106,16 @@ Running audit trail for the backend & data-platform build. Newest entries at the
 - **Favourites** (`routers/favourites.py`): list / add (idempotent) / delete for the quiet saved shelf (no digests/feed). Verified: add, idempotent dedup, anon → 401, delete 204.
 - **Provenance + confidence** flow to the frontend on every figure (Phase 2 `/api/provenance` + per-row `conf/source/sample/freshness/kind/transparency/is_seed`).
 - Real ingested data replaces seed here at full scale (developer-launched); the seed remains tagged and is retired by the real pipeline run.
+
+## Phase 7 — Validation + full-scale config  ✅
+
+- **Test suite green: 15 passed** (`python -m pytest backend/tests -q`). Covers: API contract conformance to the frontend `mock.js` shapes; Job Score §4 math (within-country normalization, weighted-sum reproduction, percentile bounds, ranking); forecasting (back-test stored, band non-decreasing with horizon, value within band); the résumé user-data rule (one profile, no Resume B, anon not stored); warehouse aggregation + conventions (grain, native median, provenance on every row, job/person separation, PPP per country); accounts + favourites (auth required, idempotent).
+- **Bounded slice validated end-to-end:** seed → warehouse → marts → API → frontend (desktop + mobile), plus `compute` flow (Job Score + back-tested forecasts + materialize). The real-data bounded slice (a couple of Common Crawl segments, 1–2 countries) uses the same `pipeline full` path and is documented for the developer to launch (needs network/credentials).
+- **Full-scale run configured + documented** (backend/README §4): scope/weights/floor in `.env`; `python -m backend.cli pipeline full` runs ingest → GPU normalize → warehouse → compute → marts, idempotent/resumable, retiring seed.
+
+## Phase 8 — Reports & handoff  ✅
+
+- `FEATURE_COVERAGE.md` — every locked feature mapped (frontend / API / data / status), sources + GPU stages, and flagged gaps (résumé upload wiring; real data; Postgres swap).
+- `backend/README.md` — setup, quick start (seed), every CLI stage, the full-scale run, tests, layout.
+- Dependency pins reconciled to tested versions; Prefect + Great-Expectations split into `requirements-optional.txt` (both import-guarded). `requirements-ml.txt` for the GPU stack.
+- **Done.** Local commit history is granular and conventional; nothing pushed (push gated on approval).
