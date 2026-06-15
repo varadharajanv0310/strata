@@ -3,15 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#F4F0E6" />
   <title>strata — tech job-market intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Space+Grotesk:wght@400..700&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
 </head>
 <body>
   <div id="root">
-    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#05060a;color:rgba(255,255,255,0.4);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;letter-spacing:0.04em;">
-      loading the market…
+    <div style="position:fixed;inset:0;display:grid;place-items:center;background:#F4F0E6;color:#5C564A;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.18em;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="width:9px;height:9px;background:#FF4D00;animation:plot 1s steps(2) infinite;"></span>
+        PLOTTING THE MARKET&hellip;
+      </div>
+      <style>@keyframes plot{0%,100%{opacity:1}50%{opacity:.15}}</style>
     </div>
   </div>
   <script type="module" src="/src/main-desktop.jsx"></script>
