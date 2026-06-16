@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>strata · /data — query the warehouse in your browser</title>
+  <style>
+    :root { --bg:#05060a; --panel:#0c0e16; --line:rgba(255,255,255,.08);
+            --ink:rgba(255,255,255,.92); --dim:rgba(255,255,255,.45); --accent:#3b6dff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink);
+           font-family:'Plus Jakarta Sans',system-ui,sans-serif; padding:32px; line-height:1.5; }
+    .wrap { max-width:980px; margin:0 auto; }
+    h1 { font-size:20px; font-weight:700; letter-spacing:.01em; margin:0 0 4px; }
+    .sub { color:var(--dim); font-size:13px; margin-bottom:20px; }
+    .sub b { color:var(--ink); font-weight:600; }
+    textarea { width:100%; height:120px; background:var(--panel); color:var(--ink);
+               border:1px solid var(--line); border-radius:10px; padding:14px;
+               font-family:ui-monospace,'Cascadia Code',monospace; font-size:13px; resize:vertical; }
+    .row { display:flex; gap:10px; align-items:center; margin:12px 0; flex-wrap:wrap; }
+    button { background:var(--accent); color:#fff; border:0; border-radius:8px;
+             padding:9px 18px; font-weight:600; font-size:13px; cursor:pointer; }
+    button:disabled { opacity:.5; cursor:default; }
+    .chip { background:var(--panel); border:1px solid var(--line); color:var(--dim);
+            border-radius:6px; padding:5px 10px; font-size:12px; cursor:pointer; }
+    .chip:hover { color:var(--ink); }
+    #status { font-size:12px; color:var(--dim); }
+    table { border-collapse:collapse; width:100%; margin-top:16px; font-size:12.5px; }
+    th,td { border:1px solid var(--line); padding:6px 10px; text-align:left; white-space:nowrap; }
+    th { background:var(--panel); color:var(--dim); font-weight:600; position:sticky; top:0; }
+    .scroll { overflow:auto; max-height:52vh; border:1px solid var(--line); border-radius:10px; }
+    .err { color:#ff6b6b; font-size:12.5px; margin-top:14px; white-space:pre-wrap; }
+    code { background:var(--panel); padding:2px 6px; border-radius:4px; font-size:12px; }
+    .foot { color:var(--dim); font-size:11.5px; margin-top:28px; border-top:1px solid var(--line); padding-top:14px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>strata · /data</h1>
+    <div class="sub">The browser <b>is</b> the warehouse. These marts are compiled to Parquet and queried
+      by <b>DuckDB-WASM</b> entirely in this tab — no server, no API. Run your own SQL; the numbers are
+      yours to re-derive. <span id="status">booting DuckDB-WASM…</span></div>
+
+    <textarea id="sql">SELECT role_id, country_code, median, demand, score_total
+FROM mart_role_country
+WHERE country_code = 'IN'
+ORDER BY median DESC
+LIMIT 10;</textarea>
+
+    <div class="row">
+      <button id="run" disabled>Run query</button>
+      <span class="chip" data-q="SELECT * FROM mart_role ORDER BY ord;">all roles</span>
+      <span class="chip" data-q="SELECT country_code, count(*) n, round(avg(median)) avg_median FROM mart_role_country GROUP BY 1 ORDER BY 2 DESC;">by country</span>
+      <span class="chip" data-q="SELECT role_id, name FROM mart_role JOIN mart_role_country USING(id) WHERE 1=0;">(schema below)</span>
+    </div>
+
+    <div id="out"></div>
+    <div id="error" class="err"></div>
+
+    <div class="foot">
+      Tables: <code>mart_role</code>, <code>mart_country</code>, <code>mart_role_country</code>,
+      <code>mart_role_skill</code>, <code>mart_role_ladder</code>, <code>mart_market_pulse</code>,
+      <code>mart_role_alias</code>, <code>mart_provenance</code>.
+      Parquet is produced by <code>python -m backend.marts.export_parquet</code> →
+      <code>public/data/marts/</code>.
+    </div>
+  </div>
+
+  <script type="module">
+    import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.29.0/+esm';
+
+    const $ = (id) => document.getElementById(id);
+    const status = $('status'), runBtn = $('run'), out = $('out'), errBox = $('error');
+    const BASE = './data/marts/';
+    const TABLES = ['mart_country','mart_family','mart_role','mart_role_skill','mart_role_ladder',
+                    'mart_role_country','mart_market_pulse','mart_role_alias','mart_provenance'];
+    let conn = null;
+
+    async function boot() {
+      try {
+        const bundles = duckdb.getJsDelivrBundles();
+        const bundle = await duckdb.selectBundle(bundles);
+        const workerURL = URL.createObjectURL(new Blob(
+          [`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' }));
+        const worker = new Worker(workerURL);
+        const db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker);
+        await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+        URL.revokeObjectURL(workerURL);
+        conn = await db.connect();
+
+        let registered = 0;
+        for (const t of TABLES) {
+          try {
+            await db.registerFileURL(`${t}.parquet`, `${BASE}${t}.parquet`,
+                                     duckdb.DuckDBDataProtocol.HTTP, false);
+            await conn.query(`CREATE VIEW ${t} AS SELECT * FROM read_parquet('${t}.parquet')`);
+            registered++;
+          } catch (e) { /* table not exported yet — skip */ }
+        }
+        if (!registered) {
+          status.innerHTML = 'no Parquet found — run <code>python -m backend.marts.export_parquet</code> into <code>public/data/marts/</code>.';
+          return;
+        }
+        status.textContent = `ready · ${registered} tables · DuckDB-WASM in-tab`;
+        runBtn.disabled = false;
+        run();
+      } catch (e) {
+        status.textContent = 'failed to boot DuckDB-WASM';
+        errBox.textContent = String(e);
+      }
+    }
+
+    async function run() {
+      if (!conn) return;
+      errBox.textContent = '';
+      runBtn.disabled = true;
+      try {
+        const res = await conn.query($('sql').value);
+        renderTable(res);
+      } catch (e) {
+        out.innerHTML = '';
+        errBox.textContent = String(e);
+      } finally {
+        runBtn.disabled = false;
+      }
+    }
+
+    function renderTable(res) {
+      const cols = res.schema.fields.map(f => f.name);
+      const rows = res.toArray().map(r => r.toJSON());
+      let html = '<div class="scroll"><table><thead><tr>' +
+        cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+      for (const row of rows) {
+        html += '<tr>' + cols.map(c => {
+          let v = row[c];
+          if (typeof v === 'bigint') v = v.toString();
+          return `<td>${v === null || v === undefined ? '' : String(v)}</td>`;
+        }).join('') + '</tr>';
+      }
+      html += '</tbody></table></div>';
+      out.innerHTML = `<div style="font-size:12px;color:var(--dim);margin-top:14px">${rows.length} rows</div>` + html;
+    }
+
+    runBtn.addEventListener('click', run);
+    document.querySelectorAll('.chip').forEach(c =>
+      c.addEventListener('click', () => { $('sql').value = c.dataset.q; run(); }));
+    boot();
+  </script>
+</body>
+</html>
