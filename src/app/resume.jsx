@@ -31,7 +31,7 @@ import { Charts } from "./charts.jsx";
           onDragOver={e => { e.preventDefault(); setHot(true); }} onDragLeave={() => setHot(false)}
           onDrop={e => { e.preventDefault(); setHot(false); onParse(); }} onClick={onParse}>
           <div style={{ fontSize: 34, marginBottom: 14 }}>⤓</div>
-          <div className="h3" style={{ color: "#fff" }}>Drop a résumé to price your profile</div>
+          <div className="h3" style={{ color: "var(--black)" }}>Drop a résumé to price your profile</div>
           <div className="body" style={{ maxWidth: 420, margin: "10px auto 0" }}>PDF or DOCX — a 5-second action. We parse skills and experience, then value the whole profile per country. Nothing required, nothing stored.</div>
           <div className="row gap10 center mt24"><span className="pill solid">Choose file</span><span className="pill ghost">or use a sample profile</span></div>
         </div>
@@ -50,8 +50,8 @@ import { Charts } from "./charts.jsx";
       <div className="card pooled" style={{ borderTop: `2px solid ${accent}` }}>
         <div className="row between" style={{ marginBottom: 16 }}>
           <div className="row gap12" style={{ alignItems: "center" }}>
-            <div style={{ width: 40, height: 40, borderRadius: 11, background: accent + "28", display: "grid", placeItems: "center", fontSize: 15, border: `1px solid ${accent}55`, color: "#fff", fontWeight: 800 }}>{badge}</div>
-            <div><div className="h3" style={{ color: "#fff", fontSize: 18 }}>{profile.title}</div><div className="small" style={{ color: "var(--t3)" }}>{profile.years} yrs · {profile.skills.length} skills</div></div>
+            <div style={{ width: 40, height: 40, borderRadius: 11, background: accent + "28", display: "grid", placeItems: "center", fontSize: 15, border: `1px solid ${accent}55`, color: "var(--black)", fontWeight: 800 }}>{badge}</div>
+            <div><div className="h3" style={{ color: "var(--black)", fontSize: 18 }}>{profile.title}</div><div className="small" style={{ color: "var(--t3)" }}>{profile.years} yrs · {profile.skills.length} skills</div></div>
           </div>
           <span style={{ width: 9, height: 9, borderRadius: 9, background: accent, boxShadow: `0 0 10px ${accent}` }}></span>
         </div>
@@ -68,7 +68,7 @@ import { Charts } from "./charts.jsx";
         <div className="card-sub" style={{ margin: "16px 0 10px" }}>ROLE MATCHES</div>
         <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           {matches.map((r, i) => (
-            <button key={r.id} onClick={(e) => window.openRoleMenu(r.id, e.clientX, e.clientY)} className="row between" style={{ background: "rgba(255,255,255,0.025)", border: "1px solid var(--line)", borderRadius: 10, padding: "9px 11px", cursor: "pointer", textAlign: "left" }}>
+            <button key={r.id} onClick={(e) => window.openRoleMenu(r.id, e.clientX, e.clientY)} className="row between" style={{ background: "var(--wash)", border: "1px solid var(--line)", borderRadius: 10, padding: "9px 11px", cursor: "pointer", textAlign: "left" }}>
               <span className="row gap8" style={{ minWidth: 0, alignItems: "center" }}><Uc.FamilyDot family={r.family} /><span style={{ fontSize: 12.5, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span></span>
               <span className="pctile" style={{ flexShrink: 0 }}>{fitPct(profile, r, i)}%</span>
             </button>
@@ -86,14 +86,14 @@ import { Charts } from "./charts.jsx";
 
         {/* learn next */}
         <div className="card-sub" style={{ margin: "16px 0 8px" }}>LEARN NEXT</div>
-        <div className="chips">{learn.length ? learn.map(n => <span key={n} className="pill sm" style={{ background: accent + "22", borderColor: accent + "55", color: "#fff" }}>{n} ↗</span>) : <span className="small" style={{ color: "var(--t3)" }}>Already future-aligned.</span>}</div>
+        <div className="chips">{learn.length ? learn.map(n => <span key={n} className="pill sm" style={{ background: accent + "22", borderColor: accent + "55", color: "var(--black)" }}>{n} ↗</span>) : <span className="small" style={{ color: "var(--t3)" }}>Already future-aligned.</span>}</div>
       </div>
     );
   }
 
   // ---- deep comparison between two profiles ----
   function DeepCompare({ a, b, country }) {
-    const COL_A = "#4a7cff", COL_B = "#ffcc4d";
+    const COL_A = "#2243B6", COL_B = "#FF4D00";
     const axes = a.axes.map(x => x.axis);
     const radarSeries = [
       { label: a.title, color: COL_A, values: a.axes.map(x => x.you) },
@@ -111,20 +111,20 @@ import { Charts } from "./charts.jsx";
 
     return (
       <div className="grid" style={{ gap: 16 }}>
-        <div className="card" style={{ background: "rgba(42,91,255,0.05)" }}>
+        <div className="card" style={{ background: "rgba(255,77,0,0.06)" }}>
           <div className="row between wrap-f gap16" style={{ alignItems: "center" }}>
             <div>
               <div className="sec-eyebrow">Verdict · {S().C[country].name}</div>
-              <div className="h3" style={{ color: "#fff", marginTop: 4 }}>
+              <div className="h3" style={{ color: "var(--black)", marginTop: 4 }}>
                 <span style={{ color: leader === a ? COL_A : COL_B }}>{leader.title}</span> prices {Math.round(Math.abs(vA - vB) / Math.min(vA, vB) * 100)}% higher
               </div>
-              <div className="body" style={{ marginTop: 6, maxWidth: 560 }}>The two profiles separate most on <strong style={{ color: "#fff" }}>{sep.join(" and ")}</strong>. {leader.title} leads on raw value here; the gap narrows in markets where the other profile's strengths are scarcer.</div>
+              <div className="body" style={{ marginTop: 6, maxWidth: 560 }}>The two profiles separate most on <strong style={{ color: "var(--black)" }}>{sep.join(" and ")}</strong>. {leader.title} leads on raw value here; the gap narrows in markets where the other profile's strengths are scarcer.</div>
             </div>
             <div className="row gap20">
               {[[a, vA, COL_A], [b, vB, COL_B]].map(([p, v, c]) => (
                 <div key={p.title} style={{ textAlign: "right" }}>
                   <div className="row gap8" style={{ justifyContent: "flex-end", alignItems: "center" }}><span style={{ width: 8, height: 8, borderRadius: 9, background: c, display: "inline-block" }}></span><span className="small" style={{ color: "var(--t3)" }}>{p.title}</span></div>
-                  <div className="tnum" style={{ fontSize: 26, fontWeight: 700, color: "#fff", marginTop: 2 }}>{S().fmtCompact(v, country)}</div>
+                  <div className="tnum" style={{ fontSize: 26, fontWeight: 700, color: "var(--black)", marginTop: 2 }}>{S().fmtCompact(v, country)}</div>
                 </div>
               ))}
             </div>
@@ -147,8 +147,8 @@ import { Charts } from "./charts.jsx";
                 <div key={co.code} className="row gap12" style={{ alignItems: "center" }}>
                   <span style={{ width: 116 }}><Uc.CountryTag code={co.code} sm /></span>
                   <div style={{ flex: 1 }}>
-                    <div style={{ height: 9, background: "rgba(255,255,255,0.05)", borderRadius: 6, overflow: "hidden", marginBottom: 4 }}><div style={{ width: `${(valsA[i].ppp / mxPPP) * 100}%`, height: "100%", borderRadius: 6, background: COL_A }} /></div>
-                    <div style={{ height: 9, background: "rgba(255,255,255,0.05)", borderRadius: 6, overflow: "hidden" }}><div style={{ width: `${(valsB[i].ppp / mxPPP) * 100}%`, height: "100%", borderRadius: 6, background: COL_B }} /></div>
+                    <div style={{ height: 9, background: "var(--wash)", borderRadius: 6, overflow: "hidden", marginBottom: 4 }}><div style={{ width: `${(valsA[i].ppp / mxPPP) * 100}%`, height: "100%", borderRadius: 6, background: COL_A }} /></div>
+                    <div style={{ height: 9, background: "var(--wash)", borderRadius: 6, overflow: "hidden" }}><div style={{ width: `${(valsB[i].ppp / mxPPP) * 100}%`, height: "100%", borderRadius: 6, background: COL_B }} /></div>
                   </div>
                   <span className="tnum col" style={{ width: 92, textAlign: "right", fontSize: 11.5, fontWeight: 700, lineHeight: 1.45 }}>
                     <span style={{ color: COL_A }}>{S().fmtCompact(valsA[i].native, co.code)}</span>
@@ -165,15 +165,15 @@ import { Charts } from "./charts.jsx";
           <div className="grid" style={{ gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
             <div>
               <div className="row gap8 mb8" style={{ alignItems: "center", marginBottom: 10 }}><span style={{ width: 8, height: 8, borderRadius: 9, background: COL_A, display: "inline-block" }}></span><span className="small" style={{ color: "var(--t2)" }}>Only {a.title}</span></div>
-              <div className="chips">{onlyA.length ? onlyA.map(s => <span key={s} className="tag" style={{ color: "#cdd9ff", borderColor: COL_A + "55" }}>{s}</span>) : <span className="small" style={{ color: "var(--t3)" }}>—</span>}</div>
+              <div className="chips">{onlyA.length ? onlyA.map(s => <span key={s} className="tag" style={{ color: "#2243B6", borderColor: COL_A + "55" }}>{s}</span>) : <span className="small" style={{ color: "var(--t3)" }}>—</span>}</div>
             </div>
             <div>
-              <div className="row gap8" style={{ alignItems: "center", marginBottom: 10 }}><span style={{ width: 8, height: 8, borderRadius: 9, background: "rgba(255,255,255,0.4)", display: "inline-block" }}></span><span className="small" style={{ color: "var(--t2)" }}>Shared</span></div>
+              <div className="row gap8" style={{ alignItems: "center", marginBottom: 10 }}><span style={{ width: 8, height: 8, borderRadius: 9, background: "var(--t3)", display: "inline-block" }}></span><span className="small" style={{ color: "var(--t2)" }}>Shared</span></div>
               <div className="chips">{shared.map(s => <span key={s} className="tag">{s}</span>)}</div>
             </div>
             <div>
               <div className="row gap8" style={{ alignItems: "center", marginBottom: 10 }}><span style={{ width: 8, height: 8, borderRadius: 9, background: COL_B, display: "inline-block" }}></span><span className="small" style={{ color: "var(--t2)" }}>Only {b.title}</span></div>
-              <div className="chips">{onlyB.length ? onlyB.map(s => <span key={s} className="tag" style={{ color: "#ffe9b0", borderColor: COL_B + "55" }}>{s}</span>) : <span className="small" style={{ color: "var(--t3)" }}>—</span>}</div>
+              <div className="chips">{onlyB.length ? onlyB.map(s => <span key={s} className="tag" style={{ color: "#C98A00", borderColor: COL_B + "55" }}>{s}</span>) : <span className="small" style={{ color: "var(--t3)" }}>—</span>}</div>
             </div>
           </div>
         </div>
@@ -197,8 +197,8 @@ import { Charts } from "./charts.jsx";
     const header = (
       <div className="row between wrap-f gap12" style={{ marginBottom: 24 }}>
         <div className="row gap12" style={{ alignItems: "center" }}>
-          <div style={{ width: 46, height: 46, borderRadius: 12, background: "rgba(42,91,255,0.18)", display: "grid", placeItems: "center", fontSize: 18, border: "1px solid var(--glass-line)" }}>◑</div>
-          <div><div className="h3" style={{ color: "#fff" }}>{compareB ? "Résumé A vs B" : profile.title}</div><div className="small" style={{ color: "var(--t3)" }}>{compareB ? `${profile.title} vs ${profileB.title}` : `${profile.years} yrs experience · ${profile.skills.length} skills parsed`}</div></div>
+          <div style={{ width: 46, height: 46, borderRadius: 12, background: "rgba(255,77,0,0.1)", display: "grid", placeItems: "center", fontSize: 18, border: "1px solid var(--glass-line)" }}>◑</div>
+          <div><div className="h3" style={{ color: "var(--black)" }}>{compareB ? "Résumé A vs B" : profile.title}</div><div className="small" style={{ color: "var(--t3)" }}>{compareB ? `${profile.title} vs ${profileB.title}` : `${profile.years} yrs experience · ${profile.skills.length} skills parsed`}</div></div>
         </div>
         <div className="row gap10">
           {compareB && <button className="pill sm ghost" onClick={() => setCompareB(false)}>← Single profile</button>}
@@ -213,10 +213,10 @@ import { Charts } from "./charts.jsx";
         <div className="wrap-wide">
           {header}
           <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
-            <ProfilePanel profile={profile} country={country} accent="#4a7cff" app={app} badge="A" />
-            <ProfilePanel profile={profileB} country={country} accent="#ffcc4d" app={app} badge="B" />
+            <ProfilePanel profile={profile} country={country} accent="#2243B6" app={app} badge="A" />
+            <ProfilePanel profile={profileB} country={country} accent="#C98A00" app={app} badge="B" />
           </div>
-          <div className="sec-head" style={{ margin: "30px 0 18px" }}><div><div className="sec-eyebrow">Head to head</div><div className="h2" style={{ color: "#fff" }}>Where they diverge</div></div></div>
+          <div className="sec-head" style={{ margin: "30px 0 18px" }}><div><div className="sec-eyebrow">Head to head</div><div className="h2" style={{ color: "var(--black)" }}>Where they diverge</div></div></div>
           <DeepCompare a={profile} b={profileB} country={country} />
           <div style={{ height: 40 }}></div>
         </div>
@@ -239,10 +239,10 @@ import { Charts } from "./charts.jsx";
             <div className="card-head"><div><div className="card-title">Best market for your profile</div><div className="card-sub">Ranked by purchasing power (PPP)</div></div></div>
             <div className="col" style={{ gap: 9 }}>
               {best.map(it => (
-                <button key={it.code} onClick={() => setCountry(it.code)} className="row gap12" style={{ alignItems: "center", background: it.code === country ? "rgba(42,91,255,0.08)" : "transparent", border: "1px solid " + (it.code === country ? "rgba(74,124,255,0.3)" : "transparent"), borderRadius: 9, padding: "6px 9px", cursor: "pointer", width: "100%", textAlign: "left" }}>
+                <button key={it.code} onClick={() => setCountry(it.code)} className="row gap12" style={{ alignItems: "center", background: it.code === country ? "rgba(255,77,0,0.06)" : "transparent", border: "1px solid " + (it.code === country ? "rgba(255,77,0,0.5)" : "transparent"), borderRadius: 9, padding: "6px 9px", cursor: "pointer", width: "100%", textAlign: "left" }}>
                   <span style={{ width: 140 }}><Uc.CountryTag code={it.code} sm /></span>
-                  <div style={{ flex: 1, height: 16, background: "rgba(255,255,255,0.05)", borderRadius: 5, overflow: "hidden" }}><div style={{ width: `${(it.ppp / mxBest) * 100}%`, height: "100%", borderRadius: 5, background: "linear-gradient(90deg,#0033ff,#7aa0ff)" }} /></div>
-                  <span className="tnum" style={{ width: 96, textAlign: "right", fontSize: 13, fontWeight: 700, color: "#fff" }}>{S().fmtCompact(it.native, it.code)}</span>
+                  <div style={{ flex: 1, height: 16, background: "var(--wash)", borderRadius: 5, overflow: "hidden" }}><div style={{ width: `${(it.ppp / mxBest) * 100}%`, height: "100%", borderRadius: 5, background: "var(--bar)" }} /></div>
+                  <span className="tnum" style={{ width: 96, textAlign: "right", fontSize: 13, fontWeight: 700, color: "var(--black)" }}>{S().fmtCompact(it.native, it.code)}</span>
                 </button>
               ))}
             </div>
@@ -256,8 +256,8 @@ import { Charts } from "./charts.jsx";
             {matches.map((r, i) => (
               <div key={r.id} className="card tight lift" style={{ cursor: "pointer" }} onClick={(e) => window.openRoleMenu(r.id, e.clientX, e.clientY)}>
                 <div className="row between" style={{ marginBottom: 10 }}><Uc.FamilyDot family={r.family} /><span className="pctile">{fitPct(profile, r, i)}% fit</span></div>
-                <div style={{ fontSize: 14.5, fontWeight: 600, color: "#fff" }}>{r.name}</div>
-                <div className="tnum mt8" style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>{S().fmtCur(r.countries[country].median, country)}</div>
+                <div style={{ fontSize: 14.5, fontWeight: 600, color: "var(--black)" }}>{r.name}</div>
+                <div className="tnum mt8" style={{ fontSize: 16, fontWeight: 700, color: "var(--black)" }}>{S().fmtCur(r.countries[country].median, country)}</div>
                 <div className="row gap8 mt12"><span className="tag" style={{ fontSize: 10 }}>demand {r.countries[country].demand}</span><span className="tag" style={{ fontSize: 10 }}>★ {r.countries[country].score.total.toFixed(1)}</span></div>
               </div>
             ))}
@@ -269,7 +269,7 @@ import { Charts } from "./charts.jsx";
           <div className="card pooled">
             <div className="card-head"><div><div className="card-title">Recommendation engine</div><div className="card-sub">Skills-gap to a target role</div></div>
               <ResumeTargetPicker value={target} onChange={setTarget} /></div>
-            <div className="small" style={{ color: "var(--t2)", marginBottom: 14 }}>To move toward <strong style={{ color: "#fff" }}>{tgt.name}</strong>, close these gaps:</div>
+            <div className="small" style={{ color: "var(--t2)", marginBottom: 14 }}>To move toward <strong style={{ color: "var(--black)" }}>{tgt.name}</strong>, close these gaps:</div>
             {gap.length ? (
               <div className="col">
                 {gap.map(s => (
@@ -300,7 +300,7 @@ import { Charts } from "./charts.jsx";
 
         {/* A vs B — opt-in, never fabricated */}
         <div className="card" style={{ textAlign: "center", padding: "34px 24px" }}>
-          <div className="h3" style={{ color: "#fff" }}>Compare against a second résumé</div>
+          <div className="h3" style={{ color: "var(--black)" }}>Compare against a second résumé</div>
           <div className="body" style={{ maxWidth: 460, margin: "10px auto 0" }}>Add another profile to see both priced fully, side by side — then a head-to-head on shape, markets, and the skills that separate them.</div>
           <div className="row gap10 center mt24">
             <button className="pill solid" onClick={() => setCompareB(true)}>+ Add résumé B</button>
@@ -314,7 +314,7 @@ import { Charts } from "./charts.jsx";
 
   function ResumeTargetPicker({ value, onChange }) {
     return <select className="pill" style={{ appearance: "none", paddingRight: 26 }} value={value} onChange={e => onChange(e.target.value)}>
-      {S().roles.map(r => <option key={r.id} value={r.id} style={{ background: "#16121a", color: "#fff" }}>{r.name}</option>)}
+      {S().roles.map(r => <option key={r.id} value={r.id} style={{ background: "var(--ink-2)", color: "var(--black)" }}>{r.name}</option>)}
     </select>;
   }
 
@@ -324,7 +324,7 @@ import { Charts } from "./charts.jsx";
     return (
       <div className="wrap-wide surface-enter">
         <div className="sec-head" style={{ marginBottom: 30 }}>
-          <div><div className="sec-eyebrow">Résumé</div><div className="h1" style={{ color: "#fff" }}>What's your profile worth?</div>
+          <div><div className="sec-eyebrow">Résumé</div><div className="h1" style={{ color: "var(--black)" }}>What's your profile worth?</div>
             <div className="body" style={{ marginTop: 8, maxWidth: 540 }}>Drop a résumé and get a whole-profile valuation per country, role matches, a skills-gap plan, and an in-depth head-to-head against another profile.</div></div>
         </div>
         {!parsed ? <Dropzone onParse={() => setParsed(true)} /> : <ResumeResults app={app} profile={S().RESUME_SAMPLE} />}

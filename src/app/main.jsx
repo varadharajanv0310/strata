@@ -15,7 +15,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
 
   const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
     "glow": 1,
-    "accent": "#0033ff",
+    "accent": "#FF4D00",
     "density": "regular",
     "glass": 1,
     "starfield": true
@@ -50,7 +50,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
                 <div className="row between">
                   <div className="row gap10" style={{ alignItems: "center" }}>
                     {f.family && <UI.FamilyDot family={f.family} />}
-                    <span style={{ fontSize: 14, fontWeight: 600, color: "#fff" }}>{f.label}</span>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "var(--black)" }}>{f.label}</span>
                   </div>
                   <button className="iconbtn" style={{ width: 30, height: 30 }} onClick={e => { e.stopPropagation(); app.toggleFav(f.type, f.id); }}>×</button>
                 </div>
@@ -84,9 +84,9 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
     const Item = ({ icon, label, onClick, accent }) => (
       <button onClick={onClick} className="row gap10" style={{
         width: "100%", padding: "10px 12px", borderRadius: 9, border: "none", cursor: "pointer",
-        background: "transparent", color: accent ? "#fff" : "var(--t1)", fontFamily: "var(--font)",
+        background: "transparent", color: accent ? "var(--cobalt-deep)" : "var(--t1)", fontFamily: "var(--font)",
         fontSize: 13.5, fontWeight: 600, textAlign: "left", alignItems: "center"
-      }} onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+      }} onMouseEnter={e => e.currentTarget.style.background = "var(--wash)"}
         onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
         <span style={{ width: 16, textAlign: "center", color: accent ? "var(--sky)" : "var(--t3)" }}>{icon}</span>{label}
       </button>
@@ -94,13 +94,13 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
     return (
       <div ref={ref} style={{
         position: "fixed", left: x, top: y, zIndex: 95, width: W,
-        background: "rgba(16,18,26,0.97)", border: "1px solid var(--glass-line)", borderRadius: 14,
-        padding: 6, boxShadow: "0 24px 60px rgba(0,0,0,0.6)", backdropFilter: "blur(22px)", animation: "fadeUp 0.14s ease"
+        background: "var(--ink-2)", border: "1px solid var(--glass-line)", borderRadius: 14,
+        padding: 6, boxShadow: "6px 6px 0 rgba(20,17,12,0.12)", animation: "fadeUp 0.14s ease"
       }}>
         <div className="row gap10" style={{ alignItems: "center", padding: "8px 12px 10px", borderBottom: "1px solid var(--line)", marginBottom: 4 }}>
           <UI.FamilyDot family={role.family} />
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13.5, fontWeight: 700, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{role.name}</div>
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--black)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{role.name}</div>
             <div className="small" style={{ color: "var(--t3)" }}>{S().fmtCur(cd.median, app.country)} · ★ {cd.score.total.toFixed(1)}</div>
           </div>
         </div>
@@ -138,10 +138,10 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
       r.setProperty("--glow-strength", t.glow);
       r.setProperty("--density", { compact: 0.86, regular: 1, comfy: 1.16 }[t.density] || 1);
       r.setProperty("--glass-opacity", t.glass);
-      const accent = t.accent || "#0033ff";
+      const accent = t.accent || "#FF4D00";
       r.setProperty("--cobalt", accent);
       // derive a brighter variant
-      r.setProperty("--cobalt-bright", accent === "#0033ff" ? "#2a5bff" : accent);
+      r.setProperty("--cobalt-bright", accent === "#FF4D00" ? "#E84500" : accent);
     }, [t.glow, t.density, t.glass, t.accent]);
 
     const go = (tab, params = {}) => {
@@ -204,7 +204,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
           <TweakSlider label="Glow strength" value={t.glow} min={0.2} max={1.8} step={0.1} onChange={v => setTweak("glow", v)} />
           <TweakSlider label="Glass opacity" value={t.glass} min={0.4} max={1.6} step={0.1} onChange={v => setTweak("glass", v)} />
           <TweakSection label="Identity" />
-          <TweakColor label="Accent" value={t.accent} options={["#0033ff", "#2f6bff", "#5b3cff", "#0a93c2"]} onChange={v => setTweak("accent", v)} />
+          <TweakColor label="Accent" value={t.accent} options={["#FF4D00", "#2243B6", "#1E7A44", "#7A2E8D"]} onChange={v => setTweak("accent", v)} />
           <TweakRadio label="Density" value={t.density} options={["compact", "regular", "comfy"]} onChange={v => setTweak("density", v)} />
         </TweaksPanel>
       </div>

@@ -18,10 +18,10 @@ import { Charts } from "./charts.jsx";
       <div ref={ref} style={{ position: "relative" }}>
         <button className="pill" onClick={() => setOpen(o => !o)}>{label}</button>
         {open && (
-          <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 80, width: 250, maxHeight: 300, overflowY: "auto", background: "rgba(16,18,26,0.97)", border: "1px solid var(--glass-line)", borderRadius: 14, padding: 6, boxShadow: "0 24px 60px rgba(0,0,0,0.6)", backdropFilter: "blur(20px)" }}>
+          <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 80, width: 250, maxHeight: 300, overflowY: "auto", background: "var(--ink-2)", border: "1px solid var(--glass-line)", borderRadius: 14, padding: 6, boxShadow: "6px 6px 0 rgba(20,17,12,0.12)", }}>
             {avail.map(r => (
               <button key={r.id} onClick={() => { onPick(r.id); setOpen(false); }} className="row gap10" style={{ width: "100%", padding: "9px 11px", borderRadius: 9, border: "none", cursor: "pointer", background: "transparent", color: "var(--t1)", fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, textAlign: "left", alignItems: "center" }}
-                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.05)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
+                onMouseEnter={e => e.currentTarget.style.background = "var(--wash)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                 <Uc.FamilyDot family={r.family} /> {r.name}
               </button>
             ))}
@@ -72,7 +72,7 @@ import { Charts } from "./charts.jsx";
                     <tr key={m.k} style={{ cursor: "default" }}>
                       <td style={{ color: "var(--t3)" }}>{m.k}</td>
                       {roles.map((r, i) => (
-                        <td key={r.id} className="num" style={{ fontWeight: raws && raws[i] === best ? 700 : 500, color: raws && raws[i] === best ? "#fff" : "var(--t2)" }}>
+                        <td key={r.id} className="num" style={{ fontWeight: raws && raws[i] === best ? 700 : 500, color: raws && raws[i] === best ? "var(--black)" : "var(--t2)", background: raws && raws[i] === best ? "rgba(255,77,0,0.07)" : "transparent" }}>
                           {m.get(r)} {raws && raws[i] === best && <span style={{ color: "var(--sky)", fontSize: 10, marginLeft: 4 }}>▲</span>}
                         </td>
                       ))}
@@ -108,7 +108,7 @@ import { Charts } from "./charts.jsx";
             return (
               <button key={r.id} onClick={() => toggle(r.id)} className="pill sm" style={{
                 background: on ? cols[i] + "26" : "transparent", borderColor: on ? cols[i] + "77" : "var(--line-2)",
-                color: on ? "#fff" : "var(--t3)", opacity: on ? 1 : 0.6
+                color: on ? "var(--t1)" : "var(--t3)", opacity: on ? 1 : 0.6
               }}>
                 <span style={{ width: 8, height: 8, borderRadius: 9, background: cols[i], display: "inline-block", opacity: on ? 1 : 0.4 }}></span>
                 {r.name}
@@ -178,7 +178,7 @@ import { Charts } from "./charts.jsx";
             return (
               <button key={code} onClick={() => toggle(code)} className="pill sm" style={{
                 background: on ? cols[i % 4] + "26" : "transparent", borderColor: on ? cols[i % 4] + "77" : "var(--line-2)",
-                color: on ? "#fff" : "var(--t3)", opacity: on ? 1 : 0.6
+                color: on ? "var(--t1)" : "var(--t3)", opacity: on ? 1 : 0.6
               }}>
                 <Uc.CountryDot code={code} size={10} />{S().C[code].name}
               </button>
@@ -238,10 +238,10 @@ import { Charts } from "./charts.jsx";
             {items.map(it => (
               <div key={it.code} className="row gap12" style={{ alignItems: "center" }}>
                 <span style={{ width: 150 }}><Uc.CountryTag code={it.code} /></span>
-                <div style={{ flex: 1, height: 22, background: "rgba(255,255,255,0.05)", borderRadius: 7, overflow: "hidden" }}>
-                  <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: "linear-gradient(90deg,#0033ff,#7aa0ff)", boxShadow: "0 0 14px rgba(74,124,255,0.4)", transition: "width 0.7s" }} />
+                <div style={{ flex: 1, height: 22, background: "var(--wash)", borderRadius: 7, overflow: "hidden" }}>
+                  <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: "var(--bar)", transition: "width 0.7s" }} />
                 </div>
-                <span className="tnum" style={{ width: 130, textAlign: "right", fontSize: 14, fontWeight: 700, color: "#fff" }}>
+                <span className="tnum" style={{ width: 130, textAlign: "right", fontSize: 14, fontWeight: 700, color: "var(--black)" }}>
                   {metric === "median" ? (app.ppp ? "◊" + Math.round(it.value / 1000) + "k" : S().fmtCompact(it.native, it.code)) : metric === "score" ? it.value.toFixed(1) : it.value}
                 </span>
               </div>
@@ -327,7 +327,7 @@ import { Charts } from "./charts.jsx";
   }
   function YearPicker({ value, onChange }) {
     return <select className="pill" style={{ appearance: "none", paddingRight: 28 }} value={value} onChange={e => onChange(+e.target.value)}>
-      {S().YEARS.map(y => <option key={y} value={y} style={{ background: "#16121a", color: "#fff" }}>{y}</option>)}
+      {S().YEARS.map(y => <option key={y} value={y} style={{ background: "var(--ink-2)", color: "var(--black)" }}>{y}</option>)}
     </select>;
   }
   function ThenNowStat({ label, then, now, delta }) {
@@ -337,7 +337,7 @@ import { Charts } from "./charts.jsx";
         <div className="row gap16 mt16" style={{ alignItems: "baseline", flexWrap: "wrap" }}>
           <div><div className="small" style={{ color: "var(--t3)" }}>then</div><div className="tnum" style={{ fontSize: 24, fontWeight: 700, color: "var(--t2)" }}>{then}</div></div>
           <span style={{ color: "var(--t3)", fontSize: 20 }}>→</span>
-          <div><div className="small" style={{ color: "var(--t3)" }}>now</div><div className="tnum" style={{ fontSize: 30, fontWeight: 700, color: "#fff" }}>{now}</div></div>
+          <div><div className="small" style={{ color: "var(--t3)" }}>now</div><div className="tnum" style={{ fontSize: 30, fontWeight: 700, color: "var(--black)" }}>{now}</div></div>
           <span className={"delta " + (delta >= 0 ? "up" : "down")} style={{ marginLeft: "auto", fontSize: 15 }}>{delta >= 0 ? "↑" : "↓"} {Math.abs(delta).toFixed(0)}%</span>
         </div>
       </div>
@@ -364,9 +364,9 @@ import { Charts } from "./charts.jsx";
         <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           {[[a, sa], [b, sb]].map(([code, s]) => (
             <div key={code} className="card pooled">
-              <div className="row gap10" style={{ marginBottom: 18, alignItems: "center" }}><Uc.CountryDot code={code} size={16} /><span className="h3" style={{ color: "#fff" }}>{S().C[code].name}</span></div>
+              <div className="row gap10" style={{ marginBottom: 18, alignItems: "center" }}><Uc.CountryDot code={code} size={16} /><span className="h3" style={{ color: "var(--black)" }}>{S().C[code].name}</span></div>
               <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 18 }}>
-                <div><div className="stat-label">Avg pay (PPP)</div><div className="tnum" style={{ fontSize: 24, fontWeight: 700, color: "#fff", marginTop: 4 }}>◊{Math.round(s.avgPPP / 1000)}k</div></div>
+                <div><div className="stat-label">Avg pay (PPP)</div><div className="tnum" style={{ fontSize: 24, fontWeight: 700, color: "var(--black)", marginTop: 4 }}>◊{Math.round(s.avgPPP / 1000)}k</div></div>
                 <div><div className="stat-label">5-yr growth</div><div className="tnum" style={{ fontSize: 24, fontWeight: 700, color: "var(--good)", marginTop: 4 }}>+{Math.round(s.growth * 100)}%</div></div>
                 <div className="row gap12" style={{ alignItems: "center", gridColumn: "span 2", borderTop: "1px solid var(--line)", paddingTop: 14 }}>
                   <Charts.Donut value={s.disclose} size={64} />
@@ -378,7 +378,7 @@ import { Charts } from "./charts.jsx";
                 {s.top.map((r, i) => (
                   <div key={r.id} className="row between" style={{ fontSize: 13 }}>
                     <span className="row gap8"><span className="tnum" style={{ color: "var(--t3)", width: 12 }}>{i + 1}</span><span style={{ color: "var(--t1)" }}>{r.name}</span></span>
-                    <span className="tnum" style={{ fontWeight: 700, color: "#fff" }}>{S().fmtCompact(r.countries[code].median, code)}</span>
+                    <span className="tnum" style={{ fontWeight: 700, color: "var(--black)" }}>{S().fmtCompact(r.countries[code].median, code)}</span>
                   </div>
                 ))}
               </div>
@@ -388,14 +388,14 @@ import { Charts } from "./charts.jsx";
         <div className="card pooled" style={{ marginTop: 16 }}>
           <div className="card-head"><div><div className="card-title">Average tech pay over time</div><div className="card-sub">Whole-market mean · PPP-indexed · {S().C[a].name} vs {S().C[b].name}</div></div></div>
           <Charts.MultiLine height={220}
-            series={[[a, "#4a7cff"], [b, "#ffcc4d"]].map(([code, color]) => ({
+            series={[[a, "#2243B6"], [b, "#FF4D00"]].map(([code, color]) => ({
               label: S().C[code].name, color,
               points: S().YEARS.map((yr, yi) => ({ year: yr, value: Math.round(S().roles.reduce((acc, r) => acc + S().pppUSD(r.countries[code].series[yi].value, code), 0) / S().roles.length) }))
             }))}
             fmtFn={v => "◊" + Math.round(v / 1000) + "k"} />
           <div className="row gap16 wrap-f mt12">
-            <span className="row gap6" style={{ alignItems: "center", fontSize: 12, color: "var(--t2)" }}><span style={{ width: 14, height: 3, background: "#4a7cff", borderRadius: 2, display: "inline-block" }}></span>{S().C[a].name}</span>
-            <span className="row gap6" style={{ alignItems: "center", fontSize: 12, color: "var(--t2)" }}><span style={{ width: 14, height: 3, background: "#ffcc4d", borderRadius: 2, display: "inline-block" }}></span>{S().C[b].name}</span>
+            <span className="row gap6" style={{ alignItems: "center", fontSize: 12, color: "var(--t2)" }}><span style={{ width: 14, height: 3, background: "#2243B6", borderRadius: 2, display: "inline-block" }}></span>{S().C[a].name}</span>
+            <span className="row gap6" style={{ alignItems: "center", fontSize: 12, color: "var(--t2)" }}><span style={{ width: 14, height: 3, background: "#C98A00", borderRadius: 2, display: "inline-block" }}></span>{S().C[b].name}</span>
           </div>
         </div>
       </div>
@@ -408,7 +408,7 @@ import { Charts } from "./charts.jsx";
     return (
       <div className="wrap-wide surface-enter">
         <div className="sec-head" style={{ marginBottom: 22 }}>
-          <div><div className="sec-eyebrow">Compare</div><div className="h1" style={{ color: "#fff" }}>Hold anything side by side</div>
+          <div><div className="sec-eyebrow">Compare</div><div className="h1" style={{ color: "var(--black)" }}>Hold anything side by side</div>
             <div className="body" style={{ marginTop: 8, maxWidth: 520 }}>Any role × country × year. Pin up to four, switch axes freely, normalize for purchasing power. Fully unrestricted.</div></div>
         </div>
         <div className="seg" style={{ marginBottom: 26 }}>

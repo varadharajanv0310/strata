@@ -1,40 +1,40 @@
 /* ============================================================
-   strata — mobile · THE FIELD DESK
-   A paper journal inside the device, set on a dark desk.
-   Reuses tokens.css + app.css; this layers mobile on top.
+   strata — mobile · OBSIDIAN & MOONLIGHT
+   A slab of dark glass on a lit studio surface. Reuses
+   tokens.css + app.css; this layers the device + single column.
    ============================================================ */
 
-/* ---------- stage + phone frame: the desk ---------- */
-html, body { background: #26221b; }
+/* ---------- stage + phone frame: the studio surface ---------- */
+html, body { background: #06070a; }
 .m-stage {
   position: fixed; inset: 0;
   display: grid; place-items: center;
   background:
-    radial-gradient(120vw 90vh at 50% -20%, #332d24, transparent 70%),
-    #26221b;
+    radial-gradient(90vw 60vh at 50% -10%, rgba(174, 198, 255, 0.1), transparent 62%),
+    radial-gradient(120vw 90vh at 50% 120%, #14181f, transparent 60%),
+    #06070a;
   overflow: hidden;
 }
-/* desk grid */
+/* the device casts a cool pool of light onto the surface */
 .m-stage::before {
-  content: "";
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(to right, rgba(244, 240, 230, 0.045) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(244, 240, 230, 0.045) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
+  content: ""; position: absolute;
+  width: 520px; height: 900px; border-radius: 80px;
+  background: radial-gradient(closest-side, rgba(var(--accent-rgb), 0.1), transparent 72%);
+  filter: blur(20px); pointer-events: none;
 }
 .phone-scale { transform-origin: center center; }
 .phone {
   position: relative;
   width: 402px; height: 872px;
   border-radius: 60px;
-  background: linear-gradient(160deg, #3a342a, #16130e 60%);
+  /* machined metal rail */
+  background: linear-gradient(150deg, #2b313c 0%, #0c0e13 46%, #030406 100%);
   padding: 13px;
   box-shadow:
-    0 0 0 2px rgba(244, 240, 230, 0.12),
-    0 40px 120px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(244, 240, 230, 0.14);
+    0 1px 0 rgba(255,255,255,0.14) inset,
+    0 0 0 1px rgba(255,255,255,0.05),
+    0 60px 140px rgba(0,0,0,0.7),
+    0 0 90px -20px rgba(var(--accent-rgb), 0.35);
 }
 .phone-screen {
   position: relative;
@@ -42,49 +42,44 @@ html, body { background: #26221b; }
   border-radius: 48px;
   overflow: hidden;
   background: var(--near-black);
-  box-shadow: inset 0 0 0 1px rgba(20, 17, 12, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.7), inset 0 0 30px rgba(0,0,0,0.5);
 }
 /* dynamic island */
 .phone::after {
   content: "";
   position: absolute; top: 26px; left: 50%; transform: translateX(-50%);
   width: 120px; height: 34px; border-radius: 999px;
-  background: #0c0a07; z-index: 50;
-  box-shadow: inset 0 0 0 1px rgba(244, 240, 230, 0.08);
+  background: #000; z-index: 50;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
 }
 
 /* ---------- mobile app shell ---------- */
 .mobile-app {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
-  background: var(--near-black);
   overflow: hidden;
+  background: radial-gradient(120% 70% at 50% -16%, #19202e 0%, #11141b 36%, #0a0c11 70%, #06070a 100%);
 }
-/* drafting grid + grain inside the page */
+/* the single moonlight source + satin grain inside the screen */
 .mobile-app::before {
-  content: "";
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background-image:
-    linear-gradient(to right, rgba(20, 17, 12, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(20, 17, 12, 0.05) 1px, transparent 1px);
-  background-size: 24px 24px;
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(70% 36% at 50% -6%, rgba(174, 198, 255, calc(0.16 * var(--glow-strength))), transparent 70%);
+  animation: glowPulse 14s ease-in-out infinite;
 }
 .mobile-app::after {
-  content: "";
-  position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)' opacity='0.5'/%3E%3C/svg%3E");
-  background-size: 240px 240px;
-  opacity: 0.05;
-  mix-blend-mode: multiply;
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 220px 220px; opacity: 0.04; mix-blend-mode: screen;
 }
 
-/* top bar — the journal's running head */
+/* top bar — glass running head */
 .m-top {
   position: relative; z-index: 5; flex-shrink: 0;
   display: flex; align-items: center; justify-content: space-between;
   padding: 60px 18px 10px;
-  border-bottom: 1px solid var(--line-2);
-  background: rgba(244, 240, 230, 0.9);
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(10,12,17,0.85), transparent);
 }
 .m-top .wordmark { font-size: 20px !important; }
 
@@ -100,44 +95,49 @@ html, body { background: #26221b; }
 .m-sheet { scrollbar-width: none; }
 .m-sheet::-webkit-scrollbar { width: 0; }
 
-/* bottom tab bar — the index drawer */
+/* bottom tab bar — a floating glass dock */
 .m-bottom {
   position: absolute; left: 12px; right: 12px; bottom: 14px; z-index: 30;
   display: flex; align-items: center; justify-content: space-between;
   padding: 7px 8px;
-  border-radius: 6px;
-  background: var(--ink-2);
-  border: 1px solid var(--line-strong);
-  box-shadow: 4px 4px 0 rgba(20, 17, 12, 0.18);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(28,33,44,0.82), rgba(14,17,23,0.86));
+  border: 1px solid var(--line-2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2); backdrop-filter: blur(24px) saturate(1.2);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 18px 44px rgba(0,0,0,0.55);
 }
 .m-tab {
   flex: 1; border: none; background: transparent; cursor: pointer;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
-  padding: 7px 2px; border-radius: 3px; color: var(--t3);
+  padding: 7px 2px; border-radius: 16px; color: var(--t3);
   font-family: var(--font-mono); font-size: 8.5px; font-weight: 500;
   letter-spacing: 0.08em; text-transform: uppercase;
   transition: color 0.2s, background 0.2s;
   position: relative;
 }
 .m-tab svg { width: 20px; height: 20px; }
-.m-tab.active { color: var(--white); background: var(--black); }
+.m-tab.active {
+  color: var(--white);
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.26), rgba(var(--accent-rgb), 0.08));
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1) inset;
+}
+.m-tab.active svg { filter: drop-shadow(0 0 8px rgba(var(--accent-rgb), 0.7)); }
 .m-tab.active::before {
-  content: "";
-  position: absolute; top: 3px; right: 3px;
-  width: 4px; height: 4px;
-  background: var(--cobalt);
+  content: ""; position: absolute; top: 3px; right: 50%; margin-right: -2px;
+  width: 4px; height: 4px; border-radius: 999px;
+  background: var(--cobalt-bright); box-shadow: 0 0 8px var(--cobalt-bright);
 }
 
 /* ---------- collapse desktop grids to single column ---------- */
 .mobile-app .grid { grid-template-columns: 1fr !important; }
 .mobile-app .wrap, .mobile-app .wrap-wide { max-width: 100%; }
 .mobile-app .shell-pad { padding: 0; }
-.mobile-app .display { font-size: 42px !important; line-height: 0.98; }
+.mobile-app .display { font-size: 44px !important; line-height: 0.98; }
 .mobile-app .h1 { font-size: 28px !important; }
 .mobile-app .h2 { font-size: 22px !important; }
 .mobile-app .h3 { font-size: 17px; }
 .mobile-app .sec-head { flex-direction: column; align-items: flex-start; gap: 10px; }
-.mobile-app .card { padding: 15px; border-radius: 4px; box-shadow: 3px 3px 0 rgba(20, 17, 12, 0.07); }
+.mobile-app .card { padding: 15px; border-radius: 16px; }
 .mobile-app .card.tight { padding: 13px; }
 .mobile-app .seg { flex-wrap: wrap; max-width: 100%; }
 .mobile-app .seg button { padding: 6px 10px; font-size: 9.5px; }
@@ -165,7 +165,6 @@ html, body { background: #26221b; }
 .mobile-app .rank-row > :nth-child(3) { display: none; }   /* D/P/O component bars */
 .mobile-app .rank-row .score-pill { font-size: 16px; }
 .mobile-app .rank-row .pctile { font-size: 9.5px; }
-/* the search + filter row should stack cleanly, segments scroll-free */
 .mobile-app .roles-controls { flex-direction: column; align-items: stretch; }
 .mobile-app .roles-controls > * { width: 100%; }
 
@@ -173,13 +172,8 @@ html, body { background: #26221b; }
 .mobile-app .tbl { min-width: 460px; }
 .m-xscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-/* role/country picker popovers fit screen */
 .mobile-app .pill { font-size: 10px; }
-
-/* hide the desktop tweaks mount on mobile */
 .mobile-app #tweaks-root { display: none; }
-
-/* the pen crosshair is a desktop instrument */
 .mobile-app .pen-x, .mobile-app .pen-y, .mobile-app .pen-tag { display: none; }
 
 /* ---------- mobile explore ---------- */
@@ -187,30 +181,31 @@ html, body { background: #26221b; }
 .m-globe-wrap { display: grid; place-items: center; margin: 8px 0 16px; }
 .m-cta { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
 .m-stats { display: flex; justify-content: center; gap: 22px; margin-top: 22px; }
-.m-stats .n { font-family: var(--font-mono); font-size: 19px; font-weight: 600; color: var(--black); }
+.m-stats .n { font-family: var(--font-mono); font-size: 19px; font-weight: 600; color: var(--white); }
 .m-stats .l { font-family: var(--font-mono); font-size: 8.5px; color: var(--t3); letter-spacing: 0.12em; text-transform: uppercase; }
 
-/* ---------- bottom sheet — a slip of paper ---------- */
-.m-sheet-scrim { position: absolute; inset: 0; z-index: 60; background: rgba(20, 17, 12, 0.3); opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+/* ---------- bottom sheet — a slab of glass ---------- */
+.m-sheet-scrim { position: absolute; inset: 0; z-index: 60; background: rgba(4,5,8,0.6); opacity: 0; pointer-events: none; transition: opacity 0.25s; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
 .m-sheet-scrim.show { opacity: 1; pointer-events: auto; }
 .m-sheet {
   position: absolute; left: 0; right: 0; bottom: 0; z-index: 61;
-  background: var(--ink-2);
-  border-top-left-radius: 8px; border-top-right-radius: 8px;
-  border-top: 2px solid var(--black);
-  box-shadow: 0 -6px 0 rgba(20, 17, 12, 0.07);
+  background: linear-gradient(180deg, rgba(26,30,40,0.98), rgba(15,18,24,0.99));
+  border-top-left-radius: 22px; border-top-right-radius: 22px;
+  border-top: 1px solid var(--glass-line);
+  -webkit-backdrop-filter: blur(26px); backdrop-filter: blur(26px);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 -20px 50px rgba(0,0,0,0.55);
   transform: translateY(100%); transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 10px 16px calc(20px + env(safe-area-inset-bottom));
   max-height: 70%; overflow-y: auto;
 }
 .m-sheet.show { transform: translateY(0); }
-.m-sheet-grip { width: 38px; height: 3px; border-radius: 0; background: var(--line-2); margin: 4px auto 14px; }
+.m-sheet-grip { width: 38px; height: 4px; border-radius: 999px; background: var(--line-2); margin: 4px auto 14px; }
 .m-sheet-item {
   display: flex; align-items: center; gap: 12px; width: 100%;
-  padding: 14px 12px; border-radius: 3px; border: none; cursor: pointer;
+  padding: 14px 12px; border-radius: 12px; border: none; cursor: pointer;
   background: transparent; color: var(--t1); font-family: var(--font);
   font-size: 15px; font-weight: 600; text-align: left;
   border-bottom: 1px solid var(--line);
 }
 .m-sheet-item:active { background: var(--wash); }
-.m-sheet-item .ic { width: 20px; text-align: center; color: var(--cobalt-deep); }
+.m-sheet-item .ic { width: 20px; text-align: center; color: var(--cobalt-bright); }

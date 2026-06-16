@@ -29,7 +29,7 @@ import { Charts } from "./charts.jsx";
     return (
       <div className="wrap-wide surface-enter">
         <div className="sec-head" style={{ marginBottom: 24 }}>
-          <div><div className="sec-eyebrow">Countries</div><div className="h1" style={{ color: "#fff" }}>Markets, end to end</div>
+          <div><div className="sec-eyebrow">Countries</div><div className="h1" style={{ color: "var(--black)" }}>Markets, end to end</div>
             <div className="body" style={{ marginTop: 8, maxWidth: 520 }}>A standing dashboard per market — pay landscape, what's moving, and how openly salaries are disclosed.</div></div>
         </div>
 
@@ -41,10 +41,10 @@ import { Charts } from "./charts.jsx";
               const s = countryStat(co.code);
               const mx = Math.max(...S().COUNTRIES.map(c2 => countryStat(c2.code).avgPPP));
               return (
-                <button key={co.code} onClick={() => setCode(co.code)} className="col gap10" style={{ flex: 1, background: code === co.code ? "rgba(42,91,255,0.1)" : "transparent", border: "1px solid " + (code === co.code ? "rgba(74,124,255,0.35)" : "var(--line)"), borderRadius: 12, padding: "14px 12px", cursor: "pointer", alignItems: "stretch" }}>
+                <button key={co.code} onClick={() => setCode(co.code)} className="col gap10" style={{ flex: 1, background: code === co.code ? "rgba(255,77,0,0.07)" : "transparent", border: "1px solid " + (code === co.code ? "rgba(255,77,0,0.5)" : "var(--line)"), borderRadius: 12, padding: "14px 12px", cursor: "pointer", alignItems: "stretch" }}>
                   <div className="row gap8" style={{ alignItems: "center" }}><ui.CountryDot code={co.code} size={12} /><span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--t1)", whiteSpace: "nowrap" }}>{co.code}</span></div>
-                  <div className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>◊{Math.round(s.avgPPP / 1000)}k</div>
-                  <div style={{ height: 4, borderRadius: 9, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}><div style={{ width: `${(s.avgPPP / mx) * 100}%`, height: "100%", background: "linear-gradient(90deg,#0033ff,#4a7cff)" }} /></div>
+                  <div className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "var(--black)" }}>◊{Math.round(s.avgPPP / 1000)}k</div>
+                  <div style={{ height: 4, borderRadius: 9, background: "var(--wash-2)", overflow: "hidden" }}><div style={{ width: `${(s.avgPPP / mx) * 100}%`, height: "100%", background: "var(--bar)" }} /></div>
                 </button>
               );
             })}
@@ -54,11 +54,11 @@ import { Charts } from "./charts.jsx";
         {/* country header stats */}
         <div className="grid" style={{ gridTemplateColumns: "1.4fr 1fr 1fr 1.2fr", gap: 16, marginBottom: 16 }}>
           <div className="card pooled" style={{ justifyContent: "space-between" }}>
-            <div className="row gap12" style={{ alignItems: "center" }}><ui.CountryDot code={code} size={20} /><div className="h2" style={{ color: "#fff" }}>{c.name}</div></div>
-            <div className="row between mt20"><div><div className="stat-label">Currency</div><div style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginTop: 4 }}>{c.cur} {c.curCode}</div></div>
+            <div className="row gap12" style={{ alignItems: "center" }}><ui.CountryDot code={code} size={20} /><div className="h2" style={{ color: "var(--black)" }}>{c.name}</div></div>
+            <div className="row between mt20"><div><div className="stat-label">Currency</div><div style={{ fontSize: 18, fontWeight: 700, color: "var(--black)", marginTop: 4 }}>{c.cur} {c.curCode}</div></div>
               <button className="pill sm" onClick={() => app.go("compare", { mode: "mirror" })}>Mirror →</button></div>
           </div>
-          <div className="card"><span className="stat-label">Avg pay (PPP)</span><div className="tnum" style={{ fontSize: 30, fontWeight: 700, color: "#fff", marginTop: 12 }}>◊{Math.round(st.avgPPP / 1000)}k</div><div className="small mt8" style={{ color: "var(--t3)" }}>across 16 roles</div></div>
+          <div className="card"><span className="stat-label">Avg pay (PPP)</span><div className="tnum" style={{ fontSize: 30, fontWeight: 700, color: "var(--black)", marginTop: 12 }}>◊{Math.round(st.avgPPP / 1000)}k</div><div className="small mt8" style={{ color: "var(--t3)" }}>across 16 roles</div></div>
           <div className="card"><span className="stat-label">5-yr growth</span><div className="tnum" style={{ fontSize: 30, fontWeight: 700, color: "var(--good)", marginTop: 12 }}>+{Math.round(st.growth * 100)}%</div><div className="small mt8" style={{ color: "var(--t3)" }}>median, blended</div></div>
           <div className="card pooled">
             <div className="row gap16" style={{ alignItems: "center" }}>
@@ -108,10 +108,10 @@ import { Charts } from "./charts.jsx";
                 return (
                   <div key={r.id} className="row gap12" style={{ alignItems: "center" }}>
                     <span style={{ width: 150, fontSize: 13, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span>
-                    <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.06)", borderRadius: 9, overflow: "hidden" }}>
+                    <div style={{ flex: 1, height: 8, background: "var(--wash)", borderRadius: 9, overflow: "hidden" }}>
                       <div style={{ width: `${t * 100}%`, height: "100%", borderRadius: 9, background: t >= 0.6 ? "var(--good)" : t >= 0.4 ? "var(--warn)" : "var(--bad)" }} />
                     </div>
-                    <span className="tnum" style={{ width: 40, textAlign: "right", fontSize: 13, fontWeight: 700, color: "#fff" }}>{Math.round(t * 100)}%</span>
+                    <span className="tnum" style={{ width: 40, textAlign: "right", fontSize: 13, fontWeight: 700, color: "var(--black)" }}>{Math.round(t * 100)}%</span>
                   </div>
                 );
               })}

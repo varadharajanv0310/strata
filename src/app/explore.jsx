@@ -36,7 +36,7 @@ import { Charts } from "./charts.jsx";
                   <UI.FamilyDot family={r.family} />
                   <span style={{ fontSize: 13.5, color: "var(--t1)", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span>
                 </span>
-                <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "#fff", whiteSpace: "nowrap" }}>{fmt(val)}</span>
+                <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "var(--black)", whiteSpace: "nowrap" }}>{fmt(val)}</span>
               </button>
             );
           })}
@@ -91,7 +91,7 @@ import { Charts } from "./charts.jsx";
         <div className="row between wrap-f gap16" style={{ marginBottom: 22 }}>
           <div>
             <div className="sec-eyebrow">Explore mode</div>
-            <div className="h3" style={{ color: "#fff" }}>Pick an axis. The market redraws.</div>
+            <div className="h3" style={{ color: "var(--black)" }}>Pick an axis. The market redraws.</div>
             <div className="small" style={{ marginTop: 6, color: "var(--t3)" }}>{sub}</div>
           </div>
           <div className="col gap10" style={{ alignItems: "flex-end" }}>
@@ -116,23 +116,23 @@ import { Charts } from "./charts.jsx";
             const key = it.id || it.code;
             const isOpen = expanded === key;
             const mx = Math.max(...items.map(x => x.geom));
-            const accent = (it.id === "ml-eng" || it.code === app.country) ? "linear-gradient(90deg,#0033ff,#7aa0ff)" : "linear-gradient(90deg,#1d3a8f,#3a63c9)";
+            const accent = (it.id === "ml-eng" || it.code === app.country) ? "var(--bar-hi)" : "var(--bar)";
             const role = mode === "role" ? S().roleById(it.id) : S().roleById(roleId);
             const cd = mode === "role" ? role.countries[country] : role.countries[it.code];
             return (
-              <div key={key} style={{ borderRadius: 10, background: isOpen ? "rgba(42,91,255,0.05)" : "transparent", border: "1px solid " + (isOpen ? "rgba(74,124,255,0.22)" : "transparent"), transition: "background 0.2s", overflow: "hidden" }}>
+              <div key={key} style={{ borderRadius: 10, background: isOpen ? "rgba(255,77,0,0.06)" : "transparent", border: "1px solid " + (isOpen ? "rgba(255,77,0,0.45)" : "transparent"), transition: "background 0.2s", overflow: "hidden" }}>
                 <div className="row gap12" style={{ alignItems: "center", cursor: "pointer", padding: "7px 10px" }}
                   onClick={() => setExpanded(isOpen ? null : key)}
-                  onMouseEnter={e => { if (!isOpen) e.currentTarget.parentElement.style.background = "rgba(255,255,255,0.025)"; }}
+                  onMouseEnter={e => { if (!isOpen) e.currentTarget.parentElement.style.background = "var(--wash)"; }}
                   onMouseLeave={e => { if (!isOpen) e.currentTarget.parentElement.style.background = "transparent"; }}>
                   <div className="row gap8" style={{ width: 150, alignItems: "center", minWidth: 0 }}>
                     {mode === "role" ? <UI.FamilyDot family={role.family} /> : <UI.CountryDot code={it.code} size={12} />}
                     <span style={{ fontSize: 13, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{it.label}</span>
                   </div>
-                  <div style={{ flex: 1, height: 24, background: "rgba(255,255,255,0.05)", borderRadius: 7, overflow: "hidden" }}>
-                    <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: accent, boxShadow: "0 0 14px rgba(74,124,255,0.4)", transition: "width 0.7s cubic-bezier(0.2,0.7,0.2,1)", minWidth: 4 }} />
+                  <div style={{ flex: 1, height: 24, background: "var(--wash)", borderRadius: 7, overflow: "hidden" }}>
+                    <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 7, background: accent, transition: "width 0.7s cubic-bezier(0.2,0.7,0.2,1)", minWidth: 4 }} />
                   </div>
-                  <div className="tnum row gap8" style={{ width: 100, justifyContent: "flex-end", alignItems: "center", fontSize: 13, fontWeight: 700, color: "#fff" }}>
+                  <div className="tnum row gap8" style={{ width: 100, justifyContent: "flex-end", alignItems: "center", fontSize: 13, fontWeight: 700, color: "var(--black)" }}>
                     {fmtFn(it.value)}
                     <span style={{ color: "var(--t3)", fontSize: 11, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
                   </div>
@@ -184,14 +184,14 @@ import { Charts } from "./charts.jsx";
         </button>
         {open && (
           <div style={{ position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 80, width: 250, maxHeight: 320, overflowY: "auto",
-            background: "rgba(16,18,26,0.97)", border: "1px solid var(--glass-line)", borderRadius: 14, padding: 6,
-            boxShadow: "0 24px 60px rgba(0,0,0,0.6)", backdropFilter: "blur(20px)" }}>
+            background: "var(--ink-2)", border: "1px solid var(--glass-line)", borderRadius: 14, padding: 6,
+            boxShadow: "6px 6px 0 rgba(20,17,12,0.12)", }}>
             {S().roles.map(r => (
               <button key={r.id} onClick={() => { onChange(r.id); setOpen(false); }} className="row gap10"
                 style={{ width: "100%", padding: "9px 11px", borderRadius: 9, border: "none", cursor: "pointer",
-                  background: r.id === value ? "rgba(42,91,255,0.2)" : "transparent", color: "var(--t1)",
+                  background: r.id === value ? "rgba(255,77,0,0.12)" : "transparent", color: "var(--t1)",
                   fontFamily: "var(--font)", fontSize: 13, fontWeight: 600, textAlign: "left", alignItems: "center" }}
-                onMouseEnter={e => { if (r.id !== value) e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                onMouseEnter={e => { if (r.id !== value) e.currentTarget.style.background = "var(--wash)"; }}
                 onMouseLeave={e => { if (r.id !== value) e.currentTarget.style.background = "transparent"; }}>
                 <UI.FamilyDot family={r.family} /> {r.name}
               </button>
@@ -218,8 +218,8 @@ import { Charts } from "./charts.jsx";
           <div className="wrap" style={{ position: "relative", zIndex: 2, width: "100%", pointerEvents: "none" }}>
             <div style={{ maxWidth: 680, pointerEvents: "auto" }}>
               <div className="eyebrow enter" style={{ animationDelay: "0.05s" }}>Global tech job-market intelligence · 7 countries</div>
-              <h1 className="display enter" style={{ marginTop: 22, color: "#fff", animationDelay: "0.12s" }}>
-                The whole tech<br />job market,<br /><span style={{ color: "var(--t2)" }}>worth exploring.</span>
+              <h1 className="display enter" style={{ marginTop: 22, color: "var(--black)", animationDelay: "0.12s" }}>
+                The whole tech<br />job market,<br /><span>worth exploring.</span>
               </h1>
               <p className="body enter" style={{ maxWidth: 430, marginTop: 26, fontSize: 16.5, animationDelay: "0.2s" }}>
                 Salaries, demand, skills and rankings for every tech role across 7 markets. Spin the globe and tap a country — the whole page redraws around <strong style={{ color: "var(--t1)" }}>{S().C[code].name}</strong>.
@@ -231,7 +231,7 @@ import { Charts } from "./charts.jsx";
               </div>
               <div className="row gap24 mt40 enter wrap-f" style={{ animationDelay: "0.36s", color: "var(--t3)" }}>
                 {[["16", "tech roles"], ["7", "countries"], ["9 yrs", "of trend data"], ["100%", "traceable"]].map(([n, l]) => (
-                  <div key={l}><div className="tnum" style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{n}</div><div style={{ fontSize: 11.5, letterSpacing: "0.04em" }}>{l}</div></div>
+                  <div key={l}><div className="tnum" style={{ fontSize: 22, fontWeight: 700, color: "var(--black)" }}>{n}</div><div style={{ fontSize: 11.5, letterSpacing: "0.04em" }}>{l}</div></div>
                 ))}
               </div>
             </div>
@@ -243,7 +243,7 @@ import { Charts } from "./charts.jsx";
           <div className="sec-head">
             <div>
               <div className="sec-eyebrow">Market pulse</div>
-              <div className="h2" style={{ color: "#fff" }}>What's moving in {S().C[code].name}</div>
+              <div className="h2" style={{ color: "var(--black)" }}>What's moving in {S().C[code].name}</div>
             </div>
             <UI.CountrySelect value={code} onChange={app.setCountry} />
           </div>

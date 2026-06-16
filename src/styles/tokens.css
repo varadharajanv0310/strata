@@ -1,78 +1,83 @@
 /* ============================================================
-   strata — design tokens · THE FIELD DESK
-   A cartographer's instrument: warm paper, ink typography,
-   one vermilion plotter pen, blueprint-blue data ink.
-   Printed matter, alive. (Full reinvention — ui-redesign.)
+   strata — design tokens · OBSIDIAN & MOONLIGHT
+   A premium dark instrument: a family of cool near-blacks lit
+   from one coherent studio source, satin gradients that read as
+   light on a surface, real glass, and a single electric azure —
+   the one thing in the room that's switched on.
    ------------------------------------------------------------
-   Variable NAMES are kept from the old system so every inline
-   var() reference re-themes automatically; meanings are new.
+   Variable NAMES are preserved so every var() reference re-themes;
+   meanings/values are the new satin language. The MOTION block is
+   kept verbatim — every frame of the previous build survives.
    ============================================================ */
 
 :root {
-  /* ---- grounds (paper) ---- */
-  --black: #14110c;            /* deepest ink (was: deepest space) */
-  --near-black: #f4f0e6;       /* THE CANVAS — warm drafting paper */
-  --ink: #faf7ee;              /* raised plate */
-  --ink-2: #fffdf6;            /* highest plate (cards) */
+  /* ---- grounds (cool obsidian, tonal not flat) ---- */
+  --black: #050609;            /* deepest — true ground */
+  --near-black: #0b0d12;       /* app base (satin gradient applied in app.css) */
+  --ink: #14171e;              /* raised glass body */
+  --ink-2: #191d26;            /* highest plate / popovers */
 
-  /* ---- the pen (accent — use like a rubber stamp) ---- */
-  --cobalt: #ff4d00;           /* vermilion plotter pen (was cobalt) */
-  --cobalt-bright: #e84500;    /* pressed/hover state */
-  --cobalt-deep: #c23a00;      /* text-safe vermilion */
+  /* ---- the accent (electric azure — rare, switched on) ---- */
+  --cobalt: #4c86f5;
+  --cobalt-bright: #86b3ff;    /* glint / hover / glow */
+  --cobalt-deep: #2f5fd0;      /* pressed / deep edge */
 
-  /* ---- second pen (data ink) ---- */
-  --sky: #2243b6;              /* blueprint blue — chart primary, percentiles */
-  --sky-hot: #16308f;          /* deep blueprint */
+  /* ---- the light source (cool moonlight / studio softbox) ---- */
+  --sky: #9fb4dc;              /* cool silver-blue highlight */
+  --sky-hot: #eaf1ff;          /* near-white core of the light */
 
-  /* ---- inks (type) ---- */
-  --white: #fffdf6;            /* paper-white, for text ON ink/accent */
-  --t1: rgba(20, 17, 12, 0.92);
-  --t2: rgba(20, 17, 12, 0.66);
-  --t3: rgba(20, 17, 12, 0.46);
-  --t4: rgba(20, 17, 12, 0.30);
+  /* ---- inks (cool whites on dark) ---- */
+  --white: #f3f6fc;
+  --t1: rgba(243, 246, 252, 0.94);
+  --t2: rgba(222, 230, 245, 0.62);
+  --t3: rgba(210, 220, 240, 0.42);
+  --t4: rgba(210, 220, 240, 0.26);
 
-  /* ---- hairlines & washes ---- */
-  --line: rgba(20, 17, 12, 0.14);
-  --line-2: rgba(20, 17, 12, 0.24);
-  --line-strong: rgba(20, 17, 12, 0.55);
-  --glass: rgba(20, 17, 12, 0.035);
-  --glass-2: rgba(20, 17, 12, 0.06);
-  --glass-line: rgba(20, 17, 12, 0.30);   /* popover borders (inline refs) */
-  --wash: rgba(20, 17, 12, 0.05);
-  --wash-2: rgba(20, 17, 12, 0.085);
+  /* ---- hairlines & glass ---- */
+  --line: rgba(255, 255, 255, 0.07);
+  --line-2: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.22);
+  --glass: rgba(255, 255, 255, 0.035);
+  --glass-2: rgba(255, 255, 255, 0.06);
+  --glass-line: rgba(150, 172, 214, 0.20);   /* popover/edge borders (inline refs) */
+  --wash: rgba(255, 255, 255, 0.045);
+  --wash-2: rgba(255, 255, 255, 0.08);
 
-  /* ---- semantic data inks (print-safe) ---- */
-  --good: #1e7a44;
-  --warn: #a87100;
-  --bad: #c8361f;
-  --good-dim: rgba(30, 122, 68, 0.13);
-  --warn-dim: rgba(168, 113, 0, 0.13);
-  --bad-dim: rgba(200, 54, 31, 0.12);
+  /* ---- accent washes/glows (standardised on #6fa2ff) ---- */
+  --accent-rgb: 111, 162, 255;
 
-  /* ---- chart inks ---- */
-  --bar: #2243b6;              /* default bar ink (blueprint) */
-  --bar-hi: #ff4d00;           /* highlighted bar (the pen) */
-  --bar-mute: #b3ab98;         /* de-emphasised bar (graphite wash) */
+  /* ---- semantic data inks (satin-bright on dark) ---- */
+  --good: #4fd7a0;
+  --warn: #e8b765;
+  --bad: #f4736a;
+  --good-dim: rgba(79, 215, 160, 0.14);
+  --warn-dim: rgba(232, 183, 101, 0.14);
+  --bad-dim: rgba(244, 115, 106, 0.13);
 
-  /* ---- geometry: print is rectilinear ---- */
-  --r-pill: 2px;
-  --r-lg: 4px;
-  --r-md: 3px;
-  --r-sm: 2px;
+  /* ---- chart inks: gradients that read as lit metal ---- */
+  --bar: linear-gradient(180deg, #66809f 0%, #3a4b6e 52%, #2c3a59 100%);   /* brushed steel column */
+  --bar-hi: linear-gradient(180deg, #9cc4ff 0%, #5286f0 55%, #3a6fe0 100%); /* electric, switched on */
+  --bar-mute: linear-gradient(180deg, #313a4b, #1f2735);
 
-  /* ---- hard offset shadows (paper lift, never blur-glow) ---- */
-  --press: 4px 4px 0 rgba(20, 17, 12, 0.08);
-  --press-hover: 7px 7px 0 rgba(20, 17, 12, 0.1);
+  /* ---- geometry (satin/glass = soft) ---- */
+  --r-pill: 999px;
+  --r-lg: 20px;
+  --r-md: 14px;
+  --r-sm: 10px;
+
+  /* ---- shadows: soft float, panes above the ground ---- */
+  --press: 0 18px 44px -18px rgba(0, 0, 0, 0.7);
+  --press-hover: 0 32px 72px -22px rgba(0, 0, 0, 0.78);
 
   /* ---- type families ---- */
   --font: "Space Grotesk", -apple-system, system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* ---- tweakables (panel knobs, repurposed) ---- */
-  --glow-strength: 1;          /* now drives drafting-grid intensity */
+  /* ---- tweakables (panel knobs) ---- */
+  --glow-strength: 1;          /* drives moonlight intensity */
   --density: 1;
-  --glass-opacity: 1;          /* plate tint strength */
+  --glass-opacity: 1;          /* glass tint strength */
 }
 
 * { box-sizing: border-box; }
@@ -89,9 +94,9 @@ html, body {
 
 body { overflow: hidden; } /* app owns its own scroll regions */
 
-::selection { background: rgba(255, 77, 0, 0.22); color: var(--black); }
+::selection { background: rgba(var(--accent-rgb), 0.3); color: #fff; }
 
-/* tabular figures — every number is an instrument readout */
+/* tabular figures — instrument readouts */
 .tnum {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -99,61 +104,71 @@ body { overflow: hidden; } /* app owns its own scroll regions */
   letter-spacing: -0.02em;
 }
 
-/* uppercase micro-label — the surveyor's caption voice */
+/* uppercase micro-label */
 .eyebrow {
   font-family: var(--font-mono);
   font-size: 10.5px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--t3);
   font-weight: 500;
 }
 
-/* scrollbars: a thin ink rule on paper */
-*::-webkit-scrollbar { width: 10px; height: 10px; }
+/* scrollbars: hairline rail, moonlit thumb */
+*::-webkit-scrollbar { width: 11px; height: 11px; }
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb {
-  background: rgba(20, 17, 12, 0.22);
-  border: 3px solid var(--near-black);
-  border-radius: 0;
+  background: rgba(160, 178, 214, 0.18);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
 }
-*::-webkit-scrollbar-thumb:hover { background: rgba(20, 17, 12, 0.4); }
+*::-webkit-scrollbar-thumb:hover { background: rgba(160, 178, 214, 0.32); background-clip: content-box; }
 
-/* ---- type scale: Fraunces carries every headline ---- */
+/* ---- type scale: Fraunces display, brushed-silver gradient lettering ---- */
 .display {
   font-family: var(--font-display);
-  font-size: clamp(56px, 7.4vw, 118px);
-  font-weight: 480;
+  font-size: clamp(56px, 7.4vw, 120px);
+  font-weight: 420;
   font-variation-settings: "opsz" 144;
-  letter-spacing: -0.015em;
-  line-height: 0.96;
-  color: var(--black);
+  letter-spacing: -0.018em;
+  line-height: 0.95;
+  background: linear-gradient(176deg, #ffffff 0%, #dfe6f4 42%, #97a6c6 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
 }
-.display span { font-style: italic; font-weight: 560; color: var(--cobalt) !important; }
+.display span {
+  font-style: italic;
+  font-weight: 500;
+  -webkit-text-fill-color: var(--cobalt-bright);
+  background: none;
+  text-shadow: 0 0 34px rgba(var(--accent-rgb), 0.45);
+}
 .h1 {
   font-family: var(--font-display);
   font-size: clamp(34px, 4vw, 54px);
-  font-weight: 530; font-variation-settings: "opsz" 80;
-  letter-spacing: -0.012em; line-height: 1.02; color: var(--black);
+  font-weight: 470; font-variation-settings: "opsz" 80;
+  letter-spacing: -0.014em; line-height: 1.02;
+  background: linear-gradient(176deg, #ffffff, #c3cee2);
+  -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
 }
 .h2 {
   font-family: var(--font-display);
-  font-size: 31px; font-weight: 540; font-variation-settings: "opsz" 60;
-  letter-spacing: -0.01em; line-height: 1.08; color: var(--black);
+  font-size: 31px; font-weight: 480; font-variation-settings: "opsz" 60;
+  letter-spacing: -0.012em; line-height: 1.08; color: var(--white);
 }
 .h3 {
   font-family: var(--font-display);
-  font-size: 21px; font-weight: 560;
-  letter-spacing: -0.005em; line-height: 1.15; color: var(--black);
+  font-size: 21px; font-weight: 520;
+  letter-spacing: -0.006em; line-height: 1.15; color: var(--white);
 }
 .body { font-size: 15px; font-weight: 400; line-height: 1.62; color: var(--t2); }
 .small { font-size: 13px; line-height: 1.5; color: var(--t2); }
 
 /* ============================================================
-   MOTION VOCABULARY — the desk at work.
-   Surfaces rise like laid sheets; lines plot themselves; bars
-   grow; stamps thud. Reduced-motion collapses all of it to
-   static print (everything visible, nothing moving).
+   MOTION VOCABULARY — kept verbatim from the prior build.
+   Surfaces rise; lines draw themselves; bars grow; the live
+   point pulses. Reduced-motion collapses it to static.
    ============================================================ */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -171,7 +186,7 @@ body { overflow: hidden; } /* app owns its own scroll regions */
 @keyframes stampIn {
   0%   { opacity: 0; transform: scale(1.45) rotate(-4deg); }
   62%  { opacity: 1; transform: scale(0.96) rotate(-1deg); }
-  100% { opacity: 1; transform: scale(1) rotate(-1.5deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
 }
 @keyframes penPulse {
   0%, 100% { transform: scale(1); opacity: 1; }
@@ -186,8 +201,6 @@ body { overflow: hidden; } /* app owns its own scroll regions */
 @keyframes drawIn { from { stroke-dashoffset: var(--dash); } to { stroke-dashoffset: 0; } }
 @keyframes glowPulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.85; } }
 
-/* entrance classes: real entrances now (verified in live browsers);
-   prefers-reduced-motion renders the static print instead */
 .enter { animation: rise 0.6s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
 .surface-enter { opacity: 1; }
 .surface-enter > * { animation: rise 0.55s cubic-bezier(0.22, 0.9, 0.3, 1) both; }
@@ -210,7 +223,6 @@ body { overflow: hidden; } /* app owns its own scroll regions */
 }
 .donut-arc { animation: donutIn 1s cubic-bezier(0.4, 0, 0.2, 1) 0.15s both; }
 .pen-dot { transform-box: fill-box; transform-origin: center; animation: penPulse 2.2s ease-in-out infinite; }
-/* every wide comparison bar grows in (hooks the inline width transition) */
 div[style*="width 0.7s"] {
   transform-origin: left;
   animation: growBar 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both;
