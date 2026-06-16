@@ -41,7 +41,7 @@ import { Countries } from "./countries.jsx";
               <div className="row gap12" style={{ alignItems: "center", padding: "4px 8px 14px", borderBottom: "1px solid var(--line)", marginBottom: 6 }}>
                 <UI.FamilyDot family={role.family} />
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--black)" }}>{role.name}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--white)" }}>{role.name}</div>
                   <div className="small" style={{ color: "var(--t3)" }}>{S().fmtCur(cd.median, app.country)} · ★ {cd.score.total.toFixed(1)}</div>
                 </div>
               </div>
@@ -102,7 +102,7 @@ import { Countries } from "./countries.jsx";
             <UI.InteractiveGlobe size={264} active={code} onSelect={app.setCountry} />
             <div className="coords" style={{ opacity: 0.6, marginTop: 2 }}>DRAG · TAP A COUNTRY</div>
           </div>
-          <h1 className="display" style={{ color: "var(--black)" }}>The whole<br />job market.</h1>
+          <h1 className="display" style={{ color: "var(--white)" }}>The whole<br />job market.</h1>
           <p className="body" style={{ maxWidth: 320, margin: "12px auto 0" }}>Tap the globe to explore <strong style={{ color: "var(--t1)" }}>{S().C[code].name}</strong> — pay, demand, skills and rankings.</p>
           <div className="m-cta">
             <button className="pill solid" onClick={() => app.go("roles")}>Browse roles →</button>
@@ -128,7 +128,7 @@ import { Countries } from "./countries.jsx";
               return (
                 <button key={r.id} onClick={(e) => window.openRoleMenu(r.id)} className="row between" style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "11px 0", borderBottom: i < items.length - 1 ? "1px solid var(--line)" : "none", textAlign: "left" }}>
                   <span className="row gap10" style={{ minWidth: 0, alignItems: "center" }}><span className="tnum" style={{ color: "var(--t3)", fontSize: 12, fontWeight: 700, width: 14 }}>{i + 1}</span><UI.FamilyDot family={r.family} /><span style={{ fontSize: 14, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.name}</span></span>
-                  <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "var(--black)", flexShrink: 0 }}>{fmt(getv(cd))}</span>
+                  <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "var(--white)", flexShrink: 0 }}>{fmt(getv(cd))}</span>
                 </button>
               );
             })}
@@ -138,7 +138,7 @@ import { Countries } from "./countries.jsx";
         {/* mini explore canvas */}
         <div className="mt32">
           <div className="sec-eyebrow">Explore mode</div>
-          <div className="h3" style={{ color: "var(--black)", marginBottom: 12 }}>Rank roles by any axis</div>
+          <div className="h3" style={{ color: "var(--white)", marginBottom: 12 }}>Rank roles by any axis</div>
           <div className="seg" style={{ marginBottom: 16 }}>
             {Object.keys(metricMeta).map(m => <button key={m} className={mode === m ? "on" : ""} onClick={() => setMode(m)}>{metricMeta[m][0]}</button>)}
           </div>
@@ -157,16 +157,16 @@ import { Countries } from "./countries.jsx";
     const cd = role.countries[code];
     const comps = [["Demand", sc.demand], ["Pay", sc.pay], ["Opportunity", sc.opp]];
     return (
-      <div style={{ borderRadius: 14, background: open ? "rgba(255,77,0,0.06)" : "transparent", border: "1px solid " + (open ? "rgba(255,77,0,0.45)" : "transparent"), marginBottom: 2, transition: "background 0.2s" }}>
+      <div style={{ borderRadius: 14, background: open ? "rgba(111,162,255,0.1)" : "transparent", border: "1px solid " + (open ? "rgba(111,162,255,0.5)" : "transparent"), marginBottom: 2, transition: "background 0.2s" }}>
         <button onClick={() => setOpen(o => !o)} className="row gap10" style={{ width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: "12px 11px", textAlign: "left", alignItems: "center" }}>
           <span className="tnum" style={{ fontSize: 13, fontWeight: 700, width: 18, color: sc.rank <= 3 ? "var(--cobalt-bright)" : "var(--t3)", flexShrink: 0 }}>{sc.rank}</span>
           <UI.FamilyDot family={role.family} />
           <div className="col" style={{ minWidth: 0, flex: 1, gap: 2 }}>
-            <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--black)", lineHeight: 1.2 }}>{role.name}</span>
+            <span style={{ fontSize: 14.5, fontWeight: 600, color: "var(--white)", lineHeight: 1.2 }}>{role.name}</span>
             <span className="small" style={{ color: "var(--t3)", fontSize: 11.5 }}>{role.family.name} · {S().fmtCompact(cd.median, code)}</span>
           </div>
           <div className="col" style={{ alignItems: "flex-end", flexShrink: 0, gap: 1 }}>
-            <span className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "var(--black)", lineHeight: 1 }}>{sc.total.toFixed(1)}</span>
+            <span className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "var(--white)", lineHeight: 1 }}>{sc.total.toFixed(1)}</span>
             <span className="pctile" style={{ fontSize: 10.5 }}>top {sc.pctile}%</span>
           </div>
           <span style={{ color: "var(--t3)", fontSize: 12, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
@@ -180,7 +180,7 @@ import { Countries } from "./countries.jsx";
                   <div style={{ flex: 1, height: 6, borderRadius: 9, background: "var(--wash-2)", overflow: "hidden" }}>
                     <div style={{ width: `${v * 10}%`, height: "100%", borderRadius: 9, background: "var(--bar)" }} />
                   </div>
-                  <span className="tnum" style={{ width: 28, textAlign: "right", fontSize: 12.5, fontWeight: 700, color: "var(--black)" }}>{v.toFixed(1)}</span>
+                  <span className="tnum" style={{ width: 28, textAlign: "right", fontSize: 12.5, fontWeight: 700, color: "var(--white)" }}>{v.toFixed(1)}</span>
                 </div>
               ))}
             </div>
@@ -203,7 +203,7 @@ import { Countries } from "./countries.jsx";
     return (
       <div className="surface-enter">
         <div className="sec-eyebrow">Roles</div>
-        <h1 className="h1" style={{ color: "var(--black)" }}>Browse every tech role</h1>
+        <h1 className="h1" style={{ color: "var(--white)" }}>Browse every tech role</h1>
         <p className="body" style={{ marginTop: 8 }}>Tap a role for its full dashboard — pay, trend, skills, ladder and forecast.</p>
 
         <div className="col gap10" style={{ marginTop: 16, marginBottom: 18 }}>
@@ -230,7 +230,7 @@ import { Countries } from "./countries.jsx";
           </div>
         ) : (
           <div className="row between" style={{ marginBottom: 14 }}>
-            <div className="small" style={{ color: "var(--t2)" }}><span style={{ color: "var(--black)", fontWeight: 700 }}>{filtered.length}</span> matching "<span style={{ color: "var(--sky)" }}>{q}</span>"</div>
+            <div className="small" style={{ color: "var(--t2)" }}><span style={{ color: "var(--white)", fontWeight: 700 }}>{filtered.length}</span> matching "<span style={{ color: "var(--sky)" }}>{q}</span>"</div>
             <button className="pill sm ghost" onClick={() => setQ("")}>Clear ×</button>
           </div>
         )}
@@ -244,10 +244,10 @@ import { Countries } from "./countries.jsx";
                   <span className="row gap8" style={{ alignItems: "center" }}><UI.FamilyDot family={r.family} /><span className="small" style={{ color: "var(--t3)" }}>{r.family.name}</span></span>
                   <span className="score-pill" style={{ fontSize: 15 }}>{cd.score.total.toFixed(1)}<span className="pctile" style={{ marginLeft: 5, fontSize: 10 }}>top {cd.score.pctile}%</span></span>
                 </div>
-                <div className="h3" style={{ color: "var(--black)", fontSize: 16 }}>{r.name}</div>
+                <div className="h3" style={{ color: "var(--white)", fontSize: 16 }}>{r.name}</div>
                 <div className="small" style={{ color: "var(--t3)", lineHeight: 1.4, marginTop: 4 }}>{r.blurb}</div>
                 <div className="row between" style={{ borderTop: "1px solid var(--line)", paddingTop: 11, marginTop: 11 }}>
-                  <div><div className="tnum" style={{ fontSize: 17, fontWeight: 700, color: "var(--black)" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10, color: "var(--t3)" }}>median · {code}</div></div>
+                  <div><div className="tnum" style={{ fontSize: 17, fontWeight: 700, color: "var(--white)" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10, color: "var(--t3)" }}>median · {code}</div></div>
                   <span className="tag">demand {cd.demand}</span>
                 </div>
               </button>

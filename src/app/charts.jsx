@@ -53,8 +53,8 @@ import { STRATA } from "../data/mock.js";
           <svg width="100%" height={height} style={{ display: "block", overflow: "visible" }}>
             <defs>
               <linearGradient id={"sal" + code} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#2243B6" stopOpacity="0.16" />
-                <stop offset="100%" stopColor="#2243B6" stopOpacity="0" />
+                <stop offset="0%" stopColor="#6FA2FF" stopOpacity="0.16" />
+                <stop offset="100%" stopColor="#6FA2FF" stopOpacity="0" />
               </linearGradient>
             </defs>
             {[0, 0.5, 1].map(g => (
@@ -62,12 +62,12 @@ import { STRATA } from "../data/mock.js";
                 stroke="var(--line)" strokeWidth="1" />
             ))}
             <path d={area} fill={"url(#sal" + code + ")"} />
-            <path d={d} pathLength="1" className="draw-line" fill="none" stroke="#2243B6" strokeWidth="2.2"
+            <path d={d} pathLength="1" className="draw-line" fill="none" stroke="#6FA2FF" strokeWidth="2.2"
               strokeLinecap="round" />
-            <circle className="pen-dot" cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="3.5" fill="#FF4D00" />
+            <circle className="pen-dot" cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r="3.5" fill="#9CC4FF" />
             {series.map((s, i) => (
               <g key={i}>
-                <circle cx={x(i)} cy={y(s.value)} r={hi === i ? 4.5 : 0} fill="var(--black)" />
+                <circle cx={x(i)} cy={y(s.value)} r={hi === i ? 4.5 : 0} fill="var(--white)" />
                 <rect x={x(i) - iw / series.length / 2} y={padT} width={iw / series.length} height={ih}
                   fill="transparent" onMouseEnter={() => setHi(i)} onMouseLeave={() => setHi(null)} />
               </g>
@@ -83,8 +83,8 @@ import { STRATA } from "../data/mock.js";
           <div style={{
             position: "absolute", left: `${(hi / (series.length - 1)) * 100}%`, top: -6,
             transform: "translateX(-50%)", background: "var(--ink-2)", border: "1px solid var(--glass-line)",
-            borderRadius: 9, padding: "6px 10px", fontSize: 12, fontWeight: 700, color: "var(--black)",
-            pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "4px 4px 0 rgba(20,17,12,0.12)"
+            borderRadius: 9, padding: "6px 10px", fontSize: 12, fontWeight: 700, color: "var(--white)",
+            pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "0 14px 34px rgba(0,0,0,0.55)"
           }}>
             <span style={{ color: "var(--t3)", fontWeight: 600, marginRight: 6 }}>{series[hi].year}</span>
             {STRATA.fmtCur(series[hi].value, code)}
@@ -95,7 +95,7 @@ import { STRATA } from "../data/mock.js";
   }
 
   // ---------- Demand trend: stepped/column area, sky-tinted, distinct ----------
-  function DemandTrend({ series, height = 160, accent = "#E04E00" }) {
+  function DemandTrend({ series, height = 160, accent = "#6FA2FF" }) {
     const [ref, w] = useMeasure();
     const [hi, setHi] = useState(null);
     const padL = 6, padR = 6, padT = 12, padB = 22;
@@ -136,7 +136,7 @@ import { STRATA } from "../data/mock.js";
           <div style={{
             position: "absolute", left: `${((hi + 0.5) / series.length) * 100}%`, top: -4,
             transform: "translateX(-50%)", background: "var(--ink-2)", border: "1px solid var(--glass-line)",
-            borderRadius: 8, padding: "4px 9px", fontSize: 11.5, fontWeight: 700, color: "var(--black)",
+            borderRadius: 8, padding: "4px 9px", fontSize: 11.5, fontWeight: 700, color: "var(--white)",
             pointerEvents: "none", whiteSpace: "nowrap"
           }}>{series[hi].year} · {series[hi].value} demand</div>
         )}
@@ -169,11 +169,11 @@ import { STRATA } from "../data/mock.js";
                 stroke="var(--line)" />
             ))}
             <line x1={last[0]} x2={last[0]} y1={padT} y2={padT + ih} stroke="var(--line-2)" strokeDasharray="3 4" />
-            <path d={bandD} fill="rgba(255,77,0,0.07)" />
-            <path d={smoothPath(hPts)} pathLength="1" className="draw-line" fill="none" stroke="#2243B6" strokeWidth="2.2" strokeLinecap="round" />
-            <path d={linePath([last, ...fPts])} fill="none" stroke="#FF4D00" strokeWidth="2"
+            <path d={bandD} fill="rgba(111,162,255,0.1)" />
+            <path d={smoothPath(hPts)} pathLength="1" className="draw-line" fill="none" stroke="#6FA2FF" strokeWidth="2.2" strokeLinecap="round" />
+            <path d={linePath([last, ...fPts])} fill="none" stroke="#6FA2FF" strokeWidth="2"
               strokeDasharray="5 5" strokeLinecap="round" />
-            {fPts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill="#FF4D00" />)}
+            {fPts.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill="#9CC4FF" />)}
             <text x={last[0] + 6} y={padT + 11} fill="var(--t3)" fontSize="9.5" letterSpacing="0.1em">PROJECTED</text>
             {[...history, ...forecast].filter((_, i) => i % 2 === 0).map((s, idx) => {
               const i = idx * 2;
@@ -209,7 +209,7 @@ import { STRATA } from "../data/mock.js";
                 transition: "width 0.7s cubic-bezier(0.2,0.7,0.2,1)", minWidth: 4
               }} />
             </div>
-            <div className="tnum row gap6" style={{ width: clickable ? 92 : 78, justifyContent: "flex-end", alignItems: "center", fontSize: 13, fontWeight: 700, color: "var(--black)" }}>
+            <div className="tnum row gap6" style={{ width: clickable ? 92 : 78, justifyContent: "flex-end", alignItems: "center", fontSize: 13, fontWeight: 700, color: "var(--white)" }}>
               {fmt ? fmt(it.value) : it.value}
               {clickable && <span style={{ color: "var(--t3)", fontSize: 11 }}>›</span>}
             </div>
@@ -234,7 +234,7 @@ import { STRATA } from "../data/mock.js";
         ))}
         {axes.map((_, i) => <line key={i} x1={cx} y1={cy} x2={cx + Math.cos(ang(i)) * R} y2={cy + Math.sin(ang(i)) * R} stroke="var(--line)" />)}
         <polygon points={poly("market")} fill="var(--wash)" stroke="var(--t3)" strokeWidth="1.5" strokeDasharray="4 4" />
-        <polygon points={poly("you")} fill="rgba(34,67,182,0.12)" stroke="#2243B6" strokeWidth="2" />
+        <polygon points={poly("you")} fill="rgba(111,162,255,0.14)" stroke="#6FA2FF" strokeWidth="2" />
         {axes.map((a, i) => {
           const [lx, ly] = [cx + Math.cos(ang(i)) * (R + 22), cy + Math.sin(ang(i)) * (R + 22)];
           return <text key={i} x={lx} y={ly} fill="var(--t2)" fontSize="10.5" fontWeight="600"
@@ -258,7 +258,7 @@ import { STRATA } from "../data/mock.js";
   // ---------- Donut (pay transparency) ----------
   function Donut({ value, size = 96, label }) {
     const r = size / 2 - 8, circ = 2 * Math.PI * r;
-    const color = value >= 0.6 ? "#1E7A44" : value >= 0.4 ? "#A87100" : "#C8361F";
+    const color = value >= 0.6 ? "#4FD7A0" : value >= 0.4 ? "#E8B765" : "#F4736A";
     return (
       <div style={{ position: "relative", width: size, height: size }}>
         <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
@@ -267,7 +267,7 @@ import { STRATA } from "../data/mock.js";
             strokeDasharray={`${circ * value} ${circ}`} className="donut-arc" style={{ transition: "stroke-dasharray 0.8s" }} />
         </svg>
         <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", flexDirection: "column" }}>
-          <div className="tnum" style={{ fontSize: 20, fontWeight: 700, color: "var(--black)", lineHeight: 1 }}>{Math.round(value * 100)}%</div>
+          <div className="tnum" style={{ fontSize: 20, fontWeight: 700, color: "var(--white)", lineHeight: 1 }}>{Math.round(value * 100)}%</div>
         </div>
       </div>
     );
@@ -289,8 +289,8 @@ import { STRATA } from "../data/mock.js";
         {w > 0 && (
           <svg width="100%" height={height} style={{ display: "block", overflow: "visible" }}>
             {[0, 0.5, 1].map(g => <line key={g} x1={padL} x2={padL + iw} y1={padT + g * ih} y2={padT + g * ih} stroke="var(--line)" />)}
-            <path d={smoothPath(pa)} pathLength="1" className="draw-line" fill="none" stroke="#2243B6" strokeWidth="2.2" strokeLinecap="round" />
-            <path d={smoothPath(pb)} pathLength="1" className="draw-line" fill="none" stroke="#C98A00" strokeWidth="2.2" strokeLinecap="round" opacity="0.95" />
+            <path d={smoothPath(pa)} pathLength="1" className="draw-line" fill="none" stroke="#6FA2FF" strokeWidth="2.2" strokeLinecap="round" />
+            <path d={smoothPath(pb)} pathLength="1" className="draw-line" fill="none" stroke="#E8B765" strokeWidth="2.2" strokeLinecap="round" opacity="0.95" />
             {a.filter((_, i) => i % 2 === 0).map((s, idx) => {
               const i = idx * 2;
               return <text key={i} x={x(i)} y={height - 6} fill="var(--t3)" fontSize="10" textAnchor="middle">{("" + s.year).slice(2)}</text>;
@@ -362,13 +362,13 @@ import { STRATA } from "../data/mock.js";
           </svg>
         )}
         {hi != null && (
-          <div style={{ position: "absolute", left: `${(hi / (len - 1)) * 100}%`, top: -8, transform: "translateX(-50%)", background: "var(--ink-2)", border: "1px solid var(--glass-line)", borderRadius: 9, padding: "7px 10px", pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "4px 4px 0 rgba(20,17,12,0.12)", zIndex: 5 }}>
+          <div style={{ position: "absolute", left: `${(hi / (len - 1)) * 100}%`, top: -8, transform: "translateX(-50%)", background: "var(--ink-2)", border: "1px solid var(--glass-line)", borderRadius: 9, padding: "7px 10px", pointerEvents: "none", whiteSpace: "nowrap", boxShadow: "0 14px 34px rgba(0,0,0,0.55)", zIndex: 5 }}>
             <div style={{ fontSize: 10.5, color: "var(--t3)", fontWeight: 600, marginBottom: 3 }}>{data[0].points[hi].year}</div>
             {data.map((s, si) => (
               <div key={si} className="row gap8" style={{ alignItems: "center", fontSize: 11.5 }}>
                 <span style={{ width: 8, height: 8, borderRadius: 9, background: s.color, display: "inline-block" }}></span>
                 <span style={{ color: "var(--t2)", marginRight: 6 }}>{s.label}</span>
-                <span className="tnum" style={{ color: "var(--black)", fontWeight: 700, marginLeft: "auto" }}>{fmtFn ? fmtFn(s.points[hi].value, s) : Math.round(s.points[hi].value)}</span>
+                <span className="tnum" style={{ color: "var(--white)", fontWeight: 700, marginLeft: "auto" }}>{fmtFn ? fmtFn(s.points[hi].value, s) : Math.round(s.points[hi].value)}</span>
               </div>
             ))}
           </div>
@@ -377,7 +377,7 @@ import { STRATA } from "../data/mock.js";
     );
   }
 
-  const SERIES_COLORS = ["#2243B6", "#FF4D00", "#1E7A44", "#7A2E8D"];
+  const SERIES_COLORS = ["#6FA2FF", "#E8B765", "#4FD7A0", "#B79CFF"];
 
   // ---------- Scatter / positioning map ----------
   function Scatter({ points, xLabel, yLabel, height = 240, quadrant }) {
@@ -391,13 +391,13 @@ import { STRATA } from "../data/mock.js";
           <svg width="100%" height={height} style={{ display: "block", overflow: "visible" }}>
             {[0, 25, 50, 75, 100].map(g => <line key={"x" + g} x1={X(g)} x2={X(g)} y1={padT} y2={padT + ih} stroke="var(--wash)" />)}
             {[0, 25, 50, 75, 100].map(g => <line key={"y" + g} x1={padL} x2={padL + iw} y1={Y(g)} y2={Y(g)} stroke="var(--wash)" />)}
-            {quadrant && <line x1={X(50)} x2={X(50)} y1={padT} y2={padT + ih} stroke="rgba(34,67,182,0.4)" strokeDasharray="3 4" />}
-            {quadrant && <line x1={padL} x2={padL + iw} y1={Y(50)} y2={Y(50)} stroke="rgba(34,67,182,0.4)" strokeDasharray="3 4" />}
-            {quadrant && <text x={padL + iw - 4} y={padT + 12} fill="#1E7A44" fontSize="9.5" textAnchor="end" letterSpacing="0.08em">HIGH OPPORTUNITY</text>}
+            {quadrant && <line x1={X(50)} x2={X(50)} y1={padT} y2={padT + ih} stroke="rgba(111,162,255,0.35)" strokeDasharray="3 4" />}
+            {quadrant && <line x1={padL} x2={padL + iw} y1={Y(50)} y2={Y(50)} stroke="rgba(111,162,255,0.35)" strokeDasharray="3 4" />}
+            {quadrant && <text x={padL + iw - 4} y={padT + 12} fill="#4FD7A0" fontSize="9.5" textAnchor="end" letterSpacing="0.08em">HIGH OPPORTUNITY</text>}
             {points.map((p, i) => (
               <g key={i}>
                 <circle cx={X(p.x)} cy={Y(p.y)} r="13" fill={p.color + "22"} />
-                <circle cx={X(p.x)} cy={Y(p.y)} r="6" fill={p.color} stroke="#F4F0E6" strokeWidth="1.5" />
+                <circle cx={X(p.x)} cy={Y(p.y)} r="6" fill={p.color} stroke="#0b0d12" strokeWidth="1.5" />
                 <text x={X(p.x)} y={Y(p.y) - 12} fill="var(--t1)" fontSize="10.5" fontWeight="600" textAnchor="middle">{p.label}</text>
               </g>
             ))}

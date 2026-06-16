@@ -82,7 +82,7 @@ import { Charts } from "./charts.jsx";
         <div className="sec-head" style={{ marginBottom: 28 }}>
           <div>
             <div className="sec-eyebrow">Roles</div>
-            <div className="h1" style={{ color: "var(--black)" }}>Browse every tech role</div>
+            <div className="h1" style={{ color: "var(--white)" }}>Browse every tech role</div>
             <div className="body" style={{ marginTop: 8, maxWidth: 480 }}>Search a role to open its full dashboard — pay, trend, skills, ladder, demand and forecast, all traceable.</div>
           </div>
           <Uc.CountrySelect value={code} onChange={app.setCountry} />
@@ -114,7 +114,7 @@ import { Charts } from "./charts.jsx";
         ) : (
           <div className="row between" style={{ marginBottom: 16 }}>
             <div className="small" style={{ color: "var(--t2)" }}>
-              <span style={{ color: "var(--black)", fontWeight: 700 }}>{filtered.length}</span> {filtered.length === 1 ? "role" : "roles"} matching <span style={{ color: "var(--sky)" }}>"{q}"</span>
+              <span style={{ color: "var(--white)", fontWeight: 700 }}>{filtered.length}</span> {filtered.length === 1 ? "role" : "roles"} matching <span style={{ color: "var(--sky)" }}>"{q}"</span>
             </div>
             <button className="pill sm ghost" onClick={() => setQ("")}>Clear search ×</button>
           </div>
@@ -130,10 +130,10 @@ import { Charts } from "./charts.jsx";
                   <span className="row gap8" style={{ alignItems: "center" }}><Uc.FamilyDot family={r.family} /><span className="small" style={{ color: "var(--t3)" }}>{r.family.name}</span></span>
                   <span className="score-pill" style={{ fontSize: 15 }}>{cd.score.total.toFixed(1)}<span className="pctile" style={{ marginLeft: 5, fontSize: 10 }}>top {cd.score.pctile}%</span></span>
                 </div>
-                <div className="h3" style={{ color: "var(--black)" }}>{r.name}</div>
+                <div className="h3" style={{ color: "var(--white)" }}>{r.name}</div>
                 <div className="small" style={{ color: "var(--t3)", flex: 1, lineHeight: 1.45 }}>{r.blurb}</div>
                 <div className="row between" style={{ borderTop: "1px solid var(--line)", paddingTop: 14 }}>
-                  <div><div className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "var(--black)" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10.5, color: "var(--t3)" }}>median · {code}</div></div>
+                  <div><div className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "var(--white)" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10.5, color: "var(--t3)" }}>median · {code}</div></div>
                   <div className="row gap8"><span className="tag">demand {cd.demand}</span></div>
                 </div>
               </div>
@@ -171,7 +171,7 @@ import { Charts } from "./charts.jsx";
             <button className="pill ghost sm" style={{ alignSelf: "flex-start" }} onClick={() => app.back()}>← Back</button>
             <div className="row gap12" style={{ alignItems: "center", flexWrap: "wrap" }}>
               <ui.FamilyDot family={role.family} size={11} />
-              <h1 className="h1" style={{ color: "var(--black)" }}>{role.name}</h1>
+              <h1 className="h1" style={{ color: "var(--white)" }}>{role.name}</h1>
             </div>
             <div className="body" style={{ maxWidth: 560, marginTop: 2 }}>{role.blurb}</div>
           </div>
@@ -197,7 +197,7 @@ import { Charts } from "./charts.jsx";
           <StatCard>
             <span className="stat-label">Job Score</span>
             <div className="row gap10 mt16" style={{ alignItems: "baseline" }}>
-              <span className="tnum" style={{ fontSize: 46, fontWeight: 700, color: "var(--black)", lineHeight: 1 }}>{cd.score.total.toFixed(1)}</span>
+              <span className="tnum" style={{ fontSize: 46, fontWeight: 700, color: "var(--white)", lineHeight: 1 }}>{cd.score.total.toFixed(1)}</span>
               <span style={{ color: "var(--t3)", fontSize: 15 }}>/10</span>
             </div>
             <div className="row between mt12"><span className="pctile" style={{ fontSize: 13 }}>top {cd.score.pctile}% of roles</span><span className="small" style={{ color: "var(--t3)" }}>rank #{cd.score.rank}</span></div>
@@ -205,8 +205,8 @@ import { Charts } from "./charts.jsx";
           <StatCard>
             <span className="stat-label">Demand vs Interest</span>
             <div className="col gap12 mt16">
-              <DemandInterestGauge label="Market demand" value={cd.demand} color="#2243B6" />
-              <DemandInterestGauge label="Learner interest" value={cd.interest} color="#C98A00" />
+              <DemandInterestGauge label="Market demand" value={cd.demand} color="#6FA2FF" />
+              <DemandInterestGauge label="Learner interest" value={cd.interest} color="#E8B765" />
             </div>
             <div className="small mt12" style={{ color: cd.demand > cd.interest ? "var(--good)" : "var(--t3)" }}>
               {cd.demand > cd.interest ? `Demand outpaces interest by ${cd.demand - cd.interest} pts — an opening.` : `More pursuing than the market wants right now.`}
@@ -252,9 +252,9 @@ import { Charts } from "./charts.jsx";
                   <div key={i} className="row gap12" style={{ alignItems: "center", padding: "10px 0", borderBottom: i < role.ladder.length - 1 ? "1px solid var(--line)" : "none" }}>
                     <span style={{ width: 22, height: 22, borderRadius: 999, flexShrink: 0, display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700,
                       background: isHere ? "var(--cobalt)" : "var(--wash)", color: isHere ? "var(--white)" : "var(--t3)",
-                      boxShadow: isHere ? "2px 2px 0 rgba(20,17,12,0.25)" : "none" }}>{i + 1}</span>
-                    <span style={{ flex: 1, fontSize: 13.5, color: isHere ? "var(--black)" : "var(--t1)", fontWeight: isHere ? 700 : 500 }}>{title}{isHere && <span className="tag" style={{ marginLeft: 8, fontSize: 9 }}>this role</span>}</span>
-                    <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "var(--black)" }}>{S().fmtCompact(val, country)}</span>
+                      boxShadow: isHere ? "0 4px 16px rgba(111,162,255,0.5)" : "none" }}>{i + 1}</span>
+                    <span style={{ flex: 1, fontSize: 13.5, color: isHere ? "var(--white)" : "var(--t1)", fontWeight: isHere ? 700 : 500 }}>{title}{isHere && <span className="tag" style={{ marginLeft: 8, fontSize: 9 }}>this role</span>}</span>
+                    <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "var(--white)" }}>{S().fmtCompact(val, country)}</span>
                   </div>
                 );
               })}
@@ -279,7 +279,7 @@ import { Charts } from "./charts.jsx";
   function DemandInterestGauge({ label, value, color }) {
     return (
       <div>
-        <div className="row between" style={{ marginBottom: 5 }}><span className="small" style={{ color: "var(--t2)" }}>{label}</span><span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "var(--black)" }}>{value}</span></div>
+        <div className="row between" style={{ marginBottom: 5 }}><span className="small" style={{ color: "var(--t2)" }}>{label}</span><span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "var(--white)" }}>{value}</span></div>
         <div style={{ height: 6, borderRadius: 9, background: "var(--wash-2)", overflow: "hidden" }}>
           <div style={{ width: `${value}%`, height: "100%", background: color, transition: "width 0.7s" }} />
         </div>
@@ -300,15 +300,15 @@ import { Charts } from "./charts.jsx";
       <div className="col" style={{ gap: 10 }}>
         {items.sort((a, b) => b.geom - a.geom).map(it => (
           <button key={it.code} onClick={() => onPick(it.code)} className="row gap12" style={{
-            alignItems: "center", background: it.code === highlight ? "rgba(255,77,0,0.06)" : "transparent",
-            border: "1px solid " + (it.code === highlight ? "rgba(255,77,0,0.5)" : "transparent"), borderRadius: 10,
+            alignItems: "center", background: it.code === highlight ? "rgba(111,162,255,0.1)" : "transparent",
+            border: "1px solid " + (it.code === highlight ? "rgba(111,162,255,0.5)" : "transparent"), borderRadius: 10,
             padding: "8px 10px", cursor: "pointer", width: "100%", textAlign: "left"
           }}>
             <span style={{ width: 150 }}><UI.CountryTag code={it.code} /></span>
             <div style={{ flex: 1, height: 20, background: "var(--wash)", borderRadius: 6, overflow: "hidden" }}>
               <div style={{ width: `${(it.geom / mx) * 100}%`, height: "100%", borderRadius: 6, background: it.code === highlight ? "var(--bar-hi)" : "var(--bar)", transition: "width 0.7s" }} />
             </div>
-            <span className="tnum" style={{ width: 120, textAlign: "right", fontSize: 13.5, fontWeight: 700, color: "var(--black)" }}>
+            <span className="tnum" style={{ width: 120, textAlign: "right", fontSize: 13.5, fontWeight: 700, color: "var(--white)" }}>
               {ppp ? "◊" + Math.round(it.ppp / 1000) + "k" : S().fmtCompact(it.native, it.code)}
             </span>
           </button>

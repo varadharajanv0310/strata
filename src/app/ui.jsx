@@ -121,7 +121,7 @@ let LAND_CACHE = null;
         const rot = rotRef.current * Math.PI / 180, st = Math.sin(tilt), ct = Math.cos(tilt);
         ctx.clearRect(0, 0, size, size);
         const g = ctx.createRadialGradient(cx + R * 0.34, cy - R * 0.34, R * 0.08, cx, cy, R * 1.04);
-        g.addColorStop(0, "#fffdf6"); g.addColorStop(0.5, "#f4efe2"); g.addColorStop(1, "#e6decb");
+        g.addColorStop(0, "#243049"); g.addColorStop(0.5, "#121a29"); g.addColorStop(1, "#05070c");
         ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.fillStyle = g; ctx.fill();
         for (let i = 0; i < land.length; i++) {
           const la = land[i][0] * Math.PI / 180, lo = land[i][1] * Math.PI / 180 - rot;
@@ -129,12 +129,12 @@ let LAND_CACHE = null;
           const x = cphi * slo, y = ct * sphi - st * cphi * clo, z = st * sphi + ct * cphi * clo;
           if (z <= 0) continue;
           const bright = Math.max(0, x * L[0] + y * L[1] + z * L[2]);
-          const a = 0.16 + bright * 0.55;
-          const cr = 38, cg = 33, cb = 24;
+          const a = 0.2 + bright * 0.62;
+          const cr = Math.round(150 + bright * 105), cg = Math.round(170 + bright * 85), cb = Math.round(214 + bright * 41);
           const rad = (0.85 + bright * 1.15) * (0.55 + 0.45 * z);
           ctx.beginPath(); ctx.arc(cx + R * x, cy - R * y, rad, 0, 7); ctx.fillStyle = "rgba(" + cr + "," + cg + "," + cb + "," + a + ")"; ctx.fill();
         }
-        ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.strokeStyle = "rgba(20,17,12,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.strokeStyle = "rgba(160,185,235,0.28)"; ctx.lineWidth = 1; ctx.stroke();
         const nodes = [];
         for (const co of S().COUNTRIES) {
           const [la0, lo0] = GEO[co.code]; const la = la0 * Math.PI / 180, lo = lo0 * Math.PI / 180 - rot;
@@ -144,19 +144,19 @@ let LAND_CACHE = null;
           nodes.push({ code: co.code, name: co.name, x: sx, y: sy, front });
           if (!front) continue;
           const isA = co.code === activeRef.current, isH = co.code === hoverRef.current;
-          if (isA) { const pr = 11 + Math.sin(time * 2.4) * 4; ctx.beginPath(); ctx.arc(sx, sy, pr, 0, 7); ctx.strokeStyle = "rgba(255,77,0,0.65)"; ctx.lineWidth = 1.5; ctx.stroke(); }
-          ctx.beginPath(); ctx.arc(sx, sy, (isA ? 8 : 5.5), 0, 7); ctx.fillStyle = "rgba(255,77,0,0.2)"; ctx.fill();
-          ctx.beginPath(); ctx.arc(sx, sy, (isA ? 5 : isH ? 4.5 : 3.8), 0, 7); ctx.fillStyle = isA ? "#FF4D00" : "#F4F0E6"; ctx.fill();
-          ctx.lineWidth = isA ? 2.4 : 1.4; ctx.strokeStyle = "#14110C"; ctx.stroke();
+          if (isA) { const pr = 11 + Math.sin(time * 2.4) * 4; ctx.beginPath(); ctx.arc(sx, sy, pr, 0, 7); ctx.strokeStyle = "rgba(111,162,255,0.7)"; ctx.lineWidth = 1.5; ctx.stroke(); }
+          ctx.beginPath(); ctx.arc(sx, sy, (isA ? 8 : 5.5), 0, 7); ctx.fillStyle = "rgba(111,162,255,0.22)"; ctx.fill();
+          ctx.beginPath(); ctx.arc(sx, sy, (isA ? 5 : isH ? 4.5 : 3.8), 0, 7); ctx.fillStyle = isA ? "#9CC4FF" : "#dbe4f7"; ctx.fill();
+          ctx.lineWidth = isA ? 2.4 : 1.4; ctx.strokeStyle = "#0a1422"; ctx.stroke();
         }
         nodePosRef.current = nodes;
         ctx.font = '500 10px "IBM Plex Mono", monospace';
         for (const n of nodes) {
           if (!n.front || (n.code !== activeRef.current && n.code !== hoverRef.current)) continue;
           const w = ctx.measureText(n.name).width + 18, leftSide = n.x > cx, lx = leftSide ? n.x - 12 - w : n.x + 12;
-          ctx.fillStyle = "rgba(255,253,246,0.97)"; rr(ctx, lx, n.y - 12, w, 22, 11); ctx.fill();
-          ctx.strokeStyle = "rgba(20,17,12,0.6)"; ctx.lineWidth = 1; rr(ctx, lx, n.y - 12, w, 22, 11); ctx.stroke();
-          ctx.fillStyle = "#14110C"; ctx.textBaseline = "middle"; ctx.textAlign = leftSide ? "right" : "left";
+          ctx.fillStyle = "rgba(12,16,26,0.94)"; rr(ctx, lx, n.y - 12, w, 22, 11); ctx.fill();
+          ctx.strokeStyle = "rgba(160,185,235,0.4)"; ctx.lineWidth = 1; rr(ctx, lx, n.y - 12, w, 22, 11); ctx.stroke();
+          ctx.fillStyle = "#F4F6FB"; ctx.textBaseline = "middle"; ctx.textAlign = leftSide ? "right" : "left";
           ctx.fillText(n.name, leftSide ? lx + w - 9 : lx + 9, n.y + 1);
         }
       };
@@ -231,13 +231,13 @@ let LAND_CACHE = null;
           <div style={{
             position: "absolute", top: "calc(100% + 8px)", left: 0, zIndex: 80, width: 210,
             background: "var(--ink-2)", border: "1px solid var(--glass-line)", borderRadius: 14,
-            padding: 6, boxShadow: "6px 6px 0 rgba(20,17,12,0.12)", animation: "fadeUp 0.16s ease"
+            padding: 6, boxShadow: "0 24px 64px rgba(0,0,0,0.6)", animation: "fadeUp 0.16s ease"
           }}>
             {S().COUNTRIES.map(co => (
               <button key={co.code} onClick={() => { onChange(co.code); setOpen(false); }}
                 className="row gap10" style={{
                   width: "100%", padding: "9px 11px", borderRadius: 9, border: "none", cursor: "pointer",
-                  background: co.code === value ? "rgba(255,77,0,0.12)" : "transparent",
+                  background: co.code === value ? "rgba(111,162,255,0.16)" : "transparent",
                   color: "var(--t1)", fontFamily: "var(--font)", fontSize: 13.5, fontWeight: 600, textAlign: "left",
                   alignItems: "center"
                 }}
@@ -286,7 +286,7 @@ let LAND_CACHE = null;
   // ---- big salary headline ----
   function BigSalary({ value, code, size = 44 }) {
     const animated = useCountUp(value, 900, [code]);
-    return <span className="tnum" style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--black)", lineHeight: 1 }}>
+    return <span className="tnum" style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.03em", color: "var(--white)", lineHeight: 1 }}>
       {S().fmtCur(Math.round(animated), code)}
     </span>;
   }
@@ -327,7 +327,7 @@ let LAND_CACHE = null;
         {comps.map(c => (
           <div key={c.k} className="comp">
             <div className="row between"><span className="small" style={{ color: "var(--t2)" }}>{c.k}</span>
-              <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "var(--black)" }}>{c.v.toFixed(1)}</span></div>
+              <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "var(--white)" }}>{c.v.toFixed(1)}</span></div>
             <div className="comp-bar"><span style={{ width: `${c.v * 10}%` }}></span></div>
             <div style={{ fontSize: 10.5, color: "var(--t3)", marginTop: 6, lineHeight: 1.4 }}>{c.hint}</div>
           </div>
@@ -338,7 +338,7 @@ let LAND_CACHE = null;
 
   function FamilyDot({ family, size = 8 }) {
     return <span className="fam-dot" style={{ width: size, height: size, borderRadius: 999, display: "inline-block",
-      background: `oklch(0.5 0.16 ${family.hue})` }} />;
+      background: `oklch(0.72 0.17 ${family.hue})` }} />;
   }
 
   function Empty({ icon, title, sub }) {
