@@ -71,7 +71,7 @@ LIMIT 10;</textarea>
 
     const $ = (id) => document.getElementById(id);
     const status = $('status'), runBtn = $('run'), out = $('out'), errBox = $('error');
-    const BASE = './data/marts/';
+    const BASE = new URL('data/marts/', window.location.href).href;  // absolute (worker-safe)
     const TABLES = ['mart_country','mart_family','mart_role','mart_role_skill','mart_role_ladder',
                     'mart_role_country','mart_market_pulse','mart_role_alias','mart_provenance'];
     let conn = null;
