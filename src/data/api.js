@@ -22,3 +22,8 @@ export const fetchRole = (id) => getJSON(`/api/roles/${encodeURIComponent(id)}`)
 export const fetchJobScore = (country) => getJSON(`/api/jobscore?country=${country}`);
 export const fetchProvenance = (role, country) =>
   getJSON(`/api/provenance?role=${encodeURIComponent(role)}&country=${country}`);
+
+// never-dead-end resolver: maps any typed string to the nearest roles + confidence.
+// Returns { query, confidence, message, matched, results:[{id,name,family,blurb,score,tier}] }.
+export const resolveRoles = (q, limit = 8) =>
+  getJSON(`/api/roles/resolve?q=${encodeURIComponent(q)}&limit=${limit}`);

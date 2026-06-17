@@ -1,11 +1,12 @@
 import React from "react";
 import { STRATA } from "../data/mock.js";
+import { resolveRoles } from "../data/api.js";
 import { UI } from "./ui.jsx";
 import { Charts } from "./charts.jsx";
 /* ============================================================
    strata — Roles surface: index + Job Score board + Role Dashboard
    ============================================================ */
-  const { useState } = React;
+  const { useState, useEffect } = React;
   const S = () => STRATA;
   const Uc = UI, Cc = Charts;
 
@@ -77,6 +78,30 @@ import { Charts } from "./charts.jsx";
       (fam === "all" || r.family.id === fam) &&
       (q === "" || r.name.toLowerCase().includes(q.toLowerCase()) || r.skills.some(s => s.name.toLowerCase().includes(q.toLowerCase()))));
 
+    // never-dead-end: when the instant client filter misses, ask the backend
+    // resolver (alias → fuzzy → embedding) for the nearest roles + honest copy.
+    const [resolved, setResolved] = useState(null);
+    const [resolving, setResolving] = useState(false);
+    useEffect(() => {
+      const ql = q.trim();
+      if (ql === "" || filtered.length > 0) { setResolved(null); setResolving(false); return; }
+      let alive = true;
+      setResolving(true);
+      const t = setTimeout(() => {
+        resolveRoles(ql, 8)
+          .then(r => { if (alive) { setResolved(r); setResolving(false); } })
+          .catch(() => { if (alive) { setResolved(null); setResolving(false); } });
+      }, 250);
+      return () => { alive = false; clearTimeout(t); };
+    }, [q, fam]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+    const byId = Object.fromEntries(S().roles.map(r => [r.id, r]));
+    const showResolver = q.trim() !== "" && filtered.length === 0 &&
+      resolved && resolved.results && resolved.results.length > 0;
+    const displayRoles = showResolver
+      ? resolved.results.map(rr => byId[rr.id]).filter(Boolean)
+      : filtered;
+
     return (
       <div className="wrap surface-enter">
         <div className="sec-head" style={{ marginBottom: 28 }}>
@@ -114,7 +139,11 @@ import { Charts } from "./charts.jsx";
         ) : (
           <div className="row between" style={{ marginBottom: 16 }}>
             <div className="small" style={{ color: "var(--t2)" }}>
-              <span style={{ color: "#fff", fontWeight: 700 }}>{filtered.length}</span> {filtered.length === 1 ? "role" : "roles"} matching <span style={{ color: "var(--sky)" }}>"{q}"</span>
+              {showResolver ? (
+                <span style={{ color: resolved.confidence === "low" ? "var(--t3)" : "var(--t2)" }}>{resolved.message}</span>
+              ) : (
+                <span><span style={{ color: "#fff", fontWeight: 700 }}>{filtered.length}</span> {filtered.length === 1 ? "role" : "roles"} matching <span style={{ color: "var(--sky)" }}>"{q}"</span></span>
+              )}
             </div>
             <button className="pill sm ghost" onClick={() => setQ("")}>Clear search ×</button>
           </div>
@@ -122,7 +151,7 @@ import { Charts } from "./charts.jsx";
 
         {/* role grid */}
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))", gap: 16 }}>
-          {filtered.map(r => {
+          {displayRoles.map(r => {
             const cd = r.countries[code];
             return (
               <div key={r.id} className="card pooled lift role-card" onClick={(e) => window.openRoleMenu(r.id, e.clientX, e.clientY)}>
@@ -140,7 +169,11 @@ import { Charts } from "./charts.jsx";
             );
           })}
         </div>
-        {filtered.length === 0 && <Uc.Empty icon="⌕" title="No roles match" sub="Try a different search or clear the family filter." />}
+        {displayRoles.length === 0 && (
+          resolving
+            ? <Uc.Empty icon="⌕" title="Searching…" sub={`Finding the nearest roles to "${q}".`} />
+            : <Uc.Empty icon="⌕" title="No roles match" sub="Try a different search or clear the family filter." />
+        )}
       </div>
     );
   }
