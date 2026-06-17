@@ -7,10 +7,23 @@ live app.db. Real staging is read read-only (it's pipeline input, never mutated)
 """
 from __future__ import annotations
 
+import pytest
 from sqlalchemy import func, select
 
 from backend.core.db import session_scope
 from backend.marts import models as M
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _restore_seed_after():
+    """publish_served rebuilds the shared (temp) warehouse from REAL staging; restore
+    the seed warehouse + marts afterwards so later tests see the seed they assert."""
+    yield
+    from backend.marts.materialize import materialize_from_warehouse
+    from backend.warehouse.build import build_warehouse_from_dataset
+    from backend.warehouse.seed import build_seed_dataset
+    build_warehouse_from_dataset(build_seed_dataset(), is_seed=True)
+    materialize_from_warehouse()
 
 
 def test_publish_served_end_to_end():
