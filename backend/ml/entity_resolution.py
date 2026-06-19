@@ -5,10 +5,13 @@ We (1) resolve employer name variants to a canonical **employer id**, and (2) fl
 near-duplicate postings within an (employer, country) block so demand counts use
 *unique* postings only.
 
-Writes two STAGING tables the warehouse build consumes:
-  * ``normalized/employers.parquet``   — (employer_id, canonical_name, n_variants)
+Writes ONE staging table the warehouse build consumes:
   * ``normalized/posting_dedup.parquet`` — (posting_id, employer_id, country,
     title, is_unique, dup_group)
+
+Employer is used **only as an in-memory dedup block key** — strata is ROLES-only, so
+no company/employer registry is ever persisted (the old ``employers.parquet`` artifact
+was removed; companies are never an entity here).
 
 Two paths: a sentence-transformer title-similarity path (GPU) and a deterministic
 normalized-title path (fallback). Both produce REAL dedup decisions from the real
@@ -24,7 +27,6 @@ from backend.core.logging import get_logger, stage_timer
 log = get_logger("ml.entity_resolution")
 
 POSTINGS = "common_crawl/postings.parquet"
-EMP_OUT = "normalized/employers.parquet"
 DEDUP_OUT = "normalized/posting_dedup.parquet"
 SIM_THRESHOLD = 0.86  # cosine on title embeddings ⇒ same posting
 
@@ -118,7 +120,7 @@ def run() -> dict:
         path = _staging()
         if not path.exists():
             log.warning("entity_resolution: no postings at %s — nothing to dedup", path)
-            return {"postings": 0, "unique": 0, "employers": 0, "written": False, "mode": "skipped"}
+            return {"postings": 0, "unique": 0, "employer_blocks": 0, "written": False, "mode": "skipped"}
 
         import pandas as pd
 
@@ -127,28 +129,16 @@ def run() -> dict:
             posts["country"] = posts.get("country_code")
         if posts.empty:
             log.warning("entity_resolution: postings parquet is empty")
-            return {"postings": 0, "unique": 0, "employers": 0, "written": False, "mode": "skipped"}
+            return {"postings": 0, "unique": 0, "employer_blocks": 0, "written": False, "mode": "skipped"}
 
-        # ---- employer resolution: variants → canonical id ----
+        # ---- employer resolution: variants → canonical id, IN-MEMORY ONLY.
+        #      This is purely the dedup BLOCK KEY (collapse a company's reposts);
+        #      strata is roles-only, so nothing about the employer is persisted as an
+        #      entity (no canonical_name / size / registry — that was the old creep). ----
+        from backend.warehouse.build import slug
         posts["_emp_norm"] = posts.get("employer", "").fillna("").map(_norm_employer)
-        emp_rows = []
-        emp_id_of: dict[str, str] = {}
-        for norm, grp in posts.groupby("_emp_norm"):
-            if not norm:
-                eid = "emp:unknown"
-            else:
-                from backend.warehouse.build import slug
-                eid = "emp:" + slug(norm)
-            emp_id_of[norm] = eid
-            # canonical display name = most common raw variant
-            raw = grp.get("employer", pd.Series(dtype=str)).dropna()
-            canon = raw.mode().iloc[0] if not raw.empty else (norm or "Unknown")
-            emp_rows.append({
-                "employer_id": eid,
-                "canonical_name": canon,
-                "n_variants": int(raw.nunique()),
-                "n_postings": int(len(grp)),
-            })
+        emp_id_of = {norm: ("emp:unknown" if not norm else "emp:" + slug(norm))
+                     for norm in posts["_emp_norm"].unique()}
         posts["employer_id"] = posts["_emp_norm"].map(emp_id_of)
 
         # ---- posting dedup within (employer_id, country) blocks ----
@@ -179,9 +169,6 @@ def run() -> dict:
         dedup = posts.reset_index().rename(columns={"index": "posting_id"})[
             ["posting_id", "employer_id", "country", "title", "is_unique", "dup_group"]
         ]
-        emp_df = pd.DataFrame(emp_rows)
-
-        emp_df.to_parquet(_out(EMP_OUT), index=False)
         dedup.to_parquet(_out(DEDUP_OUT), index=False)
 
         n_unique = int(dedup["is_unique"].sum())
@@ -189,7 +176,7 @@ def run() -> dict:
             "postings": len(dedup),
             "unique": n_unique,
             "duplicates": len(dedup) - n_unique,
-            "employers": len(emp_df),
+            "employer_blocks": len(emp_id_of),   # in-memory dedup blocks, not a registry
             "written": True,
             "mode": mode,
         }
