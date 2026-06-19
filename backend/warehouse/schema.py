@@ -60,14 +60,9 @@ DIMENSIONS = {
             year        INTEGER PRIMARY KEY,
             is_forecast BOOLEAN DEFAULT FALSE
         )""",
-    "dim_company": """
-        CREATE TABLE IF NOT EXISTS dim_company (
-            company_id VARCHAR PRIMARY KEY,
-            name       VARCHAR NOT NULL,
-            size       VARCHAR,
-            industry   VARCHAR,
-            source     VARCHAR                     -- wikidata | github | seed
-        )""",
+    # NOTE: strata is ROLES-only. There is deliberately NO company/employer dimension
+    # — companies are never a product axis. Employer survives only as an in-memory
+    # dedup key inside the pipeline (entity_resolution / fingerprint), never an entity.
     "dim_source": """
         CREATE TABLE IF NOT EXISTS dim_source (
             source_id    VARCHAR PRIMARY KEY,

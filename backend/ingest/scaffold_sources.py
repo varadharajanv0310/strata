@@ -120,15 +120,10 @@ class BlsOews(ScaffoldConnector):
     plan = "Download national statistical wage tables; crosswalk to roles; store as calibration anchors."
 
 
-class CompanyEnrich(ScaffoldConnector):
-    name = "company_enrich"
-    description = "Wikidata/DBpedia + GitHub-org activity — company size/industry/metadata"
-    joins_on = ("employer",)
-    adds_signal = "employer enrichment for dim_company"
-    plan = "Resolve employers to Wikidata; pull size/industry; add GitHub-org activity from GH Archive."
-
+# NOTE: a CompanyEnrich scaffold (Wikidata/GitHub-org → company size/industry) was
+# removed here — strata is ROLES-only and never enriches or surfaces companies.
 
 SCAFFOLD_CONNECTORS = [
     StackOverflowSurvey, DolOflc, GhArchive, StackExchange, GoogleTrends, PyPiNpm,
-    Lightcast, Esco, Onet, OecdPpp, WorldBankIcp, Numbeo, BlsOews, CompanyEnrich,
+    Lightcast, Esco, Onet, OecdPpp, WorldBankIcp, Numbeo, BlsOews,
 ]
