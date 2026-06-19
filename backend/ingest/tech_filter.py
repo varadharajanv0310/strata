@@ -110,10 +110,23 @@ _RE_STRONG = re.compile("|".join(_STRONG), re.IGNORECASE)
 _RE_SOFT = re.compile("|".join(_SOFT), re.IGNORECASE)
 _RE_NEG = re.compile("|".join(_NEGATIVE), re.IGNORECASE)
 
+# --- VETO: titles that must NEVER be tech, even when a strong token fires (checked
+# FIRST). Catches gig/crowdwork ("AI Trainer", data-annotation) that ride the bare
+# "ai"/"data scientist" tokens, and retail ("Sales & Service Consultant") that rides
+# a techy description. Found leaking into clusters on the bounded ATS proof (2026-06).
+_VETO = [
+    r"\bai\s+trainer\b", r"\bai\s+tutor\b", r"\bsearch\s+quality\s+rater\b",
+    r"sales\s*&\s*service\s+consultant", r"sales\s+and\s+service\s+consultant",
+    r"\bdata\s+annotat", r"\bbrand\s+ambassador\b", r"\bcrowd\s*work\b",
+]
+_RE_VETO = re.compile("|".join(_VETO), re.IGNORECASE)
+
 
 def classify(title: str | None, description: str | None = None) -> bool:
     """True if the posting is tech-and-adjacent. See module docstring for order."""
     t = (title or "").strip()
+    if t and _RE_VETO.search(t):
+        return False                   # gig/crowdwork/retail — never tech
     if t:
         strong_t = bool(_RE_STRONG.search(t))
         neg_t = bool(_RE_NEG.search(t))
