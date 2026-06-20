@@ -39,6 +39,7 @@ import gzip
 import io
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import requests
 
@@ -265,14 +266,14 @@ class CommonCrawlConnector(BaseConnector):
         h = {**_HEADERS, "Range": f"bytes={off}-{off + length - 1}"}
         for attempt in range(2):
             try:
-                r = requests.get(f"{DATA_HOST}/{rec['filename']}", headers=h, timeout=90)
+                r = requests.get(f"{DATA_HOST}/{rec['filename']}", headers=h, timeout=30)
                 r.raise_for_status()
                 return gzip.GzipFile(fileobj=io.BytesIO(r.content)).read()
             except Exception as e:  # noqa: BLE001
                 if attempt == 1:
                     log.warning("range fetch failed: %s", e)
                 else:
-                    time.sleep(2)
+                    time.sleep(1)
         return None
 
     @staticmethod
@@ -322,7 +323,10 @@ class CommonCrawlConnector(BaseConnector):
             raise NotImplementedError(
                 "Common Crawl index unreachable — code ready; run with network access."
             )
-        per_unit = max(40, target // max(1, len(crawl_ids)))
+        # cap per-unit so each (crawl, host) unit COMPLETES quickly, writes its raw
+        # file, and checkpoints — incremental + resumable. Spread across many units.
+        units = max(1, len(crawl_ids) * len(domains))
+        per_unit = min(500, max(60, target // units))
         total = 0
         for crawl in crawl_ids:
             for domain in domains:
@@ -333,15 +337,24 @@ class CommonCrawlConnector(BaseConnector):
                     continue
                 recs = self._resolve_index(crawl, domain, per_unit)
                 landed: list[dict] = []
-                for rec in recs:
-                    raw = self._fetch_record(rec)
-                    if raw:
-                        for jp in self._extract_jobpostings(raw):
-                            jp["_source_url"] = rec.get("url")
-                            jp["_crawl"] = crawl
-                            landed.append(jp)
-                    if len(landed) >= per_unit:
-                        break
+                t0 = time.time()
+                # parallel byte-range WARC fetches (the sequential loop was the bottleneck)
+                cand = recs[: per_unit * 3]
+                with ThreadPoolExecutor(max_workers=16) as ex:
+                    futs = {ex.submit(self._fetch_record, rec): rec for rec in cand}
+                    for fut in as_completed(futs):
+                        rec = futs[fut]
+                        try:
+                            raw = fut.result()
+                        except Exception:  # noqa: BLE001
+                            raw = None
+                        if raw:
+                            for jp in self._extract_jobpostings(raw):
+                                jp["_source_url"] = rec.get("url")
+                                jp["_crawl"] = crawl
+                                landed.append(jp)
+                        if len(landed) >= per_unit or time.time() - t0 > 240:
+                            break
                 if landed:
                     fname = f"{crawl}__{domain.replace('*.', '').replace('/', '_')}.json"
                     self._raw_dir().joinpath(fname).write_text(
