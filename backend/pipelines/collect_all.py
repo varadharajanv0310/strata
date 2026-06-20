@@ -22,6 +22,9 @@ os.environ.setdefault("USE_TF", "0")
 os.environ.setdefault("USE_FLAX", "0")
 os.environ.setdefault("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1")
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
+# force UTF-8 everywhere so the emoji/arrow log lines don't crash on Windows cp1252
+os.environ.setdefault("PYTHONUTF8", "1")
+os.environ.setdefault("PYTHONIOENCODING", "utf-8")
 
 import argparse
 import datetime
@@ -30,6 +33,12 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+except Exception:  # noqa: BLE001
+    pass
 
 ROOT = Path(__file__).resolve().parents[2]
 RUN_LOG = ROOT / "RUN_LOG.md"
@@ -143,7 +152,8 @@ def run_stage(name: str) -> bool:
     ok, note = False, ""
     try:
         p = subprocess.run([PY, "-c", expr], cwd=str(ROOT), env={**os.environ},
-                           timeout=budget, capture_output=True, text=True)
+                           timeout=budget, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace")
         ok = p.returncode == 0
         if not ok:
             note = " | err: " + (p.stderr.strip().splitlines()[-1][:200] if p.stderr.strip() else "nonzero exit")
