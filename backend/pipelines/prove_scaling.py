@@ -145,7 +145,7 @@ def run_proof(
             out[v] = {"boards": s.get("boards", 0), "live": s.get("live", 0),
                       "dead": s.get("dead", 0), "raw": s.get("raw", 0), "tech": s.get("tech", 0),
                       "disclosed": s.get("disclosed", 0),
-                      "dead_rate": round(100 * s.get("dead", 0) / s.get("boards", 1), 1),
+                      "dead_rate": round(100 * s.get("dead", 0) / max(1, s.get("boards", 0)), 1),
                       "disclosure_rate": round(100 * s.get("disclosed", 0) / max(1, s.get("tech", 0)), 1)}
         return out
 
