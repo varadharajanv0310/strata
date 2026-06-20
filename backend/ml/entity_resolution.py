@@ -65,12 +65,22 @@ def _norm_title(title: str) -> str:
     return " ".join(s.split())
 
 
+_MODEL = None
+
+
+def _get_model():
+    global _MODEL
+    if _MODEL is None:
+        from sentence_transformers import SentenceTransformer
+        _MODEL = SentenceTransformer(settings.embed_model, device=settings.ml_device)
+    return _MODEL
+
+
 def _dedup_block_embed(titles: list[str]) -> list[int]:
     """Return a dup-group label per title using title-embedding cosine + union-find."""
     import numpy as np
-    from sentence_transformers import SentenceTransformer
 
-    model = SentenceTransformer(settings.embed_model, device=settings.ml_device)
+    model = _get_model()
     emb = model.encode(titles, batch_size=settings.embed_batch_size,
                        normalize_embeddings=True, show_progress_bar=False)
     emb = np.asarray(emb, dtype="float32")
@@ -113,6 +123,8 @@ def run() -> dict:
         import pandas as pd
 
         posts = pd.read_parquet(path).reset_index(drop=True)
+        if "country" not in posts.columns:
+            posts["country"] = posts.get("country_code")
         if posts.empty:
             log.warning("entity_resolution: postings parquet is empty")
             return {"postings": 0, "unique": 0, "employers": 0, "written": False, "mode": "skipped"}
