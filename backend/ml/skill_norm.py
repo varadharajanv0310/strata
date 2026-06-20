@@ -177,7 +177,8 @@ def run() -> dict:
                 rows.append({
                     "posting_id": int(i),
                     "country": posts.iloc[i].get("country"),
-                    "employer": posts.iloc[i].get("employer"),
+                    # NOTE: no 'employer' column — strata is roles-only; the skill
+                    # bridge is role/skill/country-scoped, never employer-scoped.
                     "skill_id": ids[j],
                     "skill_name": names[j],
                     "confidence": round(sim, 4),
@@ -190,7 +191,7 @@ def run() -> dict:
 
         out = _out_path()
         df = pd.DataFrame(rows, columns=[
-            "posting_id", "country", "employer", "skill_id", "skill_name",
+            "posting_id", "country", "skill_id", "skill_name",
             "confidence", "rank", "method",
         ])
         df.to_parquet(out, index=False)
