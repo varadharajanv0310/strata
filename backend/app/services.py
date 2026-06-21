@@ -29,6 +29,10 @@ def _score(rc: M.MartRoleCountry) -> dict:
     }
 
 
+def _lens(median, sample, source) -> dict | None:
+    return {"median": int(median), "sample": sample or 0, "source": source} if median is not None else None
+
+
 def _role_country_payload(rc: M.MartRoleCountry) -> dict:
     return {
         "median": int(rc.median),
@@ -44,7 +48,42 @@ def _role_country_payload(rc: M.MartRoleCountry) -> dict:
         "source": rc.source,
         "freshness": rc.freshness,
         "transparency": rc.transparency,
+        # THREE salary lenses — advertised (headline) + realized + official, each
+        # shown on its own with its source; null where that lens has no data so the
+        # UI honestly says "not enough data" rather than borrowing another lens.
+        "salaryLenses": {
+            "advertised": _lens(rc.median, rc.sample, rc.source),
+            "realized": _lens(rc.median_realized, rc.sample_realized, rc.source_realized),
+            "official": _lens(rc.median_official, rc.sample_official, rc.source_official),
+        },
     }
+
+
+def _trajectory_by_role(db: Session, role_id: str | None = None) -> dict:
+    """role_id → [{to, name, similarity, type, source}] (roles-only adjacency edges)."""
+    q = select(M.MartRoleAdjacency).order_by(
+        M.MartRoleAdjacency.from_role, M.MartRoleAdjacency.similarity.desc())
+    if role_id:
+        q = q.where(M.MartRoleAdjacency.from_role == role_id)
+    out: dict[str, list] = defaultdict(list)
+    for a in db.scalars(q):
+        out[a.from_role].append({"to": a.to_role, "name": a.to_role_name,
+                                 "similarity": round(a.similarity, 3),
+                                 "type": a.edge_type, "source": a.source})
+    return out
+
+
+def _importance_by_role(db: Session, role_id: str | None = None) -> dict:
+    """role_id → [{skill, importance, essential, source}] (O*NET/ESCO weighting)."""
+    q = select(M.MartRoleSkillImportance).order_by(
+        M.MartRoleSkillImportance.role_id, M.MartRoleSkillImportance.importance.desc())
+    if role_id:
+        q = q.where(M.MartRoleSkillImportance.role_id == role_id)
+    out: dict[str, list] = defaultdict(list)
+    for i in db.scalars(q):
+        out[i.role_id].append({"skill": i.skill_name, "importance": round(i.importance, 1),
+                               "essential": bool(i.essential), "source": i.source})
+    return out
 
 
 def assemble_dataset(db: Session) -> dict:
@@ -60,6 +99,9 @@ def assemble_dataset(db: Session) -> dict:
     for l in db.scalars(select(M.MartRoleLadder).order_by(M.MartRoleLadder.role_id, M.MartRoleLadder.ord)):
         ladder_by_role[l.role_id].append([l.title, l.mult])
 
+    traj_by_role = _trajectory_by_role(db)
+    imp_by_role = _importance_by_role(db)
+
     rc_by_role: dict[str, dict] = defaultdict(dict)
     for rc in db.scalars(select(M.MartRoleCountry)):
         rc_by_role[rc.role_id][rc.country_code] = _role_country_payload(rc)
@@ -72,6 +114,8 @@ def assemble_dataset(db: Session) -> dict:
             "blurb": r.blurb,
             "skills": skills_by_role.get(r.id, []),
             "ladder": ladder_by_role.get(r.id, []),
+            "trajectory": traj_by_role.get(r.id, []),
+            "importance": imp_by_role.get(r.id, []),
             "countries": rc_by_role.get(r.id, {}),
         })
 
@@ -150,7 +194,10 @@ def get_role(db: Session, role_id: str) -> dict | None:
                  for rc in db.scalars(select(M.MartRoleCountry).where(M.MartRoleCountry.role_id == role_id))}
     return {"id": r.id, "name": r.name,
             "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue},
-            "blurb": r.blurb, "skills": skills, "ladder": ladder, "countries": countries}
+            "blurb": r.blurb, "skills": skills, "ladder": ladder,
+            "trajectory": _trajectory_by_role(db, role_id).get(role_id, []),
+            "importance": _importance_by_role(db, role_id).get(role_id, []),
+            "countries": countries}
 
 
 def jobscore_board(db: Session, country: str, limit: int | None = None) -> list[dict]:
