@@ -96,6 +96,17 @@ def cmd_pipeline(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_publish(args: argparse.Namespace) -> int:
+    """Atomic publish of the served layer: warehouse → marts (+ taxonomy aliases /
+    provenance) → live serving DB, behind a staged cutover. This is the POPULATE
+    step — run it only once the warehouse has been fused from a real run."""
+    from backend.pipelines.publish import publish_served
+
+    res = publish_served(with_taxonomy=not args.no_taxonomy, compute=not args.no_compute)
+    log.info("publish_served → %s", res)
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="strata", description="strata data-platform CLI")
     sub = p.add_subparsers(dest="command", required=True)
@@ -126,6 +137,11 @@ def build_parser() -> argparse.ArgumentParser:
     sp = sub.add_parser("pipeline", help="run a Prefect flow")
     sp.add_argument("flow", help="full|ingest|warehouse|compute|marts")
     sp.set_defaults(fn=cmd_pipeline)
+
+    sp = sub.add_parser("publish", help="atomic publish: warehouse → marts → live serving DB (the POPULATE step)")
+    sp.add_argument("--no-taxonomy", action="store_true", help="skip alias/provenance marts")
+    sp.add_argument("--no-compute", action="store_true", help="skip recompute (job scores/forecasts)")
+    sp.set_defaults(fn=cmd_publish)
 
     return p
 

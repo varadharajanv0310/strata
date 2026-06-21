@@ -58,9 +58,13 @@ STAGES: dict[str, tuple[str, int]] = {
         "from backend.ml.role_derivation import run as r; "
         "print('skill_norm', s()); print('entity_resolution', e()); print('role_derivation', r())",
         5400),
+    # parse the cached O*NET zip → role adjacency + skill importance staging (pure
+    # compute, no network). Runs before fuse so build_warehouse can read it.
+    "onet_trajectory": ("from backend.warehouse.onet_trajectory import run; print(run())", 300),
     "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 1200),
 }
-ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "common_crawl", "gpu_normalize", "fuse"]
+ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "common_crawl",
+         "gpu_normalize", "onet_trajectory", "fuse"]
 
 
 def _ts() -> str:
@@ -129,6 +133,9 @@ def count_stage(name: str) -> str:
                     c = "?"
                 parts.append(f"{f.stem}:{c}")
             return ", ".join(parts) or "no normalized output"
+        if name == "onet_trajectory":
+            from backend.warehouse.onet_trajectory import load_adjacency, load_skill_importance
+            return f"{len(load_adjacency())} adjacency edges, {len(load_skill_importance())} skill-importance rows"
         if name == "fuse":
             from backend.core.db import duckdb_connect
             c = duckdb_connect(read_only=True)

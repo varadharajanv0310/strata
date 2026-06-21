@@ -68,6 +68,23 @@ def materialize_from_warehouse() -> None:
             score = duck.execute(
                 "SELECT role_id,country_code,total,demand_score,pay_score,opp_score,rank,pctile FROM fact_job_score"
             ).fetchall()
+
+            # optional new-signal sources — guarded so an un-refused warehouse (no
+            # new tables/rows yet) still materializes the core mart cleanly.
+            def _q(sql):
+                try:
+                    return duck.execute(sql).fetchall()
+                except Exception as e:  # noqa: BLE001
+                    log.info("marts: optional source unavailable (%s)", str(e).splitlines()[0][:80])
+                    return []
+            person = _q("SELECT role_id,country_code,year,median,sample_size,source_id FROM fact_salary_person "
+                        "WHERE experience_code='pooled' ORDER BY role_id,country_code,year")
+            official = _q("SELECT role_id,country_code,year,median,sample_size,source_id FROM fact_salary_official "
+                          "ORDER BY role_id,country_code,year")
+            adjacency = _q("SELECT from_role,to_role,similarity,edge_type,source_id FROM bridge_role_adjacency "
+                           "ORDER BY from_role,similarity DESC")
+            importance = _q("SELECT role_id,skill_id,skill_name,importance,level,essential,source_id "
+                            "FROM bridge_role_skill_importance ORDER BY role_id,importance DESC")
         meta_years = sorted({r[2] for r in salary})
         meta_fyears = sorted({r[2] for r in forecast})
         is_seed_overall = bool(roles and roles[0][7])
@@ -77,6 +94,17 @@ def materialize_from_warehouse() -> None:
         forecast_g = _group(forecast, 2)
         interest_m = {(r[0], r[1]): int(round(r[2])) for r in interest}
         score_m = {(r[0], r[1]): r for r in score}
+
+        # latest median per (role,country) for the REALIZED + OFFICIAL salary lenses
+        # (rows arrive year-ascending, so the last write per key is the newest year).
+        def _latest(rows):
+            m: dict[tuple, tuple] = {}
+            for (rid, code, _yr, med, n, src) in rows:
+                if med is not None:
+                    m[(rid, code)] = (float(med), int(n or 0), sources.get(src, src))
+            return m
+        realized_m = _latest(person)
+        official_m = _latest(official)
 
         # ---- assemble per role×country ----
         rc_rows: list[M.MartRoleCountry] = []
@@ -89,11 +117,19 @@ def materialize_from_warehouse() -> None:
             fc = [{"year": int(y), "value": int(round(v)), "lo": int(round(lo)), "hi": int(round(hi))}
                   for (_, _, y, v, lo, hi) in forecast_g.get((rid, code), [])]
             sc = score_m[(rid, code)]
+            rl = realized_m.get((rid, code))
+            of = official_m.get((rid, code))
             row = M.MartRoleCountry(
                 role_id=rid, country_code=code,
                 median=float(series[-1]["value"]),
                 demand=dser[-1]["value"] if dser else 0,
                 interest=interest_m.get((rid, code), 0),
+                median_realized=rl[0] if rl else None,
+                sample_realized=rl[1] if rl else None,
+                source_realized=rl[2] if rl else None,
+                median_official=of[0] if of else None,
+                sample_official=of[1] if of else None,
+                source_official=of[2] if of else None,
                 score_total=sc[2], score_demand=sc[3], score_pay=sc[4], score_opp=sc[5],
                 score_rank=int(sc[6]), score_pctile=int(sc[7]),
                 sample=int(sample), conf=conf, kind=kind, source=sources.get(source_id, source_id),
@@ -128,7 +164,8 @@ def materialize_from_warehouse() -> None:
         # ---- write ----
         with session_scope() as db:
             for model in (M.MartMarketPulse, M.MartRoleCountry, M.MartRoleLadder,
-                          M.MartRoleSkill, M.MartRole, M.MartFamily, M.MartCountry, M.MartMeta):
+                          M.MartRoleSkill, M.MartRoleAdjacency, M.MartRoleSkillImportance,
+                          M.MartRole, M.MartFamily, M.MartCountry, M.MartMeta):
                 db.execute(delete(model))
 
             db.add_all([
@@ -146,6 +183,14 @@ def materialize_from_warehouse() -> None:
             db.add_all([M.MartRoleSkill(role_id=s[0], name=s[1], level=s[2],
                                         dura=0, trend="", ord=s[3]) for s in skills])  # dura/trend filled below
             db.add_all([M.MartRoleLadder(role_id=l[0], ord=l[1], title=l[2], mult=l[3]) for l in ladder])
+            role_name = {r[0]: r[1] for r in roles}
+            db.add_all([M.MartRoleAdjacency(
+                from_role=a[0], to_role=a[1], to_role_name=role_name.get(a[1], a[1]),
+                similarity=float(a[2]), edge_type=a[3], source=a[4]) for a in adjacency])
+            db.add_all([M.MartRoleSkillImportance(
+                role_id=i[0], skill_id=i[1], skill_name=i[2], importance=float(i[3]),
+                level=(float(i[4]) if i[4] is not None else None),
+                essential=bool(i[5]), source=i[6]) for i in importance])
             db.add_all(rc_rows)
             db.add_all(pulse_rows)
             db.add(M.MartMeta(key="dataset", value={
@@ -162,10 +207,21 @@ def materialize_from_warehouse() -> None:
                 ms.dura = int(sk_meta.get(ms.name, 0))
                 ms.trend = sk_trend.get(ms.name, "stable")
 
-        log.info("marts: %d countries, %d roles, %d role×country, %d pulse rows",
-                 len(countries), len(roles), len(rc_rows), len(pulse_rows))
+        log.info("marts: %d countries, %d roles, %d role×country, %d pulse rows, "
+                 "%d adjacency edges, %d skill-importance rows",
+                 len(countries), len(roles), len(rc_rows), len(pulse_rows),
+                 len(adjacency), len(importance))
     finally:
         duck.close()
+
+    # additive served slices — alias graph + provenance manifest — so a single
+    # `marts-materialize` builds the complete served layer (non-fatal if absent).
+    try:
+        n_alias = materialize_aliases()
+        n_prov = materialize_provenance()
+        log.info("marts: +%d aliases, +%d provenance sources", n_alias, n_prov)
+    except Exception as e:  # noqa: BLE001
+        log.warning("marts: alias/provenance materialization skipped (%s)", e)
 
 
 def materialize_aliases() -> int:

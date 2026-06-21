@@ -79,9 +79,19 @@ class MartRoleCountry(Base):
     role_id: Mapped[str] = mapped_column(String(120), primary_key=True)
     country_code: Mapped[str] = mapped_column(String(2), primary_key=True)
 
-    median: Mapped[float] = mapped_column(Float)
+    median: Mapped[float] = mapped_column(Float)          # ADVERTISED lens (fact_salary_job)
     demand: Mapped[int] = mapped_column(Integer)
     interest: Mapped[int] = mapped_column(Integer)
+
+    # THREE-LENS salary — advertised (median, above) + realized + official, shown
+    # side-by-side, never blended. Nullable: a lens is null when that source has no
+    # data for this role×country (the UI then honestly shows "not enough data").
+    median_realized: Mapped[float | None] = mapped_column(Float, nullable=True)
+    sample_realized: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_realized: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    median_official: Mapped[float | None] = mapped_column(Float, nullable=True)
+    sample_official: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    source_official: Mapped[str | None] = mapped_column(String(160), nullable=True)
 
     score_total: Mapped[float] = mapped_column(Float)
     score_demand: Mapped[float] = mapped_column(Float)
@@ -141,6 +151,40 @@ class MartRoleAlias(Base):
     source: Mapped[str] = mapped_column(String(20))
     lang: Mapped[str] = mapped_column(String(6), default="en")
     weight: Mapped[float] = mapped_column(Float, default=1.0)
+
+
+class MartRoleAdjacency(Base):
+    """Served role→role TRAJECTORY edges ("where does this role lead?").
+
+    Materialized from warehouse ``bridge_role_adjacency`` (O*NET/ESCO/Wikidata).
+    ROLES-ONLY: every edge is occupation→occupation, never an employer career graph.
+    """
+
+    __tablename__ = "mart_role_adjacency"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    from_role: Mapped[str] = mapped_column(String(120), index=True)
+    to_role: Mapped[str] = mapped_column(String(120))
+    to_role_name: Mapped[str] = mapped_column(String(160))
+    similarity: Mapped[float] = mapped_column(Float)
+    edge_type: Mapped[str] = mapped_column(String(20))     # similar | career_change | sibling | ...
+    source: Mapped[str] = mapped_column(String(20))         # onet | esco | wikidata
+
+
+class MartRoleSkillImportance(Base):
+    """Served per-role skill IMPORTANCE weighting (O*NET/ESCO) — core vs peripheral,
+    so a role's skill bag is graded, not flat. Distinct from the curated skill list."""
+
+    __tablename__ = "mart_role_skill_importance"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    role_id: Mapped[str] = mapped_column(String(120), index=True)
+    skill_id: Mapped[str] = mapped_column(String(120))
+    skill_name: Mapped[str] = mapped_column(String(120))
+    importance: Mapped[float] = mapped_column(Float)        # 0-100
+    level: Mapped[float | None] = mapped_column(Float, nullable=True)
+    essential: Mapped[bool] = mapped_column(Boolean, default=False)
+    source: Mapped[str] = mapped_column(String(20))         # onet | esco
 
 
 class MartProvenance(Base):
