@@ -331,6 +331,56 @@ def _interest_overlay(known_roles: set[str], known_countries: set[str]) -> list[
     return rows
 
 
+def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_salary_official rows — the THIRD salary lens, from the official national
+    statistical anchors already ingested by the baselines connector (BLS OEWS / ONS
+    ASHE / Eurostat / MOM / StatCan). These are real, role-crosswalked, per-country
+    medians that previously landed in NO salary fact. Kept SEPARATE from advertised
+    (fact_salary_job) and realized (fact_salary_person) — three lenses, never blended.
+    """
+    try:
+        from backend.ingest.baselines import load_all
+        recs = load_all()
+    except Exception as e:  # noqa: BLE001 — baselines staging may be absent
+        log.info("official salary: baselines unavailable (%s)", e)
+        return []
+    rows = []
+    for r in recs or []:
+        rid, code = r.get("role_id"), r.get("country_code")
+        median = r.get("median")
+        if rid not in known_roles or code not in known_countries or not median:
+            continue
+        rows.append((rid, code, int(r.get("year") or max(_YEARS)), float(median),
+                     r.get("currency_code", "USD"), int(r.get("sample_size") or 0),
+                     r.get("confidence", "high"), "official",
+                     slug(r.get("source", "official baseline")), False))
+    return rows
+
+
+def _fuse_onet_trajectory(con, known_roles: set[str]) -> tuple[int, int]:
+    """Fuse the O*NET role-adjacency + skill-importance staging (parsed from the
+    cached zip) into bridge_role_adjacency + bridge_role_skill_importance. Both ends
+    of every edge must be a known role (roles-only; no employer anything)."""
+    from backend.warehouse import onet_trajectory as ot
+    n_adj = n_imp = 0
+    for e in ot.load_adjacency():
+        if e["from_role"] in known_roles and e["to_role"] in known_roles:
+            con.execute(
+                "INSERT INTO bridge_role_adjacency VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT (from_role, to_role, source_id, edge_type) DO NOTHING",
+                (e["from_role"], e["to_role"], e["similarity"], e["edge_type"], e["source_id"]))
+            n_adj += 1
+    for s in ot.load_skill_importance():
+        if s["role_id"] in known_roles:
+            con.execute(
+                "INSERT INTO bridge_role_skill_importance VALUES (?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT (role_id, skill_id, source_id) DO NOTHING",
+                (s["role_id"], s["skill_id"], s["skill_name"], s["importance"],
+                 s["level"], bool(s["essential"]), s["source_id"]))
+            n_imp += 1
+    return n_adj, n_imp
+
+
 # captured for the demand year fallback
 _YEARS: list[int] = []
 
@@ -417,18 +467,60 @@ def build_warehouse_from_staging() -> None:
                     interest_rows,
                 )
 
-            # dim_role lineage ← role_derivation (layer in derived clusters, keep curated)
+            # fact_salary_official ← official national anchors (the THIRD salary lens)
+            official_rows = _official_salary_rows(known_roles, known_countries)
+            if official_rows:
+                for sid in {r[8] for r in official_rows}:
+                    con.execute(
+                        "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) "
+                        "ON CONFLICT (source_id) DO NOTHING",
+                        (sid, sid.replace("-", " ").title(), "official", None,
+                         "official statistical wage anchor", False, "2026-06-24"))
+                con.executemany(
+                    "INSERT INTO fact_salary_official VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                    "ON CONFLICT (role_id, country_code, year, source_id) DO NOTHING",
+                    official_rows,
+                )
+
+            # bridge_role_adjacency + bridge_role_skill_importance ← O*NET (trajectory)
+            con.execute(
+                "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT (source_id) DO NOTHING",
+                (slug("O*NET"), "O*NET", "taxonomy", None,
+                 "O*NET role adjacency + skill importance (cached zip)", False, "2026-06-24"))
+            n_adj, n_imp = _fuse_onet_trajectory(con, known_roles)
+
+            # dim_role + REAL facts ← role_derivation. A derived cluster is NOT just a
+            # name: it carries demand from its own unique-posting volume + a skill bag
+            # from its member titles. Salary is left ABSENT so the UI honestly shows
+            # "not enough data" rather than a fabricated or borrowed number.
             derived = _read_parquet("normalized/derived_roles.parquet")
             n_derived = 0
             if derived is not None and not derived.empty:
+                from backend.ml.fingerprint import extract_skills
+                cc_sid = slug("Common Crawl JobPosting")
+                pc_max = max(1, int(derived["posting_count"].max()))
+                dyear = max(_YEARS)
                 for _, r in derived.iterrows():
+                    rid, country, pc = r["role_id"], r.get("country"), int(r["posting_count"])
                     con.execute(
                         "INSERT INTO dim_role VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
                         "ON CONFLICT (role_id) DO NOTHING",
-                        (r["role_id"], r["label_title"], "derived", "Derived", 230,
-                         f"derived from {int(r['posting_count'])} postings in {r['country']}",
+                        (rid, r["label_title"], "derived", "Derived", 230,
+                         f"derived from {pc} postings in {country}",
                          r.get("member_titles"), False, 900 + n_derived),
                     )
+                    if country in known_countries:
+                        idx = round(100 * (pc / pc_max) ** 0.5)
+                        con.execute(
+                            "INSERT INTO fact_demand VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                            "ON CONFLICT (role_id, country_code, year) DO NOTHING",
+                            (rid, country, dyear, float(idx), pc, pc, "low", cc_sid, False))
+                    for i, sk in enumerate(extract_skills(str(r.get("member_titles") or ""))[:12]):
+                        con.execute(
+                            "INSERT INTO bridge_role_skill VALUES (?, ?, ?, ?, ?) "
+                            "ON CONFLICT (role_id, skill_id) DO NOTHING",
+                            (rid, slug(sk), sk, "I", i))
                     n_derived += 1
 
             con.execute("COMMIT")
@@ -454,13 +546,20 @@ def build_warehouse_from_staging() -> None:
                 "SELECT COUNT(*) FROM fact_interest WHERE source_id = ?",
                 (slug("Google Trends"),)).fetchone()[0]
             n_job = con.execute("SELECT COUNT(*) FROM fact_salary_job").fetchone()[0]
+            n_official = con.execute("SELECT COUNT(*) FROM fact_salary_official").fetchone()[0]
+            n_adjacency = con.execute("SELECT COUNT(*) FROM bridge_role_adjacency").fetchone()[0]
+            n_importance = con.execute("SELECT COUNT(*) FROM bridge_role_skill_importance").fetchone()[0]
+            n_derived_roles = con.execute(
+                "SELECT COUNT(*) FROM dim_role WHERE role_family_id = 'derived'").fetchone()[0]
         finally:
             con.close()
         log.info("FUSED (%s base): fact_salary_person=%d (SO=%d, H1B=%d), "
                  "fact_demand=%d (CC/GH overlay=%d, rest Adzuna), "
-                 "fact_interest=%d (GTrends overlay=%d), fact_salary_job=%d (Adzuna)",
+                 "fact_interest=%d (GTrends overlay=%d), fact_salary_job=%d (Adzuna), "
+                 "fact_salary_official=%d (3rd lens), adjacency=%d, skill_importance=%d, derived_roles=%d",
                  base, n_person, n_so, n_person - n_so, n_demand, n_demand_cc,
-                 n_interest, n_interest_gt, n_job)
+                 n_interest, n_interest_gt, n_job, n_official, n_adjacency, n_importance, n_derived_roles)
         log.info("council/fusion precedence: salary_job←Adzuna(auth); "
-                 "salary_person←SO(auth)+H1B(US gap-fill); demand←CommonCrawl(primary)+GHArchive; "
-                 "interest←GoogleTrends; dim_role←curated+derived; dim_ppp←WorldBank")
+                 "salary_person←SO(auth)+H1B(US gap-fill); salary_official←baselines(3rd lens, separate); "
+                 "demand←CommonCrawl(primary)+GHArchive; interest←GoogleTrends; "
+                 "trajectory/skill-importance←O*NET; dim_role←curated+derived(now with real facts); dim_ppp←WorldBank")
