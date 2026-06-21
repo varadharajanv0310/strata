@@ -276,13 +276,18 @@ class CommonCrawlConnector(BaseConnector):
         except (KeyError, ValueError, TypeError):
             return None
         h = {**_HEADERS, "Range": f"bytes={off}-{off + length - 1}"}
-        for attempt in range(2):
+        time.sleep(0.12)  # polite pacing — avoid re-triggering CC's IP rate-limit block
+        for attempt in range(3):
             try:
                 r = requests.get(f"{DATA_HOST}/{rec['filename']}", headers=h, timeout=30)
+                if r.status_code == 403:  # rate-limit block: count it (watchdog) + back off
+                    type(self)._block_hits = getattr(type(self), "_block_hits", 0) + 1
+                    time.sleep(2 * (attempt + 1))
+                    continue
                 r.raise_for_status()
                 return gzip.GzipFile(fileobj=io.BytesIO(r.content)).read()
             except Exception as e:  # noqa: BLE001
-                if attempt == 1:
+                if attempt == 2:
                     log.warning("range fetch failed: %s", e)
                 else:
                     time.sleep(1)
@@ -454,6 +459,11 @@ class CommonCrawlConnector(BaseConnector):
                 if target is not None and total_tech >= target:
                     self._stream(per_country, total_tech, elapsed, "TARGET")
                     return total_tech
+                if getattr(type(self), "_block_hits", 0) >= 50:
+                    # CC re-blocked us mid-run — stop gracefully with what we have
+                    log.warning("CC re-blocked (>=50 403s) — stopping gracefully (tech=%d)", total_tech)
+                    self._stream(per_country, total_tech, elapsed, "RE-BLOCKED")
+                    return total_tech
 
                 unit = f"{crawl}:{domain}"
                 if checkpoint.is_done(self.name, unit):
@@ -473,7 +483,7 @@ class CommonCrawlConnector(BaseConnector):
                 seen_total = 0
                 t0 = time.time()
                 cand = recs[: per_unit * 4]
-                with ThreadPoolExecutor(max_workers=16) as ex:
+                with ThreadPoolExecutor(max_workers=5) as ex:
                     futs = {ex.submit(self._fetch_record, rec): rec for rec in cand}
                     for fut in as_completed(futs):
                         rec = futs[fut]
