@@ -2,7 +2,8 @@
 **credential-graceful** (brief §6). Land to RAW immutably, clean to STAGING.
 
 Inclusion rule (enforced per source): a source enters only if it joins on
-country / skill / role / employer / time AND adds a signal not already present.
+country / skill / role / time AND adds a signal not already present. (strata is
+ROLES-only — employer is never a join/product axis, only internal dedup plumbing.)
 
 A connector that lacks its credentials (or isn't fully implemented yet) **skips
 and flags** rather than halting the build. Status is one of:
@@ -37,7 +38,7 @@ class BaseConnector:
     name: str = "base"
     description: str = ""
     requires: tuple[str, ...] = ()   # settings attrs that must be truthy (e.g. api keys)
-    joins_on: tuple[str, ...] = ()   # which keys it contributes (country/skill/role/employer/time)
+    joins_on: tuple[str, ...] = ()   # which keys it contributes (country/skill/role/time)
     adds_signal: str = ""            # the new signal it brings (inclusion rule)
 
     # ---- filesystem helpers (RAW immutable, STAGING cleaned) ----
