@@ -186,6 +186,54 @@ FACTS = {
             is_seed      BOOLEAN DEFAULT FALSE,
             PRIMARY KEY (role_id, country_code, year)
         )""",
+    # OFFICIAL salary lens — national statistical / ILO earnings by occupation. The
+    # THIRD salary lens beside fact_salary_job (advertised) + fact_salary_person
+    # (realized). Three lenses, never blended — shown side-by-side with provenance.
+    "fact_salary_official": """
+        CREATE TABLE IF NOT EXISTS fact_salary_official (
+            role_id         VARCHAR,
+            country_code    VARCHAR,
+            year            INTEGER,
+            median          DOUBLE,
+            currency_code   VARCHAR,
+            sample_size     INTEGER,
+            confidence      VARCHAR,
+            kind            VARCHAR DEFAULT 'official',
+            source_id       VARCHAR,                 -- ilostat | entgeltatlas | bls_oews | ons | ...
+            is_seed         BOOLEAN DEFAULT FALSE,
+            PRIMARY KEY (role_id, country_code, year, source_id)
+        )""",
+    # forward DEMAND-OUTLOOK — official occupation growth projections + shortage flags
+    "fact_role_outlook": """
+        CREATE TABLE IF NOT EXISTS fact_role_outlook (
+            role_id           VARCHAR,
+            country_code      VARCHAR,
+            horizon_years     INTEGER,              -- 3 | 10 (projection horizon)
+            growth_pct        DOUBLE,               -- projected % change over horizon
+            openings_per_year DOUBLE,
+            outlook_rating    VARCHAR,              -- e.g. Canada 1-3 star, or 'good'/'limited'
+            shortage_flag     VARCHAR,              -- shortage | balance | surplus (AU/etc.)
+            confidence        VARCHAR,
+            source_id         VARCHAR,              -- bls_ep | ca_cops | jsa | ...
+            is_seed           BOOLEAN DEFAULT FALSE,
+            PRIMARY KEY (role_id, country_code, horizon_years, source_id)
+        )""",
+    # skill ADOPTION / EMERGENCE / DURABILITY — registry downloads, SE tag volume,
+    # arXiv velocity, pageviews. Mostly country-invariant (a global skill attribute);
+    # country_code '' = global. Modulates, never overrides, country-specific signals.
+    "fact_skill_adoption": """
+        CREATE TABLE IF NOT EXISTS fact_skill_adoption (
+            skill_id     VARCHAR,
+            country_code VARCHAR DEFAULT '',        -- '' = global (most adoption signals)
+            year         INTEGER,
+            period       VARCHAR,                   -- 'YYYY' | 'YYYY-MM'
+            metric       VARCHAR,                   -- downloads | questions | submissions | pageviews | models
+            value        DOUBLE,
+            ecosystem    VARCHAR,                   -- pypi | npm | crates | stackexchange | arxiv | hf | wikipedia
+            source_id    VARCHAR,
+            is_seed      BOOLEAN DEFAULT FALSE,
+            PRIMARY KEY (skill_id, country_code, period, metric, ecosystem)
+        )""",
 }
 
 # ---- bridges (role attributes; skills/ladder are role-level, not per country) ----
@@ -206,6 +254,31 @@ BRIDGES = {
             title   VARCHAR,
             mult    DOUBLE,                        -- pay multiple vs the role's own median
             PRIMARY KEY (role_id, ord)
+        )""",
+    # role TRAJECTORY — directed role→role adjacency ("where does this role lead?").
+    # ROLES-ONLY: edges are occupation→occupation (O*NET related/career-changers,
+    # ESCO siblings, Wikidata occupation edges) — never employer career graphs.
+    "bridge_role_adjacency": """
+        CREATE TABLE IF NOT EXISTS bridge_role_adjacency (
+            from_role  VARCHAR,
+            to_role    VARCHAR,
+            similarity DOUBLE,                      -- 0-1 relatedness / move frequency
+            edge_type  VARCHAR,                     -- similar | career_change | sibling | broader | narrower
+            source_id  VARCHAR,                     -- onet | esco | wikidata
+            PRIMARY KEY (from_role, to_role, source_id, edge_type)
+        )""",
+    # skill IMPORTANCE per role — core vs peripheral weighting (O*NET / ESCO), so a
+    # role's skill bag is graded, not flat, and adjacency edges are explainable.
+    "bridge_role_skill_importance": """
+        CREATE TABLE IF NOT EXISTS bridge_role_skill_importance (
+            role_id    VARCHAR,
+            skill_id   VARCHAR,
+            skill_name VARCHAR,
+            importance DOUBLE,                      -- 0-100 importance
+            level      DOUBLE,                      -- 0-100 required level
+            essential  BOOLEAN,                     -- ESCO essential vs optional
+            source_id  VARCHAR,                     -- onet | esco
+            PRIMARY KEY (role_id, skill_id, source_id)
         )""",
 }
 
