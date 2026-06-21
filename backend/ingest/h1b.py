@@ -58,42 +58,103 @@ _UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
        "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 _HDRS = {"User-Agent": _UA, "Accept": "*/*"}
 
-# SOC (2018 system) major+detailed → our role ids. Software/Computer occupations
-# dominate H-1B; map the ones that correspond to our taxonomy, skip the rest.
-SOC_ROLE = {
+# SOC crosswalk → our 16 role ids.  H-1B LCA codes the occupation in the
+# **8-digit O*NET-SOC** form (e.g. ``15-1252.00``, ``15-1299.08``); the trailing
+# ``.NN`` distinguishes occupations that share a 6-digit SOC base — e.g. under
+# ``15-1299`` (Computer Occupations, All Other) sit *Computer Systems Engineers*
+# (.08 → backend), *IT Project Managers* (.09 → pm) and *Information Security
+# Engineers* (.05 → security).  The previous parser truncated to 7 chars BEFORE
+# the lookup, collapsing every ``15-1299.xx`` to a single ``swe`` and losing six
+# of our roles entirely.  We now match the FULL O*NET code first (``SOC_ONET``),
+# then fall back to the 6-digit base (``SOC_BASE``), which also catches the older
+# legacy 2010-SOC codes and the rows the file stores already-truncated.
+
+# --- exact 8-digit O*NET-SOC overrides (most specific; checked first) ---
+SOC_ONET = {
+    "15-1299.08": "backend",     # Computer Systems Engineers/Architects
+    "15-1299.09": "pm",          # Information Technology Project Managers
+    "15-1299.05": "security",    # Information Security Engineers
+    "15-1299.07": "backend",     # Network/Systems Engineers (legacy O*NET) -> backend
+    "15-2051.01": "data-analyst", # Business Intelligence Analysts
+    "15-2051.02": "data-sci",    # Clinical Data Managers -> data-sci
+    "15-1243.01": "data-eng",    # Data Warehousing Specialists
+    "15-2041.01": "data-sci",    # Biostatisticians -> data-sci
+    "15-1255.00": "ux",          # Web & Digital Interface Designers -> ux/design
+}
+
+# --- 6-digit SOC base (2018) + legacy 2010 codes → role ---
+SOC_BASE = {
+    # ---- software / general engineering ----
     "15-1252": "swe",          # Software Developers
-    "15-1132": "swe",          # Software Developers, Applications (2010 SOC)
-    "15-1133": "swe",          # Software Developers, Systems Software (2010 SOC)
+    "15-1132": "swe",          # Software Developers, Applications (2010)
+    "15-1133": "swe",          # Software Developers, Systems Software (2010)
     "15-1251": "swe",          # Computer Programmers
-    "15-1131": "swe",          # Computer Programmers (2010 SOC)
+    "15-1131": "swe",          # Computer Programmers (2010)
     "15-1211": "swe",          # Computer Systems Analysts
-    "15-1121": "swe",          # Computer Systems Analysts (2010 SOC)
-    "15-1255": "frontend",     # Web & Digital Interface Designers
+    "15-1121": "swe",          # Computer Systems Analysts (2010)
+    "15-1199": "swe",          # Computer Occupations, All Other (2010)
+    "15-1299": "swe",          # Computer Occupations, All Other (base fallback)
+    "17-2061": "swe",          # Computer Hardware Engineers (hardware-adjacent)
+    # ---- ml / research ----
+    "15-1221": "ml-eng",       # Computer & Information Research Scientists
+    "15-2098": "data-sci",     # Data Scientists & Math Science (provisional, 2018→)
+    # ---- frontend / web ----
     "15-1254": "frontend",     # Web Developers
-    "15-1134": "frontend",     # Web Developers (2010 SOC)
+    "15-1134": "frontend",     # Web Developers (2010)
+    "15-1255": "frontend",     # Web & Digital Interface Designers (base → frontend)
+    # ---- ux / design ----
+    "27-1024": "ux",           # Graphic Designers
+    "27-1021": "ux",           # Commercial & Industrial Designers
+    "27-1014": "ux",           # Multimedia Artists & Animators
+    # ---- qa ----
     "15-1253": "qa",           # Software QA Analysts & Testers
+    "15-1232": "qa",           # Computer User Support Specialists -> qa/IT
+    "15-1151": "qa",           # Computer User Support Specialists (2010)
+    # ---- data science / analytics ----
     "15-2051": "data-sci",     # Data Scientists
-    "15-2098": "data-sci",     # Data Scientists & Math Science (provisional)
+    "15-2031": "data-sci",     # Operations Research Analysts
     "15-2041": "data-analyst", # Statisticians
-    "13-2099": "data-analyst", # Financial Specialists, All Other (often data analyst)
+    "13-2099": "data-analyst", # Financial Specialists, All Other (often analyst)
+    "13-1161": "data-analyst", # Market Research Analysts
+    "13-1111": "data-analyst", # Management Analysts
+    # ---- data engineering ----
     "15-1243": "data-eng",     # Database & Network Architects
     "15-1242": "data-eng",     # Database Administrators
-    "15-1141": "data-eng",     # Database Administrators (2010 SOC)
+    "15-1141": "data-eng",     # Database Administrators (2010)
     "15-1245": "data-eng",     # Database Admins & Architects
+    # ---- security ----
     "15-1212": "security",     # Information Security Analysts
-    "15-1122": "security",     # Information Security Analysts (2010 SOC)
+    "15-1122": "security",     # Information Security Analysts (2010)
+    # ---- cloud architecture ----
     "15-1241": "cloud-arch",   # Computer Network Architects
-    "15-1143": "cloud-arch",   # Computer Network Architects (2010 SOC)
+    "15-1143": "cloud-arch",   # Computer Network Architects (2010)
+    # ---- devops / infra ----
     "15-1244": "devops",       # Network & Computer Systems Administrators
-    "15-1142": "devops",       # Network & Computer Systems Administrators (2010 SOC)
-    "15-1232": "devops",       # Computer User Support Specialists (skip? -> devops-ish)
+    "15-1142": "devops",       # Network & Computer Systems Administrators (2010)
+    # ---- product management ----
+    "13-1082": "pm",           # Project Management Specialists
+    "11-3061": "pm",           # Purchasing Managers (product ops adjacent) -- skip below
+    # ---- engineering management ----
     "11-3021": "eng-mgr",      # Computer & Information Systems Managers
     "11-9041": "eng-mgr",      # Architectural & Engineering Managers
-    "15-1199": "swe",          # Computer Occupations, All Other (2010 SOC) -> swe
-    "15-1299": "swe",          # Computer Occupations, All Other -> swe
 }
-# drop the noisy support-specialist mapping (not in our taxonomy)
-SOC_ROLE.pop("15-1232", None)
+# trim a borderline mapping we listed for documentation but don't want counted
+SOC_BASE.pop("11-3061", None)
+
+
+def _soc_to_role(raw) -> str | None:
+    """Map a raw SOC/O*NET cell to a role id: full O*NET code first, then base."""
+    s = str(raw or "").strip()
+    if not s:
+        return None
+    # normalize: some files store '15-1252' some '15-1252.00' some '151252'
+    if len(s) == 6 and s.isdigit():           # e.g. '151252' -> '15-1252'
+        s = s[:2] + "-" + s[2:]
+    rid = SOC_ONET.get(s)                      # exact 8-digit O*NET override
+    if rid:
+        return rid
+    base = s[:7] if len(s) >= 7 else s         # '15-1299.08' -> '15-1299'
+    return SOC_BASE.get(base)
 
 # annualize an offered wage to a yearly figure
 _UNIT_FACTOR = {
@@ -112,6 +173,18 @@ _C_WAGE_FROM = ["WAGE_RATE_OF_PAY_FROM", "WAGE_RATE_OF_PAY_FROM_1", "WAGE_RATE_O
 _C_WAGE_TO = ["WAGE_RATE_OF_PAY_TO", "WAGE_RATE_OF_PAY_TO_1"]
 _C_UNIT = ["WAGE_UNIT_OF_PAY", "WAGE_UNIT_OF_PAY_1", "PW_UNIT_OF_PAY"]
 _C_STATE = ["WORKSITE_STATE", "WORKSITE_STATE_1", "EMPLOYER_STATE", "WORKLOC1_STATE"]
+_C_LEVEL = ["PW_WAGE_LEVEL", "PW_WAGE_LEVEL_1", "WAGE_LEVEL"]
+
+# DOL prevailing-wage levels map to BLS experience tiers (20 CFR 656.40 guidance:
+# Level I = entry / <2 yr, II = qualified, III = experienced, IV = fully
+# competent / senior).  We bucket each Certified filing into one of our warehouse
+# experience bands AND, separately, into the pooled band.
+_LEVEL_TO_BAND = {
+    "i": "0-2", "1": "0-2", "level i": "0-2", "entry": "0-2",
+    "ii": "3-5", "2": "3-5", "level ii": "3-5",
+    "iii": "6-9", "3": "6-9", "level iii": "6-9",
+    "iv": "10+", "4": "10+", "level iv": "10+",
+}
 
 
 def _staging_dir():
@@ -215,8 +288,14 @@ def _annualize(raw, unit) -> float | None:
     return val * factor
 
 
-def _parse_file(fy: str, q: str, buckets: dict, max_rows: int | None = None) -> int:
-    """Stream the xlsx read-only; bucket annualized wages by role. Returns kept rows."""
+def _parse_file(fy: str, q: str, buckets: dict, max_rows: int | None = None,
+                time_cap_s: float | None = None, start_t: float | None = None) -> int:
+    """Stream the xlsx read-only; bucket annualized wages by (role, year, band).
+
+    Every kept row is added to BOTH its experience band (from PW_WAGE_LEVEL) and
+    the ``pooled`` band, so a role with filings yields a pooled cell plus up to
+    four banded cells.  Prints a flushing heartbeat every 50k scanned rows.
+    """
     import openpyxl  # local import: heavy, only needed when parsing
 
     p = _file_path(fy, q)
@@ -236,6 +315,7 @@ def _parse_file(fy: str, q: str, buckets: dict, max_rows: int | None = None) -> 
     i_to = _pick(hmap, _C_WAGE_TO)
     i_unit = _pick(hmap, _C_UNIT)
     i_state = _pick(hmap, _C_STATE)
+    i_level = _pick(hmap, _C_LEVEL)
     if i_soc is None or i_from is None or i_unit is None:
         log.error("h1b %s %s: missing key cols (soc=%s from=%s unit=%s) headers=%s",
                   fy, q, i_soc, i_from, i_unit, list(hmap)[:12])
@@ -243,18 +323,24 @@ def _parse_file(fy: str, q: str, buckets: dict, max_rows: int | None = None) -> 
         return 0
 
     kept = seen = 0
+    t0 = start_t if start_t is not None else time.time()
     for row in rows:
         seen += 1
         if max_rows is not None and seen > max_rows:
             break
+        if seen % 50_000 == 0:  # streaming heartbeat
+            el = time.time() - t0
+            print(f"[h1b] {fy} {q}: scanned {seen:,} kept {kept:,} "
+                  f"roles={len({k[0] for k in buckets})} elapsed {el:.0f}s",
+                  flush=True)
+            if time_cap_s is not None and el > time_cap_s:
+                print(f"[h1b] {fy} {q}: time cap {time_cap_s}s hit — partial", flush=True)
+                break
         if i_status is not None:
             st = str(row[i_status] or "").strip().lower()
             if not st.startswith("certified"):  # keep Certified / Certified-Withdrawn
                 continue
-        soc = str(row[i_soc] or "").strip()
-        if len(soc) >= 7:
-            soc = soc[:7]
-        rid = SOC_ROLE.get(soc)
+        rid = _soc_to_role(row[i_soc])
         if not rid:
             continue
         wfrom = _annualize(row[i_from], row[i_unit])
@@ -267,22 +353,28 @@ def _parse_file(fy: str, q: str, buckets: dict, max_rows: int | None = None) -> 
             wage = (wfrom + wto) / 2.0  # midpoint of the disclosed band
         if not (WAGE_LO <= wage <= WAGE_HI):
             continue
-        buckets[(rid, year)].append(wage)
+        buckets[(rid, year, "pooled")].append(wage)
+        band = _LEVEL_TO_BAND.get(str(row[i_level] or "").strip().lower()) if i_level is not None else None
+        if band:
+            buckets[(rid, year, band)].append(wage)
         kept += 1
     wb.close()
+    el = time.time() - t0
+    print(f"[h1b] {fy} {q} DONE: scanned {seen:,} kept {kept:,} "
+          f"roles={len({k[0] for k in buckets})} elapsed {el:.0f}s", flush=True)
     log.info("h1b %s %s parsed: %d rows scanned, %d kept", fy, q, seen, kept)
     return kept
 
 
-def _aggregate(buckets: dict) -> list:
+def _aggregate(buckets: dict, min_sample: int = 5) -> list:
     records = []
-    for (rid, year), vals in sorted(buckets.items()):
-        if len(vals) < 5:
+    for (rid, year, exp), vals in sorted(buckets.items()):
+        if len(vals) < min_sample:
             continue
         n = len(vals)
         conf = "high" if n >= 500 else "med" if n >= 50 else "low"
         records.append({
-            "role_id": rid, "country_code": "US", "experience_code": "pooled",
+            "role_id": rid, "country_code": "US", "experience_code": exp,
             "year": year, "median": round(statistics.median(vals)),
             "currency_code": "USD", "sample_size": n, "confidence": conf,
             "kind": "person-level", "source": "DOL OFLC H-1B/PERM",
@@ -290,8 +382,16 @@ def _aggregate(buckets: dict) -> list:
     return records
 
 
-def run(years=None, quarters=None, max_rows=None) -> dict:
-    """Download + parse DOL LCA disclosure quarters → median annual USD wage per role.
+def _checkpoint(buckets: dict, out, min_sample: int = 5) -> int:
+    """Write the current aggregate to disk (incremental checkpoint per file)."""
+    records = _aggregate(buckets, min_sample=min_sample)
+    out.write_text(json.dumps(records), encoding="utf-8")
+    return len(records)
+
+
+def run(years=None, quarters=None, max_rows=None, time_cap_s=None, min_sample=5) -> dict:
+    """Download + parse DOL LCA disclosure quarters → median annual USD wage per
+    (role, US, experience-band, year).
 
     Orchestrator entrypoint (full scale).
 
@@ -300,45 +400,61 @@ def run(years=None, quarters=None, max_rows=None) -> dict:
              Default = the most recent year we have a snapshot for.
       quarters: list like ["Q1","Q2","Q3","Q4"]. Default = all available for each year.
       max_rows: optional per-file row cap (used by the smoke test for speed).
+      time_cap_s: wall-clock budget; the parse self-terminates (returns partial)
+             once exceeded, checkpointing what it has.
+      min_sample: minimum filings per cell to emit (banded cells are smaller).
 
-    Lands staging/h1b/salary_agg.json and returns a summary.
+    Checkpoints staging/h1b/salary_agg.json after EACH file and returns a summary.
     """
     if years is None:
         years = ["FY2025"]
     buckets: dict[tuple, list[float]] = defaultdict(list)
+    out = _staging_dir() / "salary_agg.json"
     parsed_files, kept_total = [], 0
+    start_t = time.time()
     for fy in years:
         qs = quarters or [q for (f, q) in _SNAPSHOTS if f == fy] or ["Q4", "Q3", "Q2", "Q1"]
         for q in qs:
             if (fy, q) not in _SNAPSHOTS:
                 continue
+            if time_cap_s is not None and (time.time() - start_t) > time_cap_s:
+                print(f"[h1b] global time cap {time_cap_s}s hit before {fy} {q}", flush=True)
+                break
             if not _download(fy, q):
                 continue
             try:
-                kept = _parse_file(fy, q, buckets, max_rows=max_rows)
+                kept = _parse_file(fy, q, buckets, max_rows=max_rows,
+                                   time_cap_s=time_cap_s, start_t=start_t)
             except Exception as e:  # noqa: BLE001 — bad file shouldn't kill the run
                 log.error("h1b %s %s parse failed: %s", fy, q, e)
                 continue
             kept_total += kept
             parsed_files.append(f"{fy}_{q}")
+            cells = _checkpoint(buckets, out, min_sample=min_sample)  # incremental
+            print(f"[h1b] checkpoint after {fy} {q}: {cells} cells, "
+                  f"{kept_total:,} rows kept", flush=True)
 
-    records = _aggregate(buckets)
-    out = _staging_dir() / "salary_agg.json"
+    records = _aggregate(buckets, min_sample=min_sample)
     out.write_text(json.dumps(records), encoding="utf-8")
+    by_role = defaultdict(int)
+    for r in records:
+        by_role[r["role_id"]] += 1
     summary = {
         "files_parsed": parsed_files,
         "rows_kept": kept_total,
         "cells": len(records),
         "roles": sorted({r["role_id"] for r in records}),
+        "roles_count": len({r["role_id"] for r in records}),
+        "cells_by_role": dict(sorted(by_role.items())),
         "out": str(out),
     }
     log.info("h1b aggregated: %s", summary)
     return summary
 
 
-def smoke(max_rows: int = 120_000) -> dict:
-    """Small real smoke test: parse the most recent fetchable quarter only."""
-    return run(years=["FY2025"], quarters=["Q4"], max_rows=max_rows)
+def smoke(max_rows: int | None = None, time_cap_s=None) -> dict:
+    """Small real smoke test: parse the most recent fetchable quarter (FY2025 Q4)."""
+    return run(years=["FY2025"], quarters=["Q4"], max_rows=max_rows, time_cap_s=time_cap_s)
 
 
 def load_agg() -> list:
