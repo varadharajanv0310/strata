@@ -550,7 +550,7 @@ def build_warehouse_from_staging() -> None:
             n_adjacency = con.execute("SELECT COUNT(*) FROM bridge_role_adjacency").fetchone()[0]
             n_importance = con.execute("SELECT COUNT(*) FROM bridge_role_skill_importance").fetchone()[0]
             n_derived_roles = con.execute(
-                "SELECT COUNT(*) FROM dim_role WHERE role_family_id = 'derived'").fetchone()[0]
+                "SELECT COUNT(*) FROM dim_role WHERE family_id = 'derived'").fetchone()[0]
         finally:
             con.close()
         log.info("FUSED (%s base): fact_salary_person=%d (SO=%d, H1B=%d), "
