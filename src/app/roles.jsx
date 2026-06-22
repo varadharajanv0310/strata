@@ -10,6 +10,79 @@ import { Charts } from "./charts.jsx";
   const S = () => STRATA;
   const Uc = UI, Cc = Charts;
 
+  /* ---------------- Three salary lenses: advertised / realized / official ----------------
+     Shown side-by-side, never blended; each carries its own source. A lens with no data
+     for this role×country honestly reads "not enough data" rather than borrowing another. */
+  function SalaryLenses({ lenses, code }) {
+    if (!lenses) return null;
+    const cur = (S().C[code] && S().C[code].cur) || "";
+    const defs = [["Advertised", "advertised"], ["Realized", "realized"], ["Official", "official"]];
+    return (
+      <div className="row gap8 mt12" style={{ flexWrap: "wrap" }}>
+        {defs.map(([label, key]) => {
+          const L = lenses[key];
+          return (
+            <div key={key} className="col" style={{ flex: 1, minWidth: 84, padding: "7px 10px", borderRadius: 9,
+              background: "rgba(255,255,255,0.03)", border: "1px solid var(--line)" }}>
+              <span className="small" style={{ color: "var(--t3)", fontSize: 9.5, letterSpacing: 0.3, textTransform: "uppercase" }}>{label}</span>
+              {L ? (
+                <>
+                  <span className="tnum" style={{ fontSize: 14.5, fontWeight: 700, color: "#fff" }}>{cur}{Math.round(L.median).toLocaleString()}</span>
+                  <span className="small" title={L.source} style={{ color: "var(--t3)", fontSize: 9, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{L.source}</span>
+                </>
+              ) : (
+                <span className="small" style={{ color: "var(--t3)", fontSize: 10.5, marginTop: 4 }}>not enough data</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  /* ---------------- Trajectory: where this role leads (roles-only adjacency) ---------------- */
+  function Trajectory({ role, app }) {
+    const edges = (role.trajectory || []).slice(0, 8);
+    if (!edges.length) return null;
+    return (
+      <div className="card">
+        <div className="card-head"><div><div className="card-title">Where this role leads</div><div className="card-sub">Closest roles by O*NET relatedness · roles-only, never a company path</div></div></div>
+        <div className="row gap8" style={{ flexWrap: "wrap", marginTop: 6 }}>
+          {edges.map(e => (
+            <button key={e.to + e.type} className="pill sm" onClick={() => app.go("roles", { roleId: e.to })}
+              title={`${(e.similarity * 100).toFixed(0)}% related · ${e.source}${e.type === "career_change" ? " · common move" : ""}`}
+              style={{ cursor: "pointer" }}>
+              {e.name} <span style={{ color: "var(--t3)", fontSize: 10, marginLeft: 4 }}>{(e.similarity * 100).toFixed(0)}%</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  /* ---------------- Importance-weighted skills (O*NET/ESCO core vs peripheral) ---------------- */
+  function ImportanceSkills({ role }) {
+    const rows = (role.importance || []).slice(0, 8);
+    if (!rows.length) return null;
+    return (
+      <div className="card">
+        <div className="card-head"><div><div className="card-title">What matters most</div><div className="card-sub">Skill importance · O*NET/ESCO weighted (core vs peripheral)</div></div></div>
+        <div className="col" style={{ gap: 7, marginTop: 4 }}>
+          {rows.map(r => (
+            <div key={r.skill} className="row gap10" style={{ alignItems: "center" }}>
+              <span style={{ width: 110, fontSize: 12.5, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.skill}</span>
+              <span style={{ flex: 1, height: 6, borderRadius: 9, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                <span style={{ display: "block", width: `${r.importance}%`, height: "100%",
+                  background: r.essential ? "linear-gradient(90deg,#0033ff,#4a7cff)" : "rgba(255,255,255,0.22)" }} />
+              </span>
+              {r.essential && <span className="tag" style={{ fontSize: 9 }}>core</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   /* ---------------- Job Score board ---------------- */
   function ScoreBoard({ code, app, limit }) {
     const [open, setOpen] = useState(null);
@@ -226,6 +299,7 @@ import { Charts } from "./charts.jsx";
               <span className={"delta " + (deltaPct >= 0 ? "up" : "down")}>{deltaPct >= 0 ? "↑" : "↓"} {Math.abs(deltaPct).toFixed(1)}% YoY</span>
               <span className="small" style={{ color: "var(--t3)" }}>{(fiveYr * 100).toFixed(0)}% over 5 yrs · {cd.kind === "job-level" ? "job-level median" : "person-level"}</span>
             </div>
+            <SalaryLenses lenses={cd.salaryLenses} code={country} />
           </StatCard>
           <StatCard>
             <span className="stat-label">Job Score</span>
@@ -304,6 +378,14 @@ import { Charts } from "./charts.jsx";
             </div></div>
           <CrossCountryStrip role={role} ppp={app.ppp} highlight={country} onPick={setCountry} />
         </div>
+
+        {/* row 5: trajectory (where this role leads) + importance-weighted skills */}
+        {((role.trajectory && role.trajectory.length) || (role.importance && role.importance.length)) ? (
+          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 16 }}>
+            <Trajectory role={role} app={app} />
+            <ImportanceSkills role={role} />
+          </div>
+        ) : null}
         <div style={{ height: 40 }}></div>
       </div>
     );

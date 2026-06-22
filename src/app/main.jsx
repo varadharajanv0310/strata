@@ -178,6 +178,7 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
             {TABS.map(([k, l]) => <button key={k} className={"tab" + (route.tab === k ? " active" : "")} onClick={() => go(k)}>{l}</button>)}
           </div>
           <div className="row gap8">
+            <a className="pill ghost sm" href="data.html" title="Query the warehouse in your browser (DuckDB-WASM)" style={{ textDecoration: "none" }}>Data ↗</a>
             <a className="pill ghost sm" href="mobile.html" title="Mobile version" style={{ textDecoration: "none" }}>Mobile ↗</a>
             <UI.CountrySelect value={country} onChange={setCountry} compact />
             <button className="iconbtn" onClick={() => setFavOpen(true)} title="Saved">★</button>
