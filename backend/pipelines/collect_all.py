@@ -52,6 +52,8 @@ STAGES: dict[str, tuple[str, int]] = {
     "gh_archive": ("from backend.ingest.gh_archive import run; print(run(years=[2022,2023,2024,2025]))", 7200),
     "google_trends": ("from backend.ingest.google_trends import run; print(run(max_units=None))", 3000),
     "baselines": ("from backend.ingest.baselines import run; print(run())", 1200),
+    # ILOSTAT cross-country wage spine → official salary lens (council source #1)
+    "ilostat": ("from backend.ingest.ilostat import run; print(run())", 1200),
     "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
     "gpu_normalize": (
         "from backend.ml.skill_norm import run as s; from backend.ml.entity_resolution import run as e; "
@@ -63,8 +65,8 @@ STAGES: dict[str, tuple[str, int]] = {
     "onet_trajectory": ("from backend.warehouse.onet_trajectory import run; print(run())", 300),
     "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 1200),
 }
-ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "common_crawl",
-         "gpu_normalize", "onet_trajectory", "fuse"]
+ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
+         "common_crawl", "gpu_normalize", "onet_trajectory", "fuse"]
 
 
 def _ts() -> str:
@@ -133,6 +135,10 @@ def count_stage(name: str) -> str:
                     c = "?"
                 parts.append(f"{f.stem}:{c}")
             return ", ".join(parts) or "no normalized output"
+        if name == "ilostat":
+            from backend.ingest.ilostat import load_earnings
+            rows = load_earnings()
+            return f"{len(rows)} earnings rows, {len({r['country'] for r in rows})} countries"
         if name == "onet_trajectory":
             from backend.warehouse.onet_trajectory import load_adjacency, load_skill_importance
             return f"{len(load_adjacency())} adjacency edges, {len(load_skill_importance())} skill-importance rows"

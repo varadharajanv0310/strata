@@ -354,6 +354,23 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
                      r.get("currency_code", "USD"), int(r.get("sample_size") or 0),
                      r.get("confidence", "high"), "official",
                      slug(r.get("source", "official baseline")), False))
+
+    # ILOSTAT cross-country wage spine (when landed) — the harmonized 'ilostat' source.
+    # Monthly earnings → annualized; ISCO-08 → role via the curated crosswalk. Graceful
+    # when the connector has not been run (the bulk of council sources land later).
+    try:
+        from backend.ingest.ilostat import load_earnings
+        from backend.warehouse.taxonomy import GOV_CROSSWALK
+        isco_to_role = {str(code): rid for rid, sysd in GOV_CROSSWALK.items()
+                        for sysn, (code, _l) in sysd.items() if "isco" in sysn.lower()}
+        for r in load_earnings():
+            rid = isco_to_role.get(str(r.get("isco08")))
+            code, earn = r.get("country"), r.get("earnings")
+            if rid in known_roles and code in known_countries and earn:
+                rows.append((rid, code, int(r.get("year") or max(_YEARS)), float(earn) * 12.0,
+                             r.get("currency") or "", 0, "med", "official", "ilostat", False))
+    except Exception as e:  # noqa: BLE001
+        log.info("official salary: ILOSTAT unavailable (%s)", e)
     return rows
 
 
