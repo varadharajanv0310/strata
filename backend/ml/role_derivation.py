@@ -1,9 +1,16 @@
 """Role derivation (brief §4, GPU clustering).
 
-Roles are **not** a fixed list. Cluster normalized titles per country into
-canonical roles; a role enters the catalog only when it clears the **minimum
-posting-volume floor** (``ROLE_VOLUME_FLOOR``, config) for the period. Different
-countries surface different roles organically.
+Roles are **not** a fixed list. Cluster postings per country into canonical roles;
+a role enters the catalog only when it clears the **minimum posting-volume floor**
+(``ROLE_VOLUME_FLOOR``, config) for the period. Different countries surface different
+roles organically.
+
+The unit of clustering is the **composite fingerprint** — title ⊕ skills ⊕ department
+⊕ salary-band (built by ``_composite_docs`` via ``fingerprint.composite_document``),
+*not* the bare title. This is the SAME representation ``fingerprint.cluster_fingerprints``
+uses at scale, so role discovery and the scale path can't diverge (there is no longer a
+title-only clustering path): "Data Engineer" (Spark) and "Analytics Engineer" (dbt) stay
+distinct despite near-identical titles, and a title-less "MTS" still lands via its skills.
 
 Writes ``staging/normalized/derived_roles.parquet`` — one row per derived role
 that cleared the floor: (role_id, country, label_title, posting_count, member_titles).
@@ -71,24 +78,50 @@ def _get_model():
     return _MODEL
 
 
-def _cluster_embed(titles: list[str]) -> list[int]:
+def _cluster_embed(docs: list[str]) -> list[int]:
+    """Embed + cluster the COMPOSITE documents on the GPU (same representation as
+    fingerprint.cluster_fingerprints, so the two clustering paths agree)."""
     import numpy as np
     try:
         from hdbscan import HDBSCAN as Clusterer
         kw = {"min_cluster_size": max(10, settings.role_volume_floor // 10)}
     except Exception:
         from sklearn.cluster import AgglomerativeClustering as Clusterer
-        kw = {"n_clusters": None, "distance_threshold": 0.35, "metric": "cosine", "linkage": "average"}
+        kw = {"n_clusters": None, "distance_threshold": 0.32, "metric": "cosine", "linkage": "average"}
 
     model = _get_model()
-    emb = model.encode(titles, batch_size=settings.embed_batch_size,
+    emb = model.encode(docs, batch_size=settings.embed_batch_size,
                        normalize_embeddings=True, show_progress_bar=False)
     labels = Clusterer(**kw).fit_predict(np.asarray(emb, dtype="float32"))
     return [int(x) for x in labels]
 
 
+def _composite_docs(grp) -> list[str]:
+    """Build one composite fingerprint (title⊕skills⊕dept⊕salary-band) per posting —
+    reuses fingerprint.composite_document + extract_skills so role discovery and the
+    scale-clustering path share an identical representation (no second clustering path).
+    """
+    from backend.ml.fingerprint import FingerprintInput, composite_document, extract_skills
+
+    n = len(grp)
+    titles = grp.get("title", "").fillna("").astype(str).tolist()
+    descs = (grp["description"].fillna("").astype(str).tolist()
+             if "description" in grp.columns else [""] * n)
+    depts = (grp["department"].fillna("").astype(str).tolist()
+             if "department" in grp.columns else [""] * n)
+    smax = grp["salary_max"].tolist() if "salary_max" in grp.columns else [None] * n
+    smin = grp["salary_min"].tolist() if "salary_min" in grp.columns else [None] * n
+    docs = []
+    for i, t in enumerate(titles):
+        sk = extract_skills(f"{t}  {descs[i]}")
+        sal = smax[i] or smin[i]
+        docs.append(composite_document(FingerprintInput(
+            title=t, skills=sk, department=depts[i], salary=sal)))
+    return docs
+
+
 def _cluster_lexical(titles: list[str]) -> list[int]:
-    """Fallback: group by canonicalized (seniority-stripped) title."""
+    """Degraded fallback (no embedding stack): group by canonicalized title."""
     groups: dict[str, int] = {}
     return [groups.setdefault(_canon_title(t), len(groups)) for t in titles]
 
@@ -120,8 +153,14 @@ def run() -> dict:
             if len(titles) < floor:
                 log.info("role_derivation: %s has %d postings < floor %d — skip", code, len(titles), floor)
                 continue
+            # cluster on the COMPOSITE fingerprint (title⊕skills⊕dept⊕salary-band), the
+            # same representation fingerprint.cluster_fingerprints uses at scale, so the
+            # two paths can't diverge. Bare-title clustering merged distinct roles that
+            # happen to share a title (Data vs Analytics Engineer); composite keeps them
+            # apart and rescues title-less reqs ("MTS") via their skills.
             try:
-                labels = _cluster_embed(titles) if mode == "embed" else _cluster_lexical(titles)
+                docs = _composite_docs(grp) if mode == "embed" else titles
+                labels = _cluster_embed(docs) if mode == "embed" else _cluster_lexical(titles)
             except Exception as e:  # noqa: BLE001
                 log.warning("role_derivation: embed cluster failed (%s) — lexical", e)
                 mode = "lexical"
