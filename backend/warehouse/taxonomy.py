@@ -292,6 +292,54 @@ def load_crosswalk_file(path: Path, system: str) -> list[tuple[str, str, str]]:
     return rows
 
 
+def load_esco(path: Path | None = None) -> tuple[list[tuple[str, str]], list[tuple[str, str, str]]]:
+    """Parse the ESCO ``occupations_en.csv`` → (alias pairs, crosswalk rows).
+
+    Maps each ESCO occupation to one of our roles via its **ISCO-08 group** (the
+    ``isco``-keyed codes already in ``GOV_CROSSWALK``), then mines its multilingual
+    ``preferredLabel`` + ``altLabels`` as role aliases and emits an ``esco`` crosswalk
+    row. ESCO is the European, multilingual occupation taxonomy — it widens alias
+    recall (esp. for DE) without any company data. Graceful: returns ``([], [])`` when
+    the file is absent (drop the standard ESCO ``occupations_en.csv`` into
+    ``staging/esco/`` to enable). ROLES-ONLY: occupations + labels only.
+    """
+    from backend.core.config import settings
+    path = Path(path) if path else (settings.staging_dir / "esco" / "occupations_en.csv")
+    if not path.exists():
+        log.info("ESCO occupations file absent (%s) — skipping [drop occupations_en.csv to enable]", path)
+        return [], []
+    # ISCO-08 4-digit group → our role_id, from the curated crosswalk
+    isco_to_role: dict[str, str] = {}
+    for role_id, systems in GOV_CROSSWALK.items():
+        for system, (code, _label) in systems.items():
+            if "isco" in system.lower():
+                isco_to_role[str(code)[:4]] = role_id
+    aliases: list[tuple[str, str]] = []
+    xwalk: list[tuple[str, str, str]] = []
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                isco = str(r.get("iscoGroup") or r.get("iscoGroup".lower()) or "")[:4]
+                role_id = isco_to_role.get(isco)
+                if not role_id:
+                    continue
+                pref = (r.get("preferredLabel") or "").strip()
+                code = (r.get("code") or r.get("conceptUri") or "").strip()
+                if pref:
+                    aliases.append((pref, role_id))
+                    xwalk.append((role_id, code, pref))
+                for alt in (r.get("altLabels") or "").replace("\r", "\n").split("\n"):
+                    alt = alt.strip()
+                    if alt:
+                        aliases.append((alt, role_id))
+    except Exception as e:  # noqa: BLE001 — a malformed reference file must not break the build
+        log.error("ESCO parse failed: %s", e)
+        return [], []
+    log.info("ESCO → %d aliases, %d crosswalk rows across %d roles",
+             len(aliases), len(xwalk), len({x[0] for x in xwalk}))
+    return aliases, xwalk
+
+
 # --------------------------------------------------------------------------- #
 #  Build                                                                        #
 # --------------------------------------------------------------------------- #
@@ -351,6 +399,9 @@ def build_taxonomy(con: duckdb.DuckDBPyConnection, *, as_of: str | None = None) 
             _add(s, role_id, "curated")
     for title, role_id in load_onet_alternate_titles():
         _add(title, role_id, "onet", weight=0.8)
+    esco_aliases, esco_xwalk = load_esco()
+    for title, role_id in esco_aliases:
+        _add(title, role_id, "esco", weight=0.75)
 
     if alias_rows:
         con.executemany("INSERT INTO dim_role_alias VALUES (?,?,?,?,?,?,?)", alias_rows)
@@ -364,6 +415,9 @@ def build_taxonomy(con: duckdb.DuckDBPyConnection, *, as_of: str | None = None) 
         for system, (code, label) in systems.items():
             conf = "high" if system in ("onet_soc",) else "med"
             xwalk_rows.append((role_id, system, code, label, conf))
+    for role_id, code, label in esco_xwalk:                    # ESCO occupations (when present)
+        if role_id in role_ids:
+            xwalk_rows.append((role_id, "esco", code, label, "med"))
     if xwalk_rows:
         con.executemany("INSERT INTO dim_role_crosswalk VALUES (?,?,?,?,?)", xwalk_rows)
 
@@ -378,19 +432,77 @@ def build_taxonomy(con: duckdb.DuckDBPyConnection, *, as_of: str | None = None) 
     if birth_rows:
         con.executemany("INSERT INTO dim_role_birth VALUES (?,?,?,?,?,?,?,?)", birth_rows)
 
+    # emergent-role mining (append-only; empty until the at-scale posting corpus exists)
+    emergent = mine_emergent_roles(con, as_of=as_of)
+
     counts = {
         "dim_seniority": con.execute("SELECT count(*) FROM dim_seniority").fetchone()[0],
         "dim_specialization": con.execute("SELECT count(*) FROM dim_specialization").fetchone()[0],
         "dim_role_alias": con.execute("SELECT count(*) FROM dim_role_alias").fetchone()[0],
         "dim_role_crosswalk": con.execute("SELECT count(*) FROM dim_role_crosswalk").fetchone()[0],
         "dim_role_birth": con.execute("SELECT count(*) FROM dim_role_birth").fetchone()[0],
+        "emergent_promoted": emergent["promoted"],
     }
     log.info("taxonomy built: %s", counts)
     return counts
 
 
-# TODO(ingestion): emergent-role miner. Cluster the observed raw-title stream
-# (Adzuna + Common Crawl JobPosting + ATS) monthly; any dense cluster >volume_floor
-# across >=2 countries with no canonical match auto-promotes to an 'emerging' node
-# here (append a dim_role_birth row with first_seen + QoQ growth). Needs the
-# at-scale posting corpus, so it's deferred to a future ingestion run.
+def mine_emergent_roles(con: duckdb.DuckDBPyConnection, *, min_countries: int = 2,
+                        as_of: str | None = None) -> dict[str, int]:
+    """Emergent-role miner (append-only). A role isn't a fixed list — this promotes
+    genuinely-new ones the market surfaces.
+
+    Reads the **composite-fingerprint-clustered** observed-title stream
+    (``role_derivation``'s ``derived_roles.parquet``), groups clusters by canonical
+    label across countries, and promotes any label that (a) cleared the volume floor,
+    (b) surfaced in ``>= min_countries`` of our markets, and (c) has **no canonical
+    alias match** — stamping it as an ``emerging`` node in the role-birth ledger with
+    its first-seen date + the countries it appeared in. De-companied + de-countried
+    (the node is cross-country, roles-only). Idempotent: a node already born is never
+    re-dated. Empty until the at-scale posting corpus exists (needs a run).
+    """
+    from collections import defaultdict
+
+    from backend.core.config import settings
+    from backend.warehouse.build import slug
+
+    p = settings.staging_dir / "normalized" / "derived_roles.parquet"
+    if not p.exists():
+        log.info("emergent miner: no derived_roles.parquet — nothing to mine [needs a run]")
+        return {"candidates": 0, "promoted": 0}
+    import pandas as pd
+
+    df = pd.read_parquet(p)
+    if df.empty:
+        return {"candidates": 0, "promoted": 0}
+
+    known = {r[0] for r in con.execute("SELECT norm FROM dim_role_alias").fetchall()}
+    existing = {r[0] for r in con.execute("SELECT role_id FROM dim_role_birth").fetchall()}
+
+    by_label: dict[str, dict] = defaultdict(lambda: {"countries": set(), "postings": 0})
+    for _, r in df.iterrows():
+        lab = normalize_surface(str(r.get("label_title") or ""))
+        if not lab:
+            continue
+        g = by_label[lab]
+        g["countries"].add(r.get("country"))
+        g["postings"] += int(r.get("posting_count") or 0)
+
+    stamp = as_of or "2026-06-25"
+    rows, candidates = [], 0
+    for lab, g in by_label.items():
+        if len(g["countries"]) < min_countries or lab in known:
+            continue                              # too local, or already canonical
+        candidates += 1
+        rid = "emerging:" + slug(lab)
+        if rid in existing:
+            continue                              # append-only: never re-date
+        meta = json.dumps({"detected_from": "emergent-miner",
+                           "countries": sorted(c for c in g["countries"] if c),
+                           "postings": g["postings"]})
+        rows.append((rid, "2026", "emerging", None, None, "miner", meta, stamp))
+    if rows:
+        con.executemany("INSERT INTO dim_role_birth VALUES (?,?,?,?,?,?,?,?)", rows)
+    log.info("emergent miner: %d cross-country candidates, %d newly promoted (>=%d countries)",
+             candidates, len(rows), min_countries)
+    return {"candidates": candidates, "promoted": len(rows)}
