@@ -374,6 +374,91 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
     return rows
 
 
+_OUTLOOK_SRC = {"soc": "bls_ep", "noc": "ca_cops", "anzsco": "jsa", "isco": "ilostat"}
+
+
+def _role_outlook_rows(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_role_outlook rows from the gov_projections staging (BLS-EP / Canada-COPS /
+    JSA). Maps each national occupation code → our role via the per-system crosswalk
+    (SOC via the H-1B map, NOC/ANZSCO/ISCO via the curated GOV_CROSSWALK). Graceful/
+    empty until the connector has run."""
+    recs = _staging_json("gov_projections/outlook.json")
+    if not recs:
+        return []
+    from backend.ingest.h1b import _soc_to_role
+    from backend.warehouse.taxonomy import GOV_CROSSWALK
+    sys_maps: dict[str, dict[str, str]] = {}
+    for rid, sysd in GOV_CROSSWALK.items():
+        for sysn, (code, _l) in sysd.items():
+            sys_maps.setdefault(sysn.lower(), {})[str(code)] = rid
+
+    def to_role(system: str, code: str) -> str | None:
+        s, c = (system or "").lower(), str(code or "")
+        if "soc" in s:
+            return _soc_to_role(c.split(".")[0])
+        for m in sys_maps.values():                       # try any crosswalk by code/prefix
+            if c in m:
+                return m[c]
+            if c[:4] in m:
+                return m[c[:4]]
+        return None
+
+    rows = []
+    for r in recs:
+        rid, code = to_role(r.get("system"), r.get("occ_code")), r.get("country")
+        if rid not in known_roles or code not in known_countries:
+            continue
+        system = (r.get("system") or "").lower()
+        src = next((v for k, v in _OUTLOOK_SRC.items() if k in system), slug(system or "projection"))
+        opy = r.get("openings_per_year")
+        rows.append((rid, code, int(r.get("horizon") or 10), float(r.get("growth_pct") or 0.0),
+                     float(opy) if opy else None, r.get("outlook_rating"), r.get("shortage_flag"),
+                     "med", src, False))
+    return rows
+
+
+def _skill_adoption_rows() -> list[tuple]:
+    """fact_skill_adoption rows from the adoption connectors (registries / Stack Exchange
+    / arXiv / Hugging Face / Wikipedia). Each lands [{skill, period, <metric>, country}];
+    we slug skill→skill_id and tag ecosystem + metric. Mostly global (country=''). This
+    is reference data for ANY skill (not just dim_skill), so it isn't role-filtered.
+    Graceful/empty until the connectors run."""
+    feeds = [
+        ("package_registries/adoption.json", "downloads"),
+        ("stack_exchange/tag_volume.json", "questions"),
+        ("arxiv/velocity.json", "submissions"),
+        ("huggingface/velocity.json", "models"),
+        ("wikipedia/pageviews.json", "pageviews"),
+        ("cedefop/skill_demand.json", "vacancy_share"),
+    ]
+    rows: list[tuple] = []
+    seen: set[tuple] = set()
+    for rel, metric in feeds:
+        recs = _staging_json(rel)
+        if not recs:
+            continue
+        eco = rel.split("/")[0]
+        for r in recs:
+            name = r.get("skill") or r.get("esco_occ")
+            if not name:
+                continue
+            sid = slug(str(name))
+            period = str(r.get("period") or r.get("year") or "")
+            if not period:
+                continue
+            year = int(period[:4]) if period[:4].isdigit() else max(_YEARS)
+            val = (r.get("n") or r.get("downloads") or r.get("views")
+                   or r.get("share_or_count") or r.get("value") or 0)
+            ecosystem = r.get("ecosystem") or eco
+            country = r.get("country") or ""
+            key = (sid, country, period, metric, ecosystem)
+            if key in seen:
+                continue
+            seen.add(key)
+            rows.append((sid, country, year, period, metric, float(val), ecosystem, slug(eco), False))
+    return rows
+
+
 def _fuse_onet_trajectory(con, known_roles: set[str]) -> tuple[int, int]:
     """Fuse the O*NET role-adjacency + skill-importance staging (parsed from the
     cached zip) into bridge_role_adjacency + bridge_role_skill_importance. Both ends
@@ -507,6 +592,30 @@ def build_warehouse_from_staging() -> None:
                  "O*NET role adjacency + skill importance (cached zip)", False, "2026-06-24"))
             n_adj, n_imp = _fuse_onet_trajectory(con, known_roles)
 
+            # fact_role_outlook ← gov_projections (the demand-OUTLOOK axis)
+            outlook_rows = _role_outlook_rows(known_roles, known_countries)
+            if outlook_rows:
+                for sid in {r[8] for r in outlook_rows}:
+                    con.execute(
+                        "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (source_id) DO NOTHING",
+                        (sid, sid.replace("_", " ").replace("-", " ").title(), "outlook", None,
+                         "official occupation projection", False, "2026-06-25"))
+                con.executemany(
+                    "INSERT INTO fact_role_outlook VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                    "ON CONFLICT (role_id, country_code, horizon_years, source_id) DO NOTHING", outlook_rows)
+
+            # fact_skill_adoption ← registries / SE / arXiv / HF / Wikipedia (DURABILITY/emergence)
+            adoption_rows = _skill_adoption_rows()
+            if adoption_rows:
+                for sid in {r[7] for r in adoption_rows}:
+                    con.execute(
+                        "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (source_id) DO NOTHING",
+                        (sid, sid.replace("_", " ").title(), "adoption", None,
+                         "technology adoption signal", False, "2026-06-25"))
+                con.executemany(
+                    "INSERT INTO fact_skill_adoption VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                    "ON CONFLICT (skill_id, country_code, period, metric, ecosystem) DO NOTHING", adoption_rows)
+
             # dim_role + REAL facts ← role_derivation. A derived cluster is NOT just a
             # name: it carries demand from its own unique-posting volume + a skill bag
             # from its member titles. Salary is left ABSENT so the UI honestly shows
@@ -568,8 +677,11 @@ def build_warehouse_from_staging() -> None:
             n_importance = con.execute("SELECT COUNT(*) FROM bridge_role_skill_importance").fetchone()[0]
             n_derived_roles = con.execute(
                 "SELECT COUNT(*) FROM dim_role WHERE family_id = 'derived'").fetchone()[0]
+            n_outlook = con.execute("SELECT COUNT(*) FROM fact_role_outlook").fetchone()[0]
+            n_adoption = con.execute("SELECT COUNT(*) FROM fact_skill_adoption").fetchone()[0]
         finally:
             con.close()
+        log.info("new-axis fuse: fact_role_outlook=%d, fact_skill_adoption=%d", n_outlook, n_adoption)
         log.info("FUSED (%s base): fact_salary_person=%d (SO=%d, H1B=%d), "
                  "fact_demand=%d (CC/GH overlay=%d, rest Adzuna), "
                  "fact_interest=%d (GTrends overlay=%d), fact_salary_job=%d (Adzuna), "
