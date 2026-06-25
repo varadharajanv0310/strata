@@ -54,6 +54,25 @@ STAGES: dict[str, tuple[str, int]] = {
     "baselines": ("from backend.ingest.baselines import run; print(run())", 1200),
     # ILOSTAT cross-country wage spine → official salary lens (council source #1)
     "ilostat": ("from backend.ingest.ilostat import run; print(run())", 1200),
+    # ---- council round-2 connectors (built, credential/network-graceful; run later) ----
+    # demand-OUTLOOK axis → fact_role_outlook
+    "gov_projections": ("from backend.ingest.gov_projections import run; print(run())", 2400),
+    # skill-ADOPTION / durability axis → fact_skill_adoption
+    "stack_exchange": ("from backend.ingest.stack_exchange import run; print(run())", 21600),
+    "package_registries": ("from backend.ingest.package_registries import run; print(run())", 2400),
+    "arxiv": ("from backend.ingest.arxiv import run; print(run())", 5400),
+    "huggingface": ("from backend.ingest.huggingface import run; print(run())", 2400),
+    "wikipedia_pageviews": ("from backend.ingest.wikipedia_pageviews import run; print(run())", 2400),
+    # demand / vacancy feeds (DE/SG/US/EU/remote) → fact_demand / fact_salary_*
+    "eures": ("from backend.ingest.eures import run; print(run())", 2400),
+    "bundesagentur": ("from backend.ingest.bundesagentur import run; print(run())", 2400),
+    "mycareersfuture": ("from backend.ingest.mycareersfuture import run; print(run())", 2400),
+    "usajobs": ("from backend.ingest.usajobs import run; print(run())", 2400),
+    "cedefop_ovate": ("from backend.ingest.cedefop_ovate import run; print(run())", 1800),
+    "hn_hiring": ("from backend.ingest.hn_hiring import run; print(run())", 5400),
+    "remoteok": ("from backend.ingest.remoteok import run; print(run())", 600),
+    # roles-only occupation graph (employer-stripped) → bridge_role_adjacency
+    "wikidata_occupations": ("from backend.ingest.wikidata_occupations import run; print(run())", 2400),
     "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
     "gpu_normalize": (
         "from backend.ml.skill_norm import run as s; from backend.ml.entity_resolution import run as e; "
@@ -66,6 +85,9 @@ STAGES: dict[str, tuple[str, int]] = {
     "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 1200),
 }
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
+         "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
+         "wikipedia_pageviews", "eures", "bundesagentur", "mycareersfuture", "usajobs",
+         "cedefop_ovate", "hn_hiring", "remoteok", "wikidata_occupations",
          "common_crawl", "gpu_normalize", "onet_trajectory", "fuse"]
 
 
@@ -142,6 +164,21 @@ def count_stage(name: str) -> str:
         if name == "onet_trajectory":
             from backend.warehouse.onet_trajectory import load_adjacency, load_skill_importance
             return f"{len(load_adjacency())} adjacency edges, {len(load_skill_importance())} skill-importance rows"
+        if name in {"gov_projections", "stack_exchange", "package_registries", "arxiv",
+                    "huggingface", "wikipedia_pageviews", "eures", "bundesagentur",
+                    "mycareersfuture", "usajobs", "cedefop_ovate", "hn_hiring", "remoteok",
+                    "wikidata_occupations"}:
+            d = sd / name
+            if not d.exists():
+                return "no staging yet"
+            total = 0
+            for f in d.glob("*.json"):
+                try:
+                    obj = json.loads(f.read_text(encoding="utf-8"))
+                    total += len(obj) if isinstance(obj, list) else 1
+                except Exception:  # noqa: BLE001
+                    pass
+            return f"{total} rows landed"
         if name == "fuse":
             from backend.core.db import duckdb_connect
             c = duckdb_connect(read_only=True)

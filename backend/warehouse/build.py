@@ -377,6 +377,22 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
 _OUTLOOK_SRC = {"soc": "bls_ep", "noc": "ca_cops", "anzsco": "jsa", "isco": "ilostat"}
 
 
+def _parse_horizon(h) -> int | None:
+    """gov_projections horizon is a string ('2023-2033' | '3yr' | '10yr' | 'current').
+    Return the horizon length in years, or None for a non-projection ('current')."""
+    s = str(h or "").lower().strip()
+    if s in ("", "current"):
+        return None
+    if "-" in s:                                          # '2023-2033' → span
+        try:
+            a, b = s.split("-")[:2]
+            return max(1, int(b) - int(a))
+        except (ValueError, IndexError):
+            return 10
+    digits = "".join(c for c in s if c.isdigit())
+    return int(digits) if digits else 10
+
+
 def _role_outlook_rows(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
     """fact_role_outlook rows from the gov_projections staging (BLS-EP / Canada-COPS /
     JSA). Maps each national occupation code → our role via the per-system crosswalk
@@ -406,13 +422,16 @@ def _role_outlook_rows(known_roles: set[str], known_countries: set[str]) -> list
     rows = []
     for r in recs:
         rid, code = to_role(r.get("system"), r.get("occ_code")), r.get("country")
-        if rid not in known_roles or code not in known_countries:
+        hz = _parse_horizon(r.get("horizon"))
+        if rid not in known_roles or code not in known_countries or hz is None:
             continue
         system = (r.get("system") or "").lower()
         src = next((v for k, v in _OUTLOOK_SRC.items() if k in system), slug(system or "projection"))
         opy = r.get("openings_per_year")
-        rows.append((rid, code, int(r.get("horizon") or 10), float(r.get("growth_pct") or 0.0),
-                     float(opy) if opy else None, r.get("outlook_rating"), r.get("shortage_flag"),
+        shortage = r.get("shortage_flag")
+        shortage = str(shortage) if shortage is not None else None
+        rows.append((rid, code, hz, float(r.get("growth_pct") or 0.0),
+                     float(opy) if opy else None, r.get("outlook_rating"), shortage,
                      "med", src, False))
     return rows
 
