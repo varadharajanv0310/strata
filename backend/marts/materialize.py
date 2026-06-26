@@ -85,6 +85,12 @@ def materialize_from_warehouse() -> None:
                            "ORDER BY from_role,similarity DESC")
             importance = _q("SELECT role_id,skill_id,skill_name,importance,level,essential,source_id "
                             "FROM bridge_role_skill_importance ORDER BY role_id,importance DESC")
+            outlook = _q("SELECT role_id,country_code,horizon_years,growth_pct,openings_per_year,"
+                         "outlook_rating,shortage_flag,source_id FROM fact_role_outlook "
+                         "ORDER BY role_id,country_code,horizon_years DESC")
+            adoption = _q("SELECT skill_id,year,period,metric,value,ecosystem FROM fact_skill_adoption "
+                          "ORDER BY skill_id,metric,ecosystem,period")
+            skill_names = dict(_q("SELECT skill_id,name FROM dim_skill"))
         meta_years = sorted({r[2] for r in salary})
         meta_fyears = sorted({r[2] for r in forecast})
         is_seed_overall = bool(roles and roles[0][7])
@@ -105,6 +111,20 @@ def materialize_from_warehouse() -> None:
             return m
         realized_m = _latest(person)
         official_m = _latest(official)
+
+        # per-skill ADOPTION momentum (latest vs prior period) per metric × ecosystem
+        adoption_marts: list = []
+        _agrp: dict[tuple, list] = defaultdict(list)
+        for (sid, _yr, period, metric, value, eco) in adoption:
+            _agrp[(sid, metric, eco)].append((str(period), float(value)))
+        for (sid, metric, eco), ser in _agrp.items():
+            ser.sort()
+            lp, lv = ser[-1]
+            pv = ser[-2][1] if len(ser) > 1 else None
+            mom = round((lv - pv) / pv * 100, 1) if pv else None
+            adoption_marts.append(M.MartSkillAdoption(
+                skill_id=sid, skill_name=skill_names.get(sid, sid), metric=metric,
+                ecosystem=eco, latest_period=lp, latest_value=lv, momentum_pct=mom))
 
         # ---- assemble per role×country ----
         rc_rows: list[M.MartRoleCountry] = []
@@ -165,6 +185,7 @@ def materialize_from_warehouse() -> None:
         with session_scope() as db:
             for model in (M.MartMarketPulse, M.MartRoleCountry, M.MartRoleLadder,
                           M.MartRoleSkill, M.MartRoleAdjacency, M.MartRoleSkillImportance,
+                          M.MartRoleOutlook, M.MartSkillAdoption,
                           M.MartRole, M.MartFamily, M.MartCountry, M.MartMeta):
                 db.execute(delete(model))
 
@@ -191,6 +212,11 @@ def materialize_from_warehouse() -> None:
                 role_id=i[0], skill_id=i[1], skill_name=i[2], importance=float(i[3]),
                 level=(float(i[4]) if i[4] is not None else None),
                 essential=bool(i[5]), source=i[6]) for i in importance])
+            db.add_all([M.MartRoleOutlook(
+                role_id=o[0], country_code=o[1], horizon_years=int(o[2]), growth_pct=float(o[3]),
+                openings_per_year=(float(o[4]) if o[4] is not None else None),
+                outlook_rating=o[5], shortage_flag=o[6], source=o[7]) for o in outlook])
+            db.add_all(adoption_marts)
             db.add_all(rc_rows)
             db.add_all(pulse_rows)
             db.add(M.MartMeta(key="dataset", value={

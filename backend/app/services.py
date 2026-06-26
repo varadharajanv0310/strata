@@ -86,6 +86,33 @@ def _importance_by_role(db: Session, role_id: str | None = None) -> dict:
     return out
 
 
+def _outlook_map(db: Session, role_id: str | None = None) -> dict:
+    """(role_id, country) → headline demand-outlook (longest horizon wins)."""
+    q = select(M.MartRoleOutlook).order_by(M.MartRoleOutlook.horizon_years.desc())
+    if role_id:
+        q = q.where(M.MartRoleOutlook.role_id == role_id)
+    out: dict[tuple, dict] = {}
+    for o in db.scalars(q):
+        key = (o.role_id, o.country_code)
+        if key not in out:
+            out[key] = {"horizon": o.horizon_years, "growthPct": round(o.growth_pct, 1),
+                        "openingsPerYear": o.openings_per_year, "rating": o.outlook_rating,
+                        "shortage": o.shortage_flag, "source": o.source}
+    return out
+
+
+def _adoption_map(db: Session) -> dict:
+    """skill_id → best/most-recent adoption summary (momentum = rising/fading signal)."""
+    out: dict[str, dict] = {}
+    for a in db.scalars(select(M.MartSkillAdoption)):
+        cur = out.get(a.skill_id)
+        if not cur or a.latest_period > cur["period"]:
+            out[a.skill_id] = {"name": a.skill_name, "metric": a.metric, "ecosystem": a.ecosystem,
+                               "period": a.latest_period, "value": a.latest_value,
+                               "momentum": a.momentum_pct}
+    return out
+
+
 def assemble_dataset(db: Session) -> dict:
     countries = list(db.scalars(select(M.MartCountry).order_by(M.MartCountry.ord)))
     families = list(db.scalars(select(M.MartFamily).order_by(M.MartFamily.ord)))
@@ -101,10 +128,15 @@ def assemble_dataset(db: Session) -> dict:
 
     traj_by_role = _trajectory_by_role(db)
     imp_by_role = _importance_by_role(db)
+    outlook_m = _outlook_map(db)
 
     rc_by_role: dict[str, dict] = defaultdict(dict)
     for rc in db.scalars(select(M.MartRoleCountry)):
-        rc_by_role[rc.role_id][rc.country_code] = _role_country_payload(rc)
+        pay = _role_country_payload(rc)
+        ol = outlook_m.get((rc.role_id, rc.country_code))
+        if ol:
+            pay["outlook"] = ol
+        rc_by_role[rc.role_id][rc.country_code] = pay
 
     roles_payload = []
     for r in roles:
@@ -138,6 +170,7 @@ def assemble_dataset(db: Session) -> dict:
         "marketPulse": {k: dict(v) for k, v in pulse.items()},
         "resume_sample": prof_v.get("sample", {}),
         "resume_b": prof_v.get("b", {}),
+        "skillAdoption": _adoption_map(db),
         "is_seed": meta_v.get("is_seed", True),
         "generated_at": meta_v.get("generated_at"),
     }
@@ -190,8 +223,14 @@ def get_role(db: Session, role_id: str) -> dict | None:
               for s in db.scalars(select(M.MartRoleSkill).where(M.MartRoleSkill.role_id == role_id).order_by(M.MartRoleSkill.ord))]
     ladder = [[l.title, l.mult]
               for l in db.scalars(select(M.MartRoleLadder).where(M.MartRoleLadder.role_id == role_id).order_by(M.MartRoleLadder.ord))]
-    countries = {rc.country_code: _role_country_payload(rc)
-                 for rc in db.scalars(select(M.MartRoleCountry).where(M.MartRoleCountry.role_id == role_id))}
+    outlook_m = _outlook_map(db, role_id)
+    countries = {}
+    for rc in db.scalars(select(M.MartRoleCountry).where(M.MartRoleCountry.role_id == role_id)):
+        pay = _role_country_payload(rc)
+        ol = outlook_m.get((rc.role_id, rc.country_code))
+        if ol:
+            pay["outlook"] = ol
+        countries[rc.country_code] = pay
     return {"id": r.id, "name": r.name,
             "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue},
             "blurb": r.blurb, "skills": skills, "ladder": ladder,

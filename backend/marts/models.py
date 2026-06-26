@@ -187,6 +187,43 @@ class MartRoleSkillImportance(Base):
     source: Mapped[str] = mapped_column(String(20))         # onet | esco
 
 
+class MartRoleOutlook(Base):
+    """Served forward demand-OUTLOOK per role×country (official projections).
+
+    Materialized from warehouse ``fact_role_outlook`` (BLS-EP / Canada-COPS / JSA).
+    Roles-only: occupation growth, not company hiring."""
+
+    __tablename__ = "mart_role_outlook"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    role_id: Mapped[str] = mapped_column(String(120), index=True)
+    country_code: Mapped[str] = mapped_column(String(2), index=True)
+    horizon_years: Mapped[int] = mapped_column(Integer)
+    growth_pct: Mapped[float] = mapped_column(Float)
+    openings_per_year: Mapped[float | None] = mapped_column(Float, nullable=True)
+    outlook_rating: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    shortage_flag: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    source: Mapped[str] = mapped_column(String(40))
+
+
+class MartSkillAdoption(Base):
+    """Served per-skill ADOPTION / durability summary (registries / SE / arXiv / HF /
+    Wikipedia). One row per (skill, metric, ecosystem) with the latest value + a
+    momentum % (recent vs prior period) — the "rising or fading" signal. Global
+    (country-invariant) skill attribute that modulates the role-scoped signals."""
+
+    __tablename__ = "mart_skill_adoption"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    skill_id: Mapped[str] = mapped_column(String(120), index=True)
+    skill_name: Mapped[str] = mapped_column(String(120))
+    metric: Mapped[str] = mapped_column(String(20))         # downloads | questions | submissions | ...
+    ecosystem: Mapped[str] = mapped_column(String(20))
+    latest_period: Mapped[str] = mapped_column(String(7))
+    latest_value: Mapped[float] = mapped_column(Float)
+    momentum_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
 class MartProvenance(Base):
     """Per-source provenance manifest — the (source_id, snapshot_hash,
     transform_version, row_count, as_of) tuple threaded into the served layer so a
