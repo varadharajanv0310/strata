@@ -340,6 +340,50 @@ def load_esco(path: Path | None = None) -> tuple[list[tuple[str, str]], list[tup
     return aliases, xwalk
 
 
+def load_lightcast(path: Path | None = None) -> list[tuple[str, str]]:
+    """Parse the Lightcast **Open Titles** export → role alias pairs.
+
+    Lightcast Open Skills/Titles is a public, free taxonomy. The Titles file maps a
+    large surface vocabulary of raw job titles to a normalized title + (in the
+    SOC-mapped exports) an O*NET-SOC code. Where a SOC mapping is present we crosswalk
+    SOC → our role (the same path as the O*NET alternate-title loader) and mine the
+    raw + normalized title as aliases — widening never-dead-end recall. Graceful:
+    returns ``[]`` when the file is absent (drop a Lightcast titles CSV with a
+    ``soc``/``onet_soc`` column + a ``title``/``name`` column into ``staging/lightcast/``)
+    or when no SOC column exists. ROLES-ONLY: titles + occupation codes only.
+    """
+    from backend.core.config import settings
+    path = Path(path) if path else (settings.staging_dir / "lightcast" / "titles.csv")
+    if not path.exists():
+        log.info("Lightcast titles file absent (%s) — skipping [drop titles.csv to enable]", path)
+        return []
+    from backend.ingest.h1b import _soc_to_role
+    aliases: list[tuple[str, str]] = []
+    try:
+        with open(path, encoding="utf-8") as fh:
+            reader = csv.DictReader(fh)
+            cols = {c.lower(): c for c in (reader.fieldnames or [])}
+            soc_col = next((cols[k] for k in cols if "soc" in k), None)
+            title_cols = [cols[k] for k in cols if k in ("title", "name", "raw_title", "normalized_title")]
+            if not soc_col or not title_cols:
+                log.info("Lightcast file lacks a SOC + title column — skipping (cols: %s)", list(cols))
+                return []
+            for r in reader:
+                role_id = _soc_to_role(str(r.get(soc_col) or "").split(".")[0][:7])
+                if not role_id:
+                    continue
+                for tc in title_cols:
+                    t = (r.get(tc) or "").strip()
+                    if t:
+                        aliases.append((t, role_id))
+    except Exception as e:  # noqa: BLE001 — a malformed reference file must not break the build
+        log.error("Lightcast parse failed: %s", e)
+        return []
+    log.info("Lightcast → %d title aliases across %d roles",
+             len(aliases), len({r for _, r in aliases}))
+    return aliases
+
+
 # --------------------------------------------------------------------------- #
 #  Build                                                                        #
 # --------------------------------------------------------------------------- #
@@ -402,6 +446,8 @@ def build_taxonomy(con: duckdb.DuckDBPyConnection, *, as_of: str | None = None) 
     esco_aliases, esco_xwalk = load_esco()
     for title, role_id in esco_aliases:
         _add(title, role_id, "esco", weight=0.75)
+    for title, role_id in load_lightcast():
+        _add(title, role_id, "lightcast", weight=0.7)
 
     if alias_rows:
         con.executemany("INSERT INTO dim_role_alias VALUES (?,?,?,?,?,?,?)", alias_rows)
