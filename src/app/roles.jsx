@@ -61,23 +61,34 @@ import { Charts } from "./charts.jsx";
   }
 
   /* ---------------- Importance-weighted skills (O*NET/ESCO core vs peripheral) ---------------- */
+  const _slug = (n) => (n || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
   function ImportanceSkills({ role }) {
     const rows = (role.importance || []).slice(0, 8);
     if (!rows.length) return null;
+    const adopt = S().skillAdoption || {};
     return (
       <div className="card">
-        <div className="card-head"><div><div className="card-title">What matters most</div><div className="card-sub">Skill importance · O*NET/ESCO weighted (core vs peripheral)</div></div></div>
+        <div className="card-head"><div><div className="card-title">What matters most</div><div className="card-sub">Skill importance · O*NET/ESCO weighted · ▲ adoption momentum</div></div></div>
         <div className="col" style={{ gap: 7, marginTop: 4 }}>
-          {rows.map(r => (
-            <div key={r.skill} className="row gap10" style={{ alignItems: "center" }}>
-              <span style={{ width: 110, fontSize: 12.5, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.skill}</span>
-              <span style={{ flex: 1, height: 6, borderRadius: 9, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
-                <span style={{ display: "block", width: `${r.importance}%`, height: "100%",
-                  background: r.essential ? "linear-gradient(90deg,#0033ff,#4a7cff)" : "rgba(255,255,255,0.22)" }} />
-              </span>
-              {r.essential && <span className="tag" style={{ fontSize: 9 }}>core</span>}
-            </div>
-          ))}
+          {rows.map(r => {
+            const a = adopt[_slug(r.skill)];
+            const mom = a && a.momentum != null ? a.momentum : null;
+            return (
+              <div key={r.skill} className="row gap10" style={{ alignItems: "center" }}>
+                <span style={{ width: 104, fontSize: 12.5, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.skill}</span>
+                <span style={{ flex: 1, height: 6, borderRadius: 9, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
+                  <span style={{ display: "block", width: `${r.importance}%`, height: "100%",
+                    background: r.essential ? "linear-gradient(90deg,#0033ff,#4a7cff)" : "rgba(255,255,255,0.22)" }} />
+                </span>
+                {mom != null && (
+                  <span title={`${a.metric} momentum · ${a.ecosystem}`} style={{ fontSize: 10, fontWeight: 700,
+                    color: mom >= 0 ? "var(--good)" : "var(--bad)" }}>{mom >= 0 ? "▲" : "▼"}{Math.abs(mom)}%</span>
+                )}
+                {r.essential && <span className="tag" style={{ fontSize: 9 }}>core</span>}
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -318,6 +329,16 @@ import { Charts } from "./charts.jsx";
             <div className="small mt12" style={{ color: cd.demand > cd.interest ? "var(--good)" : "var(--t3)" }}>
               {cd.demand > cd.interest ? `Demand outpaces interest by ${cd.demand - cd.interest} pts — an opening.` : `More pursuing than the market wants right now.`}
             </div>
+            {cd.outlook && (
+              <div className="small mt8" style={{ color: "var(--t2)" }}>
+                {cd.outlook.horizon}-yr official outlook{" "}
+                <span style={{ color: cd.outlook.growthPct >= 0 ? "var(--good)" : "var(--bad)", fontWeight: 700 }}>
+                  {cd.outlook.growthPct >= 0 ? "▲" : "▼"} {cd.outlook.growthPct >= 0 ? "+" : ""}{cd.outlook.growthPct}%
+                </span>
+                {cd.outlook.shortage ? <span style={{ color: "var(--warn)" }}> · {cd.outlook.shortage}</span> : null}
+                <span style={{ color: "var(--t3)" }}> · {cd.outlook.source}</span>
+              </div>
+            )}
           </StatCard>
         </div>
 
