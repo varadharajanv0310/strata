@@ -67,20 +67,26 @@ import { Charts } from "./charts.jsx";
     const rows = (role.importance || []).slice(0, 8);
     if (!rows.length) return null;
     const adopt = S().skillAdoption || {};
+    const prem = S().skillPremiums || {};
     return (
       <div className="card">
-        <div className="card-head"><div><div className="card-title">What matters most</div><div className="card-sub">Skill importance · O*NET/ESCO weighted · ▲ adoption momentum</div></div></div>
+        <div className="card-head"><div><div className="card-title">What matters most</div><div className="card-sub">Importance · ▲ adoption momentum · 💲 pay premium (hedonic)</div></div></div>
         <div className="col" style={{ gap: 7, marginTop: 4 }}>
           {rows.map(r => {
             const a = adopt[_slug(r.skill)];
             const mom = a && a.momentum != null ? a.momentum : null;
+            const pp = prem[_slug(r.skill)];
             return (
               <div key={r.skill} className="row gap10" style={{ alignItems: "center" }}>
-                <span style={{ width: 104, fontSize: 12.5, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.skill}</span>
+                <span style={{ width: 100, fontSize: 12.5, color: "var(--t1)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{r.skill}</span>
                 <span style={{ flex: 1, height: 6, borderRadius: 9, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
                   <span style={{ display: "block", width: `${r.importance}%`, height: "100%",
                     background: r.essential ? "linear-gradient(90deg,#0033ff,#4a7cff)" : "rgba(255,255,255,0.22)" }} />
                 </span>
+                {pp && pp.premiumPct != null && (
+                  <span title={`hedonic marginal pay premium (n=${pp.n})`} style={{ fontSize: 10, fontWeight: 700,
+                    color: pp.premiumPct >= 0 ? "var(--good)" : "var(--t3)" }}>{pp.premiumPct >= 0 ? "+" : ""}{pp.premiumPct}%</span>
+                )}
                 {mom != null && (
                   <span title={`${a.metric} momentum · ${a.ecosystem}`} style={{ fontSize: 10, fontWeight: 700,
                     color: mom >= 0 ? "var(--good)" : "var(--bad)" }}>{mom >= 0 ? "▲" : "▼"}{Math.abs(mom)}%</span>
@@ -371,21 +377,38 @@ import { Charts } from "./charts.jsx";
             <div className="small mt12" style={{ color: "var(--t3)" }}>Dashed line is projected, not observed. The band widens with uncertainty — we don't pretend to know 2028 precisely.</div>
           </div>
           <div className="card">
-            <div className="card-head"><div><div className="card-title">Role progression</div><div className="card-sub">How pay steps along the ladder</div></div></div>
+            <div className="card-head"><div><div className="card-title">Role progression</div>
+              <div className="card-sub">{role.payLadder && role.payLadder.length
+                ? "Real pay by level · US H-1B disclosed, employers pooled"
+                : "How pay steps along the ladder"}</div></div></div>
             <div className="col" style={{ gap: 2 }}>
-              {role.ladder.map(([title, mult], i) => {
-                const val = Math.round(cd.median * mult);
-                const isHere = Math.abs(mult - 1) < 0.001;
-                return (
-                  <div key={i} className="row gap12" style={{ alignItems: "center", padding: "10px 0", borderBottom: i < role.ladder.length - 1 ? "1px solid var(--line)" : "none" }}>
+              {role.payLadder && role.payLadder.length ? (
+                role.payLadder.map((rung, i) => (
+                  <div key={i} className="row gap12" style={{ alignItems: "center", padding: "10px 0", borderBottom: i < role.payLadder.length - 1 ? "1px solid var(--line)" : "none" }}>
                     <span style={{ width: 22, height: 22, borderRadius: 999, flexShrink: 0, display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700,
-                      background: isHere ? "var(--cobalt)" : "rgba(255,255,255,0.06)", color: isHere ? "#fff" : "var(--t3)",
-                      boxShadow: isHere ? "0 0 14px rgba(0,51,255,0.6)" : "none" }}>{i + 1}</span>
-                    <span style={{ flex: 1, fontSize: 13.5, color: isHere ? "#fff" : "var(--t1)", fontWeight: isHere ? 700 : 500 }}>{title}{isHere && <span className="tag" style={{ marginLeft: 8, fontSize: 9 }}>this role</span>}</span>
-                    <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "#fff" }}>{S().fmtCompact(val, country)}</span>
+                      background: "rgba(255,255,255,0.06)", color: "var(--t3)" }}>{i + 1}</span>
+                    <span style={{ flex: 1, fontSize: 13, color: "var(--t1)" }}>{rung.label}
+                      <span className="small" style={{ color: "var(--t3)", marginLeft: 6 }}>n={rung.n.toLocaleString()}</span>
+                      {rung.stepPct != null && <span className="small" style={{ color: "var(--good)", marginLeft: 6 }}>▲ +{rung.stepPct}%</span>}
+                    </span>
+                    <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "#fff" }}>${rung.median.toLocaleString()}</span>
                   </div>
-                );
-              })}
+                ))
+              ) : (
+                role.ladder.map(([title, mult], i) => {
+                  const val = Math.round(cd.median * mult);
+                  const isHere = Math.abs(mult - 1) < 0.001;
+                  return (
+                    <div key={i} className="row gap12" style={{ alignItems: "center", padding: "10px 0", borderBottom: i < role.ladder.length - 1 ? "1px solid var(--line)" : "none" }}>
+                      <span style={{ width: 22, height: 22, borderRadius: 999, flexShrink: 0, display: "grid", placeItems: "center", fontSize: 11, fontWeight: 700,
+                        background: isHere ? "var(--cobalt)" : "rgba(255,255,255,0.06)", color: isHere ? "#fff" : "var(--t3)",
+                        boxShadow: isHere ? "0 0 14px rgba(0,51,255,0.6)" : "none" }}>{i + 1}</span>
+                      <span style={{ flex: 1, fontSize: 13.5, color: isHere ? "#fff" : "var(--t1)", fontWeight: isHere ? 700 : 500 }}>{title}{isHere && <span className="tag" style={{ marginLeft: 8, fontSize: 9 }}>this role</span>}</span>
+                      <span className="tnum" style={{ fontSize: 13.5, fontWeight: 700, color: "#fff" }}>{S().fmtCompact(val, country)}</span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
         </div>

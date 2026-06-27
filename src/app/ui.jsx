@@ -274,6 +274,19 @@ let LAND_CACHE = null;
             <div className="prov-row"><span className="k">Figure type</span><span className="v">{data.kind === "job-level" ? "Job-level (per posting)" : "Person-level"}</span></div>
             <div className="prov-row"><span className="k">Freshness</span><span className="v">Updated {data.freshness} ago</span></div>
             <div className="prov-row"><span className="k">Disclosure rate</span><span className="v tnum">{Math.round(data.transparency * 100)}% of postings</span></div>
+            {(() => {
+              const lin = (S().provenance || {})[data.source];
+              if (!lin) return null;
+              return (
+                <>
+                  <div className="eyebrow" style={{ margin: "12px 0 8px" }}>Lineage</div>
+                  {lin.snapshotHash && <div className="prov-row"><span className="k">Snapshot</span><span className="v tnum">{lin.snapshotHash.slice(0, 12)}</span></div>}
+                  {lin.transformVersion && <div className="prov-row"><span className="k">Transform</span><span className="v">{lin.transformVersion}</span></div>}
+                  {lin.rowCount != null && <div className="prov-row"><span className="k">Rows</span><span className="v tnum">{lin.rowCount.toLocaleString()}</span></div>}
+                  {lin.asOf && <div className="prov-row"><span className="k">As of</span><span className="v">{lin.asOf}</span></div>}
+                </>
+              );
+            })()}
             <div className="small" style={{ marginTop: 10, color: "var(--t3)", lineHeight: 1.5 }}>
               {data.conf === "low" ? "Thin coverage — shown with low confidence rather than hidden." : "Figure derived from disclosed salary in real postings."}
             </div>

@@ -107,6 +107,17 @@ def _premium_map(db: Session) -> dict:
     return out
 
 
+def _provenance_map(db: Session) -> dict:
+    """source_name → lineage tuple (snapshot hash / transform version / row count / as-of)
+    so the confidence popover can show a number's full lineage, not just its source."""
+    out: dict[str, dict] = {}
+    for p in db.scalars(select(M.MartProvenance)):
+        out[p.source_name] = {"snapshotHash": p.snapshot_hash or None,
+                              "transformVersion": p.transform_version,
+                              "rowCount": p.row_count, "asOf": p.as_of or None}
+    return out
+
+
 def _outlook_map(db: Session, role_id: str | None = None) -> dict:
     """(role_id, country) → headline demand-outlook (longest horizon wins)."""
     q = select(M.MartRoleOutlook).order_by(M.MartRoleOutlook.horizon_years.desc())
@@ -195,6 +206,7 @@ def assemble_dataset(db: Session) -> dict:
         "resume_b": prof_v.get("b", {}),
         "skillAdoption": _adoption_map(db),
         "skillPremiums": _premium_map(db),
+        "provenance": _provenance_map(db),
         "is_seed": meta_v.get("is_seed", True),
         "generated_at": meta_v.get("generated_at"),
     }
