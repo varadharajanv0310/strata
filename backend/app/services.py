@@ -86,6 +86,27 @@ def _importance_by_role(db: Session, role_id: str | None = None) -> dict:
     return out
 
 
+def _pay_ladder_by_role(db: Session, role_id: str | None = None) -> dict:
+    """role_id → [{ord, label, median, n, stepAbs, stepPct, country}] (real H-1B ladder)."""
+    q = select(M.MartRolePayLadder).order_by(M.MartRolePayLadder.role_id, M.MartRolePayLadder.ord)
+    if role_id:
+        q = q.where(M.MartRolePayLadder.role_id == role_id)
+    out: dict[str, list] = defaultdict(list)
+    for r in db.scalars(q):
+        out[r.role_id].append({"ord": r.ord, "label": r.level_label, "median": int(r.median),
+                               "n": r.n, "stepAbs": r.step_abs, "stepPct": r.step_pct,
+                               "country": r.country_code})
+    return out
+
+
+def _premium_map(db: Session) -> dict:
+    """skill_id → {premium_pct, n, r2} (hedonic within-market marginal skill premium)."""
+    out: dict[str, dict] = {}
+    for p in db.scalars(select(M.MartSkillPremium)):
+        out[p.skill_id] = {"premiumPct": round(p.premium_pct, 1), "n": p.n, "r2": p.r2}
+    return out
+
+
 def _outlook_map(db: Session, role_id: str | None = None) -> dict:
     """(role_id, country) → headline demand-outlook (longest horizon wins)."""
     q = select(M.MartRoleOutlook).order_by(M.MartRoleOutlook.horizon_years.desc())
@@ -128,6 +149,7 @@ def assemble_dataset(db: Session) -> dict:
 
     traj_by_role = _trajectory_by_role(db)
     imp_by_role = _importance_by_role(db)
+    pay_ladder = _pay_ladder_by_role(db)
     outlook_m = _outlook_map(db)
 
     rc_by_role: dict[str, dict] = defaultdict(dict)
@@ -146,6 +168,7 @@ def assemble_dataset(db: Session) -> dict:
             "blurb": r.blurb,
             "skills": skills_by_role.get(r.id, []),
             "ladder": ladder_by_role.get(r.id, []),
+            "payLadder": pay_ladder.get(r.id, []),
             "trajectory": traj_by_role.get(r.id, []),
             "importance": imp_by_role.get(r.id, []),
             "countries": rc_by_role.get(r.id, {}),
@@ -171,6 +194,7 @@ def assemble_dataset(db: Session) -> dict:
         "resume_sample": prof_v.get("sample", {}),
         "resume_b": prof_v.get("b", {}),
         "skillAdoption": _adoption_map(db),
+        "skillPremiums": _premium_map(db),
         "is_seed": meta_v.get("is_seed", True),
         "generated_at": meta_v.get("generated_at"),
     }
@@ -234,6 +258,7 @@ def get_role(db: Session, role_id: str) -> dict | None:
     return {"id": r.id, "name": r.name,
             "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue},
             "blurb": r.blurb, "skills": skills, "ladder": ladder,
+            "payLadder": _pay_ladder_by_role(db, role_id).get(role_id, []),
             "trajectory": _trajectory_by_role(db, role_id).get(role_id, []),
             "importance": _importance_by_role(db, role_id).get(role_id, []),
             "countries": countries}

@@ -174,6 +174,31 @@ def build_role_ladders(
     return {"ladders": ladders, "files": files, "n_filings": n_filings}
 
 
+def _staging_file():
+    from backend.core.config import settings
+    d = settings.staging_dir / "analytics"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "role_ladders.json"
+
+
+def run(**kw) -> dict:
+    """Build the role pay ladders from cached H-1B xlsx → staging json (the serving
+    materialize reads it). Pure derivation on cached files — no download/ingestion.
+    Connector entrypoint (registered as a collect_all stage)."""
+    import json
+    res = build_role_ladders(**kw)
+    _staging_file().write_text(json.dumps(res["ladders"]), encoding="utf-8")
+    log.info("role pay ladders → staging: %d ladders from %d filings",
+             len(res["ladders"]), res["n_filings"])
+    return {"ladders": len(res["ladders"]), "n_filings": res["n_filings"], "written": True}
+
+
+def load_ladders() -> list[dict]:
+    import json
+    f = _staging_file()
+    return json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+
+
 def sample(top: int = 16, **kw) -> dict:
     """Build role ladders and pretty-print them for a quick proof."""
     res = build_role_ladders(**kw)

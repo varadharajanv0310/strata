@@ -82,13 +82,16 @@ STAGES: dict[str, tuple[str, int]] = {
     # parse the cached O*NET zip → role adjacency + skill importance staging (pure
     # compute, no network). Runs before fuse so build_warehouse can read it.
     "onet_trajectory": ("from backend.warehouse.onet_trajectory import run; print(run())", 300),
+    # cached-data analytics → staging the marts materialize reads (no network)
+    "role_ladders": ("from backend.analytics.promotion_ladder import run; print(run())", 900),
+    "hedonic": ("from backend.ml.hedonic import run; print(run())", 900),
     "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 1200),
 }
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
          "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
          "wikipedia_pageviews", "eures", "bundesagentur", "mycareersfuture", "usajobs",
          "cedefop_ovate", "hn_hiring", "remoteok", "wikidata_occupations",
-         "common_crawl", "gpu_normalize", "onet_trajectory", "fuse"]
+         "common_crawl", "gpu_normalize", "onet_trajectory", "role_ladders", "hedonic", "fuse"]
 
 
 def _ts() -> str:
@@ -164,6 +167,12 @@ def count_stage(name: str) -> str:
         if name == "onet_trajectory":
             from backend.warehouse.onet_trajectory import load_adjacency, load_skill_importance
             return f"{len(load_adjacency())} adjacency edges, {len(load_skill_importance())} skill-importance rows"
+        if name == "role_ladders":
+            from backend.analytics.promotion_ladder import load_ladders
+            return f"{len(load_ladders())} role pay ladders"
+        if name == "hedonic":
+            from backend.ml.hedonic import load_premiums
+            return f"{len(load_premiums())} skill premiums"
         if name in {"gov_projections", "stack_exchange", "package_registries", "arxiv",
                     "huggingface", "wikipedia_pageviews", "eures", "bundesagentur",
                     "mycareersfuture", "usajobs", "cedefop_ovate", "hn_hiring", "remoteok",

@@ -234,5 +234,43 @@ def sample(skills=("kubernetes", "rust", "go", "react", "terraform"), max_per_ye
     return out
 
 
+def _staging_file():
+    from backend.core.config import settings
+    d = settings.staging_dir / "analytics"
+    d.mkdir(parents=True, exist_ok=True)
+    return d / "skill_premiums.json"
+
+
+def run(top_skills: int = 60, max_per_year: int = 40_000, **kw) -> dict:
+    """Fit the hedonic model on cached SO person rows → per-skill marginal premium →
+    staging json (the serving materialize reads it). Pure derivation on cached data —
+    no download/ingestion. Registered as a collect_all stage."""
+    import json
+
+    from backend.warehouse.build import slug
+    rows = load_person_rows(max_per_year=max_per_year)
+    if not rows:
+        log.info("hedonic: no person rows cached — skip [run so_survey first]")
+        return {"premiums": 0, "written": False, "note": "no person rows"}
+    model = fit_hedonic(rows, top_skills=top_skills)
+    out = []
+    for s in model.skills:
+        p = model.premium(s)
+        if p is None:
+            continue
+        out.append({"skill_id": slug(s), "skill_name": s, "premium_pct": round(p * 100, 1),
+                    "n": model.n, "r2": round(model.r2, 3)})
+    _staging_file().write_text(json.dumps(out), encoding="utf-8")
+    log.info("hedonic skill premiums → staging: %d skills (n=%d, R2=%.3f)",
+             len(out), model.n, model.r2)
+    return {"premiums": len(out), "n": model.n, "r2": round(model.r2, 3), "written": True}
+
+
+def load_premiums() -> list[dict]:
+    import json
+    f = _staging_file()
+    return json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+
+
 if __name__ == "__main__":  # pragma: no cover
     sample()

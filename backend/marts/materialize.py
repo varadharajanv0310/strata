@@ -185,8 +185,8 @@ def materialize_from_warehouse() -> None:
         with session_scope() as db:
             for model in (M.MartMarketPulse, M.MartRoleCountry, M.MartRoleLadder,
                           M.MartRoleSkill, M.MartRoleAdjacency, M.MartRoleSkillImportance,
-                          M.MartRoleOutlook, M.MartSkillAdoption,
-                          M.MartRole, M.MartFamily, M.MartCountry, M.MartMeta):
+                          M.MartRoleOutlook, M.MartSkillAdoption, M.MartRolePayLadder,
+                          M.MartSkillPremium, M.MartRole, M.MartFamily, M.MartCountry, M.MartMeta):
                 db.execute(delete(model))
 
             db.add_all([
@@ -217,6 +217,22 @@ def materialize_from_warehouse() -> None:
                 openings_per_year=(float(o[4]) if o[4] is not None else None),
                 outlook_rating=o[5], shortage_flag=o[6], source=o[7]) for o in outlook])
             db.add_all(adoption_marts)
+            # real H-1B pay ladders + hedonic skill premiums (from analytics staging)
+            from backend.analytics.promotion_ladder import load_ladders
+            from backend.ml.hedonic import load_premiums
+            for L in load_ladders():
+                steps = {s["to"]: s for s in L.get("steps", [])}
+                for i, rung in enumerate(L.get("rungs", [])):
+                    st = steps.get(rung["label"], {})
+                    db.add(M.MartRolePayLadder(
+                        role_id=L["role_id"], country_code=L.get("country", "US"), ord=i,
+                        level_label=rung["label"], median=float(rung["median"]), n=int(rung["n"]),
+                        step_abs=(float(st["abs"]) if st else None),
+                        step_pct=(float(st["pct"]) if st else None)))
+            db.add_all([M.MartSkillPremium(
+                skill_id=p["skill_id"], skill_name=p["skill_name"],
+                premium_pct=float(p["premium_pct"]), n=int(p["n"]), r2=float(p["r2"]))
+                for p in load_premiums()])
             db.add_all(rc_rows)
             db.add_all(pulse_rows)
             db.add(M.MartMeta(key="dataset", value={

@@ -224,6 +224,38 @@ class MartSkillAdoption(Base):
     momentum_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
+class MartRolePayLadder(Base):
+    """Served REAL pay ladder per role (H-1B prevailing-wage levels I–IV, US-only,
+    employers pooled). Distinct from the curated multiplier ladder — actual median $
+    + sample n per rung. Roles-only: a seniority question, never a company one."""
+
+    __tablename__ = "mart_role_pay_ladder"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    role_id: Mapped[str] = mapped_column(String(120), index=True)
+    country_code: Mapped[str] = mapped_column(String(2), default="US")
+    ord: Mapped[int] = mapped_column(Integer)
+    level_label: Mapped[str] = mapped_column(String(40))
+    median: Mapped[float] = mapped_column(Float)
+    n: Mapped[int] = mapped_column(Integer)
+    step_abs: Mapped[float | None] = mapped_column(Float, nullable=True)
+    step_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+
+class MartSkillPremium(Base):
+    """Served hedonic skill PREMIUM — the within-market marginal % a skill adds to pay
+    (role×seniority×country×year fixed effects, so it isn't a role/geography artifact)."""
+
+    __tablename__ = "mart_skill_premium"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    skill_id: Mapped[str] = mapped_column(String(120), index=True)
+    skill_name: Mapped[str] = mapped_column(String(120))
+    premium_pct: Mapped[float] = mapped_column(Float)
+    n: Mapped[int] = mapped_column(Integer)
+    r2: Mapped[float] = mapped_column(Float)
+
+
 class MartProvenance(Base):
     """Per-source provenance manifest — the (source_id, snapshot_hash,
     transform_version, row_count, as_of) tuple threaded into the served layer so a
