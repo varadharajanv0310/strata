@@ -374,6 +374,49 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
     return rows
 
 
+def _demand_from_skill_feeds(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_demand CORROBORATION from the skill-bearing vacancy feeds (EURES / HN
+    Who-is-Hiring / RemoteOK / MyCareersFuture). Maps each posting's skills → roles via
+    the curated skill bridge (the same path GH Archive uses), counts role×country, and
+    lands a low-confidence demand index per feed-source. Graceful/empty until those
+    connectors run; never overrides the Common-Crawl/Adzuna primary (DO NOTHING at the
+    call site). Postings without a real country are skipped (no faked geography)."""
+    from collections import defaultdict
+    from backend.warehouse.seed import ROLE_DEFS
+    skill_to_roles: dict[str, list[str]] = {}
+    for d in ROLE_DEFS:
+        for (n, _lvl) in d["sk"]:
+            skill_to_roles.setdefault(slug(n), []).append(d["id"])
+
+    feeds = ["eures/vacancies.json", "hn_hiring/postings.json",
+             "remoteok/postings.json", "mycareersfuture/postings.json"]
+    per_feed: dict[str, dict[tuple, int]] = defaultdict(lambda: defaultdict(int))
+    for rel in feeds:
+        recs = _staging_json(rel)
+        if not recs:
+            continue
+        feed = rel.split("/")[0]
+        for r in recs:
+            country = r.get("country")
+            if country not in known_countries:
+                continue
+            roles: set[str] = set()
+            for sk in (r.get("skills") or []):
+                roles.update(skill_to_roles.get(slug(str(sk)), []))
+            for rid in roles:
+                if rid in known_roles:
+                    per_feed[feed][(rid, country)] += 1
+
+    rows: list[tuple] = []
+    year = max(_YEARS) if _YEARS else 2025
+    for feed, cc in per_feed.items():
+        mx = max(cc.values()) if cc else 1
+        for (rid, country), c in cc.items():
+            idx = round(100 * (c / mx) ** 0.5)
+            rows.append((rid, country, year, float(idx), c, c, "low", slug(feed), False))
+    return rows
+
+
 _OUTLOOK_SRC = {"soc": "bls_ep", "noc": "ca_cops", "anzsco": "jsa", "isco": "ilostat"}
 
 
@@ -634,6 +677,18 @@ def build_warehouse_from_staging() -> None:
                 con.executemany(
                     "INSERT INTO fact_skill_adoption VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
                     "ON CONFLICT (skill_id, country_code, period, metric, ecosystem) DO NOTHING", adoption_rows)
+
+            # fact_demand CORROBORATION ← skill-bearing vacancy feeds (skills→role bridge)
+            feed_demand = _demand_from_skill_feeds(known_roles, known_countries)
+            if feed_demand:
+                for sid in {r[7] for r in feed_demand}:
+                    con.execute(
+                        "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (source_id) DO NOTHING",
+                        (sid, sid.replace("_", " ").title(), "demand", None,
+                         "skill-tagged vacancy feed", False, "2026-06-25"))
+                con.executemany(
+                    "INSERT INTO fact_demand VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                    "ON CONFLICT (role_id, country_code, year) DO NOTHING", feed_demand)
 
             # dim_role + REAL facts ← role_derivation. A derived cluster is NOT just a
             # name: it carries demand from its own unique-posting volume + a skill bag
