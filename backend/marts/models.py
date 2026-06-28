@@ -85,13 +85,18 @@ class MartRoleCountry(Base):
 
     # THREE-LENS salary — advertised (median, above) + realized + official, shown
     # side-by-side, never blended. Nullable: a lens is null when that source has no
-    # data for this role×country (the UI then honestly shows "not enough data").
+    # data (or is below the min-sample floor) → the UI honestly shows "not enough data".
+    # Each lens carries its OWN currency so they are never co-plotted as bare integers
+    # in mismatched units (advertised = country-native; realized/official = source ccy).
+    currency_advertised: Mapped[str | None] = mapped_column(String(3), nullable=True)
     median_realized: Mapped[float | None] = mapped_column(Float, nullable=True)
     sample_realized: Mapped[int | None] = mapped_column(Integer, nullable=True)
     source_realized: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    currency_realized: Mapped[str | None] = mapped_column(String(3), nullable=True)
     median_official: Mapped[float | None] = mapped_column(Float, nullable=True)
     sample_official: Mapped[int | None] = mapped_column(Integer, nullable=True)
     source_official: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    currency_official: Mapped[str | None] = mapped_column(String(3), nullable=True)
 
     score_total: Mapped[float] = mapped_column(Float)
     score_demand: Mapped[float] = mapped_column(Float)

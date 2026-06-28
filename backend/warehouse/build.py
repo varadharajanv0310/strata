@@ -255,7 +255,7 @@ def _demand_overlay(known_roles: set[str], known_countries: set[str]) -> list[tu
                     counts[(rid, row["country"])] = counts.get((rid, row["country"]), 0) + 1
             if counts:
                 mx = max(counts.values())
-                year = max(_YEARS)
+                year = max(_YEARS) if _YEARS else 2025
                 sid = slug("Common Crawl JobPosting")
                 for (rid, code), c in counts.items():
                     if rid not in known_roles or code not in known_countries:
@@ -285,7 +285,7 @@ def _demand_overlay(known_roles: set[str], known_countries: set[str]) -> list[tu
 
         role_events: dict[tuple, int] = {}  # (role_id, year) -> events
         for r in records:
-            year = int(r.get("year") or max(_YEARS))
+            year = int(r.get("year") or (max(_YEARS) if _YEARS else 2025))
             if r.get("role_id"):  # role-scoped record (future format)
                 rid = r["role_id"]
                 code = r.get("country_code", "US")
@@ -350,7 +350,7 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
         median = r.get("median")
         if rid not in known_roles or code not in known_countries or not median:
             continue
-        rows.append((rid, code, int(r.get("year") or max(_YEARS)), float(median),
+        rows.append((rid, code, int(r.get("year") or (max(_YEARS) if _YEARS else 2025)), float(median),
                      r.get("currency_code", "USD"), int(r.get("sample_size") or 0),
                      r.get("confidence", "high"), "official",
                      slug(r.get("source", "official baseline")), False))
@@ -367,7 +367,7 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
             rid = isco_to_role.get(str(r.get("isco08")))
             code, earn = r.get("country"), r.get("earnings")
             if rid in known_roles and code in known_countries and earn:
-                rows.append((rid, code, int(r.get("year") or max(_YEARS)), float(earn) * 12.0,
+                rows.append((rid, code, int(r.get("year") or (max(_YEARS) if _YEARS else 2025)), float(earn) * 12.0,
                              r.get("currency") or "", 0, "med", "official", "ilostat", False))
     except Exception as e:  # noqa: BLE001
         log.info("official salary: ILOSTAT unavailable (%s)", e)
@@ -598,7 +598,7 @@ def _skill_adoption_rows() -> list[tuple]:
             period = str(r.get("period") or r.get("year") or "")
             if not period:
                 continue
-            year = int(period[:4]) if period[:4].isdigit() else max(_YEARS)
+            year = int(period[:4]) if period[:4].isdigit() else (max(_YEARS) if _YEARS else 2025)
             val = (r.get("n") or r.get("downloads") or r.get("views")
                    or r.get("share_or_count") or r.get("value") or 0)
             ecosystem = r.get("ecosystem") or eco

@@ -29,8 +29,13 @@ def _score(rc: M.MartRoleCountry) -> dict:
     }
 
 
-def _lens(median, sample, source) -> dict | None:
-    return {"median": int(median), "sample": sample or 0, "source": source} if median is not None else None
+def _lens(median, sample, source, currency) -> dict | None:
+    """A single salary lens with its OWN currency + basis, so the three lenses are never
+    shown as bare integers in mismatched units. None when the lens has no data."""
+    if median is None:
+        return None
+    return {"median": int(median), "sample": sample or 0, "source": source,
+            "currency": currency or "", "basis": "annual"}
 
 
 def _role_country_payload(rc: M.MartRoleCountry) -> dict:
@@ -52,9 +57,9 @@ def _role_country_payload(rc: M.MartRoleCountry) -> dict:
         # shown on its own with its source; null where that lens has no data so the
         # UI honestly says "not enough data" rather than borrowing another lens.
         "salaryLenses": {
-            "advertised": _lens(rc.median, rc.sample, rc.source),
-            "realized": _lens(rc.median_realized, rc.sample_realized, rc.source_realized),
-            "official": _lens(rc.median_official, rc.sample_official, rc.source_official),
+            "advertised": _lens(rc.median, rc.sample, rc.source, rc.currency_advertised),
+            "realized": _lens(rc.median_realized, rc.sample_realized, rc.source_realized, rc.currency_realized),
+            "official": _lens(rc.median_official, rc.sample_official, rc.source_official, rc.currency_official),
         },
     }
 

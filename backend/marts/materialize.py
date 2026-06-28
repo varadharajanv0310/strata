@@ -24,6 +24,13 @@ log = get_logger("marts.materialize")
 
 YEAR_2020_INDEX = 3  # YEARS = [2017..2025]
 
+# Min-sample suppression (honesty): a salary LENS below its floor is nulled so the UI
+# reads "not enough data" rather than showing a 1-respondent number as if it were a
+# survey. Official anchors are aggregate statistics (no per-respondent sample) — kept
+# and flagged 'official', never suppressed for low n.
+MIN_SAMPLE_REALIZED = 30
+MIN_SAMPLE_ADVERTISED = 10
+
 
 def _group(rows, key_len):
     out = defaultdict(list)
@@ -77,9 +84,9 @@ def materialize_from_warehouse() -> None:
                 except Exception as e:  # noqa: BLE001
                     log.info("marts: optional source unavailable (%s)", str(e).splitlines()[0][:80])
                     return []
-            person = _q("SELECT role_id,country_code,year,median,sample_size,source_id FROM fact_salary_person "
+            person = _q("SELECT role_id,country_code,year,median,sample_size,currency_code,source_id FROM fact_salary_person "
                         "WHERE experience_code='pooled' ORDER BY role_id,country_code,year")
-            official = _q("SELECT role_id,country_code,year,median,sample_size,source_id FROM fact_salary_official "
+            official = _q("SELECT role_id,country_code,year,median,sample_size,currency_code,source_id FROM fact_salary_official "
                           "ORDER BY role_id,country_code,year")
             adjacency = _q("SELECT from_role,to_role,similarity,edge_type,source_id FROM bridge_role_adjacency "
                            "ORDER BY from_role,similarity DESC")
@@ -103,11 +110,14 @@ def materialize_from_warehouse() -> None:
 
         # latest median per (role,country) for the REALIZED + OFFICIAL salary lenses
         # (rows arrive year-ascending, so the last write per key is the newest year).
+        # Carries currency so the lens is never shown as a bare unit-less integer.
+        country_cur = {c[0]: c[3] for c in countries}     # code -> ISO currency (advertised lens basis)
+
         def _latest(rows):
             m: dict[tuple, tuple] = {}
-            for (rid, code, _yr, med, n, src) in rows:
+            for (rid, code, _yr, med, n, cur, src) in rows:
                 if med is not None:
-                    m[(rid, code)] = (float(med), int(n or 0), sources.get(src, src))
+                    m[(rid, code)] = (float(med), int(n or 0), sources.get(src, src), cur or "")
             return m
         realized_m = _latest(person)
         official_m = _latest(official)
@@ -136,20 +146,33 @@ def materialize_from_warehouse() -> None:
             dser = [{"year": int(y), "value": int(round(v))} for (_, _, y, v) in demand_g.get((rid, code), [])]
             fc = [{"year": int(y), "value": int(round(v)), "lo": int(round(lo)), "hi": int(round(hi))}
                   for (_, _, y, v, lo, hi) in forecast_g.get((rid, code), [])]
-            sc = score_m[(rid, code)]
+            # crash-path guard: a role×country with salary but no computed Job Score is
+            # an incomplete cell (score is recomputed post-fusion to cover all cells) —
+            # skip it loudly rather than KeyError the whole materialize (A7).
+            sc = score_m.get((rid, code))
+            if sc is None:
+                log.warning("marts: %s/%s has salary but no job_score — skipped (recompute scores)", rid, code)
+                continue
             rl = realized_m.get((rid, code))
             of = official_m.get((rid, code))
+            # min-sample suppression (honesty): realized lens below the floor → null so
+            # the UI reads "not enough data". Official anchors kept (aggregate, no sample).
+            if rl and rl[1] < MIN_SAMPLE_REALIZED:
+                rl = None
             row = M.MartRoleCountry(
                 role_id=rid, country_code=code,
                 median=float(series[-1]["value"]),
                 demand=dser[-1]["value"] if dser else 0,
                 interest=interest_m.get((rid, code), 0),
+                currency_advertised=country_cur.get(code),
                 median_realized=rl[0] if rl else None,
                 sample_realized=rl[1] if rl else None,
                 source_realized=rl[2] if rl else None,
+                currency_realized=rl[3] if rl else None,
                 median_official=of[0] if of else None,
                 sample_official=of[1] if of else None,
                 source_official=of[2] if of else None,
+                currency_official=of[3] if of else None,
                 score_total=sc[2], score_demand=sc[3], score_pay=sc[4], score_opp=sc[5],
                 score_rank=int(sc[6]), score_pctile=int(sc[7]),
                 sample=int(sample), conf=conf, kind=kind, source=sources.get(source_id, source_id),

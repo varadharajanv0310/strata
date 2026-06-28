@@ -15,20 +15,21 @@ import { Charts } from "./charts.jsx";
      for this role×country honestly reads "not enough data" rather than borrowing another. */
   function SalaryLenses({ lenses, code }) {
     if (!lenses) return null;
-    const cur = (S().C[code] && S().C[code].cur) || "";
     const defs = [["Advertised", "advertised"], ["Realized", "realized"], ["Official", "official"]];
     return (
       <div className="row gap8 mt12" style={{ flexWrap: "wrap" }}>
         {defs.map(([label, key]) => {
           const L = lenses[key];
+          // each lens shows its OWN currency code (advertised native / realized+official
+          // source ccy) so the three are never read as comparable bare integers.
           return (
-            <div key={key} className="col" style={{ flex: 1, minWidth: 84, padding: "7px 10px", borderRadius: 9,
+            <div key={key} className="col" style={{ flex: 1, minWidth: 92, padding: "7px 10px", borderRadius: 9,
               background: "rgba(255,255,255,0.03)", border: "1px solid var(--line)" }}>
               <span className="small" style={{ color: "var(--t3)", fontSize: 9.5, letterSpacing: 0.3, textTransform: "uppercase" }}>{label}</span>
               {L ? (
                 <>
-                  <span className="tnum" style={{ fontSize: 14.5, fontWeight: 700, color: "#fff" }}>{cur}{Math.round(L.median).toLocaleString()}</span>
-                  <span className="small" title={L.source} style={{ color: "var(--t3)", fontSize: 9, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{L.source}</span>
+                  <span className="tnum" style={{ fontSize: 14, fontWeight: 700, color: "#fff" }}>{L.currency ? L.currency + " " : ""}{Math.round(L.median).toLocaleString()}</span>
+                  <span className="small" title={`${L.source} · ${L.basis || "annual"}${L.sample ? " · n=" + L.sample.toLocaleString() : ""}`} style={{ color: "var(--t3)", fontSize: 9, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 130 }}>{L.source}</span>
                 </>
               ) : (
                 <span className="small" style={{ color: "var(--t3)", fontSize: 10.5, marginTop: 4 }}>not enough data</span>
@@ -103,7 +104,10 @@ import { Charts } from "./charts.jsx";
   /* ---------------- Job Score board ---------------- */
   function ScoreBoard({ code, app, limit }) {
     const [open, setOpen] = useState(null);
-    const rows = [...S().roles].sort((a, b) => b.countries[code].score.total - a.countries[code].score.total);
+    // sparse-mart safe: only roles that actually have this country×score (a real run
+    // won't score every role in every country) — never crash on undefined.score.
+    const has = r => r.countries && r.countries[code] && r.countries[code].score;
+    const rows = [...S().roles].filter(has).sort((a, b) => b.countries[code].score.total - a.countries[code].score.total);
     const list = limit ? rows.slice(0, limit) : rows;
     return (
       <div className="col" style={{ gap: 4 }}>
@@ -222,7 +226,16 @@ import { Charts } from "./charts.jsx";
                 <div className="card-title" style={{ fontSize: 16 }}>Job Score board · {S().C[code].name}</div>
                 <div className="card-sub">Ranked by opportunity. Click any row to see how the score is built.</div>
               </div>
-              <Uc.ConfidenceBadge data={{ conf: "high", source: "Composite of all sources", sample: 84000, kind: "job-level", freshness: "3 days", transparency: S().C[code].transparency }} align="right" />
+              {(() => {
+                // honest board provenance: real aggregate sample across the roles present
+                // in this country + a truthful "model composite" label — no fabricated figure.
+                const present = S().roles.filter(r => r.countries && r.countries[code]);
+                const totalSample = present.reduce((s, r) => s + (r.countries[code].sample || 0), 0);
+                return <Uc.ConfidenceBadge align="right" data={{ conf: "high",
+                  source: "Job Score composite (salary + demand + opportunity)", sample: totalSample,
+                  kind: "model", freshness: present[0] ? present[0].countries[code].freshness : "—",
+                  transparency: S().C[code].transparency }} />;
+              })()}
             </div>
             <ScoreBoard code={code} app={app} limit={8} />
           </div>
@@ -280,11 +293,13 @@ import { Charts } from "./charts.jsx";
     const ui = UI;
     const isFav = app.favs.has("role:" + roleId);
 
-    const prev = cd.series[cd.series.length - 2].value;
-    const deltaPct = ((cd.median - prev) / prev) * 100;
-    const fiveYr = cd.series[cd.series.length - 1].value / cd.series[Math.max(0, cd.series.length - 6)].value - 1;
-
-    const ladderVals = role.ladder.map(([title, mult]) => ({ title, val: Math.round(cd.median * mult / (role.ladder.find(l => l[1] === 1) ? 1 : 1)) }));
+    // short-series safe: a real 1-point series must not white-screen the dashboard.
+    const ser = cd.series && cd.series.length ? cd.series : [{ year: 0, value: cd.median }];
+    const prev = ser.length > 1 ? ser[ser.length - 2].value : ser[ser.length - 1].value;
+    const deltaPct = prev ? ((cd.median - prev) / prev) * 100 : 0;
+    const baseIdx = Math.max(0, ser.length - 6);
+    const baseVal = ser[baseIdx].value;
+    const fiveYr = baseVal ? ser[ser.length - 1].value / baseVal - 1 : 0;
 
     return (
       <div className="wrap-wide surface-enter">

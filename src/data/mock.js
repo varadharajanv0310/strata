@@ -50,6 +50,11 @@ export function hydrate(data) {
   STRATA.FYEARS = data.fyears;
   STRATA.RESUME_SAMPLE = data.resume_sample;
   STRATA.RESUME_B = data.resume_b;
+  // new-signal maps the dashboard reads (adoption momentum, hedonic premiums, provenance
+  // lineage); without these the panels that consume them render undefined.
+  STRATA.skillAdoption = data.skillAdoption || {};
+  STRATA.skillPremiums = data.skillPremiums || {};
+  STRATA.provenance = data.provenance || {};
   STRATA.isSeed = !!data.is_seed;
   // marketPulse arrives as role-id arrays; reattach the role object references
   const byId = Object.fromEntries(data.roles.map((r) => [r.id, r]));
