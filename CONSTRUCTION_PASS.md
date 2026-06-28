@@ -180,3 +180,67 @@ the clustering reconciliation, the taxonomy loaders/miner, and the serving chain
 → marts → API → UI) are built and tested. The **new-source connector fleet is the major
 remaining construction**, blocked mid-pass by an external account limit rather than by design —
 it should be built (re-run the fleet, or hand-build) once capacity returns, before the run stage.
+
+---
+
+# UPDATE — resume pass (2026-06-25, round 2) — connector fleet + the rest
+
+Capacity returned (the parallel agent fleet ran successfully this time; the session limit had
+lifted). This pass closed the remaining construction. 8 more granular commits; 47 total ahead of
+main; 32 connector modules now in `backend/ingest/`.
+
+**The connector fleet succeeded.** All 14 remaining council connectors built (one parallel
+fan-out), each importing clean with a `run()`, credential/network-graceful, registered as
+`collect_all` stages in dependency order before the fuse:
+`gov_projections, stack_exchange, package_registries, arxiv, huggingface, wikipedia_pageviews,
+eures, bundesagentur, mycareersfuture, usajobs, cedefop_ovate, hn_hiring, remoteok,
+wikidata_occupations`. With O\*NET (cached) + ILOSTAT (solo) from the first pass, **all 16 council
+connectors are now built.**
+
+**The two empty axes are now fully served (fuse → marts → API → UI):**
+- **demand-outlook** — `gov_projections` → `fact_role_outlook` (national occ code → role
+  per-system crosswalk; string-horizon parser) → `mart_role_outlook` → API `outlook` → an outlook
+  readout on the role dashboard's demand card.
+- **skill-adoption / durability** — registries/SE/arXiv/HF/Wikipedia/Cedefop →
+  `fact_skill_adoption` → `mart_skill_adoption` (computed momentum) → API `skillAdoption` → a
+  rising/fading arrow per skill.
+
+**Skill-bearing vacancy feeds fused** — EURES/HN/RemoteOK/MyCareersFuture postings corroborate
+`fact_demand` via the skills→role bridge (same path as GH Archive), low-confidence, never
+overriding the CC/Adzuna primary.
+
+**Backend-only analytics wired into the UI:**
+- **role-level pay ladder** — `promotion_ladder.run` → staging → `mart_role_pay_ladder` → API
+  `payLadder` → the progression card now shows real H-1B $ rungs (median + n + step %), falling
+  back to the curated multiplier ladder.
+- **hedonic skill premiums** — `hedonic.run` → staging → `mart_skill_premium` → API
+  `skillPremiums` → a per-skill pay-premium % on the importance panel.
+
+**Other:** **Lightcast Open Titles loader** (last taxonomy stub) → role aliases; **provenance
+lineage** (snapshot hash / transform version / row count / as-of) now rendered in the confidence
+popover from a dataset `provenance` map.
+
+All verified: suite green (23) throughout, vite builds clean, app reloads with no console errors;
+nothing run, nothing populated; local commits only, not pushed.
+
+## Still pending after round 2 (honest)
+
+1. **Salary-feed fusion** — `entgeltatlas` (KldB), `usajobs` (OPM series), and the advertised
+   salary on `mycareersfuture`/`remoteok` land their staging but are **not yet fused into a salary
+   fact**, because each needs an occupation crosswalk we don't have (KldB→role, OPM-series→role) or
+   an in-fuse title→role resolver. This is genuine remaining construction (the crosswalk infra),
+   not a run.
+2. **Wikidata adjacency fusion** — `wikidata_occupations` lands occupation QIDs + edges, but
+   mapping Wikidata QID → our role needs a QID→role crosswalk that doesn't exist yet, so its
+   `bridge_role_adjacency` fusion is deferred.
+3. **Mobile-shell parity** — the new dashboard panels (lenses, trajectory, importance, outlook,
+   adoption, real ladder, premiums) are on the desktop shell; `mobile.jsx` not yet updated.
+4. **Every network connector is unverified against live endpoints** — all 14 are coded defensively
+   but correctness (endpoint shapes, gov-portal re-pathing, AU spreadsheet layouts) can only be
+   confirmed by an actual run. This is the standing caveat for the whole new-source fleet.
+
+**Net after round 2:** the connectors, the two empty axes' full serving chains, the ladder/
+hedonic/provenance UI wiring, and the taxonomy loaders are **done**. What's left is (1)+(2) — two
+fact-fusion hookups blocked on occupation-crosswalk infrastructure — plus mobile parity, and then
+the run → validate → populate stages. Resume point: build the KldB/OPM/QID→role crosswalks (or an
+in-fuse title resolver) to land the salary-feed + Wikidata fusion, add mobile parity, then run.
