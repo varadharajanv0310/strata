@@ -385,6 +385,67 @@ def load_lightcast(path: Path | None = None) -> list[tuple[str, str]]:
 
 
 # --------------------------------------------------------------------------- #
+#  Fuse-time crosswalks for the new vacancy/salary feeds (roles-only)           #
+# --------------------------------------------------------------------------- #
+# German KldB-2010 occupation codes the Entgeltatlas connector queries → our roles.
+KLDB_TO_ROLE: dict[str, str] = {
+    "43412": "swe",        # Softwareentwicklung
+    "43414": "swe",        # technische Informatik
+    "43422": "frontend",   # Web-/Multimediaprogrammierung
+    "43432": "data-eng",   # IT-Systemanalyse / -beratung
+    "43442": "data-eng",   # Datenbankadministration
+    "43402": "swe", "43512": "security", "43302": "devops",   # broader fallbacks
+}
+
+# US OPM occupational series the USAJobs connector sweeps → our roles.
+OPM_TO_ROLE: dict[str, str] = {
+    "2210": "swe",         # Information Technology Management
+    "1550": "swe",         # Computer Science
+    "0854": "swe",         # Computer Engineering
+    "0855": "swe",         # Electronics Engineering
+    "1560": "data-sci",    # Data Science
+    "1530": "data-sci",    # Statistician
+    "1515": "data-analyst",  # Operations Research
+}
+
+_TITLE_INDEX: dict[str, str] | None = None
+
+
+def _title_index() -> dict[str, str]:
+    """Normalized surface → role_id, built once from the curated alias seed. The
+    matcher's vocabulary (no warehouse/db dependency, usable inside the fuse)."""
+    global _TITLE_INDEX
+    if _TITLE_INDEX is None:
+        idx: dict[str, str] = {}
+        for role_id, surfaces in CURATED_ALIASES.items():
+            for s in surfaces:
+                n = normalize_surface(s)
+                if n:
+                    idx.setdefault(n, role_id)
+        _TITLE_INDEX = idx
+    return _TITLE_INDEX
+
+
+def match_title_to_role(title: str | None) -> str | None:
+    """Resolve a free-text occupation/title → one of our roles using the curated alias
+    seed: exact normalized match first, then the longest word-bounded alias contained in
+    the title ("Senior Software Engineer II" → swe). Dependency-free (no marts/db), so
+    the warehouse fuse can resolve vacancy-feed titles + Wikidata occupation labels."""
+    n = normalize_surface(title or "")
+    if not n:
+        return None
+    idx = _title_index()
+    if n in idx:
+        return idx[n]
+    padded = f" {n} "
+    best, blen = None, 0
+    for alias, rid in idx.items():
+        if len(alias) >= 4 and len(alias) > blen and f" {alias} " in padded:
+            best, blen = rid, len(alias)
+    return best
+
+
+# --------------------------------------------------------------------------- #
 #  Build                                                                        #
 # --------------------------------------------------------------------------- #
 def create_taxonomy_schema(con: duckdb.DuckDBPyConnection) -> None:

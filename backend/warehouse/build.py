@@ -417,6 +417,73 @@ def _demand_from_skill_feeds(known_roles: set[str], known_countries: set[str]) -
     return rows
 
 
+def _official_from_entgeltatlas(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_salary_official ← Germany Entgeltatlas (bundesagentur wages.json). KldB
+    occupation → role via the curated KldB map; monthly gross → annualized. DE only."""
+    recs = _staging_json("bundesagentur/wages.json")
+    if not recs or "DE" not in known_countries:
+        return []
+    from backend.warehouse.taxonomy import KLDB_TO_ROLE
+    rows = []
+    for r in recs:
+        rid = KLDB_TO_ROLE.get(str(r.get("kldb")))
+        med = r.get("median_gross_monthly")
+        if rid in known_roles and med:
+            rows.append((rid, "DE", int(r.get("year") or (max(_YEARS) if _YEARS else 2025)),
+                         float(med) * 12.0, "EUR", 0, "high", "official", "entgeltatlas", False))
+    return rows
+
+
+def _official_from_usajobs(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_salary_official ← US federal pay (usajobs). OPM series → role; the median
+    of (min+max)/2 across postings is the public-sector pay floor/ceiling per role."""
+    import statistics
+    from collections import defaultdict
+    recs = _staging_json("usajobs/postings.json")
+    if not recs or "US" not in known_countries:
+        return []
+    from backend.warehouse.taxonomy import OPM_TO_ROLE
+    by_role: dict[str, list[float]] = defaultdict(list)
+    for r in recs:
+        rid = OPM_TO_ROLE.get(str(r.get("series")))
+        smin, smax = r.get("salary_min"), r.get("salary_max")
+        mid = (smin + smax) / 2 if smin and smax else (smin or smax)
+        if rid in known_roles and mid:
+            by_role[rid].append(float(mid))
+    year = max(_YEARS) if _YEARS else 2025
+    return [(rid, "US", year, float(statistics.median(v)), "USD", len(v), "med", "official",
+             "usajobs", False) for rid, v in by_role.items()]
+
+
+def _advertised_from_title_feeds(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_salary_job (advertised lens) corroboration from gov-board POSTED salary
+    (MyCareersFuture, SG). Title → role via the curated matcher; median per role×country.
+    Conflict-skipped where Adzuna already has the cell, so it only gap-fills."""
+    import statistics
+    from collections import defaultdict
+    from backend.warehouse.taxonomy import match_title_to_role
+    _CUR = {"SG": "SGD", "US": "USD", "GB": "GBP", "IN": "INR", "CA": "CAD", "AU": "AUD", "DE": "EUR"}
+    by: dict[tuple, list[float]] = defaultdict(list)
+    for rel in ("mycareersfuture/postings.json",):
+        recs = _staging_json(rel)
+        if not recs:
+            continue
+        src = rel.split("/")[0]
+        for r in recs:
+            country = r.get("country")
+            if country not in known_countries:
+                continue
+            rid = match_title_to_role(r.get("title"))
+            smin, smax = r.get("salary_min"), r.get("salary_max")
+            mid = (smin + smax) / 2 if smin and smax else (smin or smax)
+            if rid in known_roles and mid:
+                by[(rid, country, src)].append(float(mid))
+    year = max(_YEARS) if _YEARS else 2025
+    return [(rid, country, "pooled", year, float(statistics.median(vals)), _CUR.get(country, ""),
+             len(vals), "med", "live", "job-level", 1.0, slug(src), False)
+            for (rid, country, src), vals in by.items()]
+
+
 _OUTLOOK_SRC = {"soc": "bls_ep", "noc": "ca_cops", "anzsco": "jsa", "isco": "ilostat"}
 
 
@@ -545,6 +612,40 @@ def _fuse_onet_trajectory(con, known_roles: set[str]) -> tuple[int, int]:
     return n_adj, n_imp
 
 
+def _fuse_wikidata_adjacency(con, known_roles: set[str]) -> int:
+    """Fuse Wikidata occupation→occupation edges → bridge_role_adjacency. Maps each
+    occupation's LABEL → role via the curated matcher (no QID hardcoding) and builds a
+    qid→role index from the same file, so related-occupation QIDs resolve too. Both ends
+    must be known roles. Roles-only: occupation edges only (the connector already strips
+    every employer/org property)."""
+    recs = _staging_json("wikidata/occupations.json")
+    if not recs:
+        return 0
+    from backend.warehouse.taxonomy import match_title_to_role
+    qid_role = {}
+    for r in recs:
+        rid = match_title_to_role(r.get("label"))
+        if rid:
+            qid_role[r.get("occ_qid")] = rid
+    best: dict[tuple, float] = {}
+    for r in recs:
+        src = qid_role.get(r.get("occ_qid"))
+        if not src or src not in known_roles:
+            continue
+        for rel_qid in (r.get("related_occ") or []):
+            dst = qid_role.get(rel_qid)
+            if dst and dst != src and dst in known_roles:
+                best[(src, dst)] = 0.6              # Wikidata "related" = moderate similarity
+    n = 0
+    for (a, b), sim in best.items():
+        con.execute(
+            "INSERT INTO bridge_role_adjacency VALUES (?, ?, ?, ?, ?) "
+            "ON CONFLICT (from_role, to_role, source_id, edge_type) DO NOTHING",
+            (a, b, sim, "related", "wikidata"))
+        n += 1
+    return n
+
+
 # captured for the demand year fallback
 _YEARS: list[int] = []
 
@@ -631,8 +732,11 @@ def build_warehouse_from_staging() -> None:
                     interest_rows,
                 )
 
-            # fact_salary_official ← official national anchors (the THIRD salary lens)
-            official_rows = _official_salary_rows(known_roles, known_countries)
+            # fact_salary_official ← official national anchors (the THIRD salary lens):
+            # baselines + ILOSTAT + Germany Entgeltatlas (KldB) + US federal (OPM series)
+            official_rows = (_official_salary_rows(known_roles, known_countries)
+                             + _official_from_entgeltatlas(known_roles, known_countries)
+                             + _official_from_usajobs(known_roles, known_countries))
             if official_rows:
                 for sid in {r[8] for r in official_rows}:
                     con.execute(
@@ -646,6 +750,18 @@ def build_warehouse_from_staging() -> None:
                     official_rows,
                 )
 
+            # fact_salary_job (advertised) gap-fill ← gov-board POSTED salary (title→role);
+            # conflict-skipped so the Adzuna headline always wins, this only fills holes.
+            adv_rows = _advertised_from_title_feeds(known_roles, known_countries)
+            if adv_rows:
+                con.execute(
+                    "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (source_id) DO NOTHING",
+                    (slug("mycareersfuture"), "MyCareersFuture", "job-level", None,
+                     "SG government board posted salary", False, "2026-06-25"))
+                con.executemany(
+                    "INSERT INTO fact_salary_job VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                    "ON CONFLICT (role_id, country_code, experience_code, year) DO NOTHING", adv_rows)
+
             # bridge_role_adjacency + bridge_role_skill_importance ← O*NET (trajectory)
             con.execute(
                 "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) "
@@ -653,6 +769,7 @@ def build_warehouse_from_staging() -> None:
                 (slug("O*NET"), "O*NET", "taxonomy", None,
                  "O*NET role adjacency + skill importance (cached zip)", False, "2026-06-24"))
             n_adj, n_imp = _fuse_onet_trajectory(con, known_roles)
+            n_adj += _fuse_wikidata_adjacency(con, known_roles)   # roles-only occupation edges
 
             # fact_role_outlook ← gov_projections (the demand-OUTLOOK axis)
             outlook_rows = _role_outlook_rows(known_roles, known_countries)
