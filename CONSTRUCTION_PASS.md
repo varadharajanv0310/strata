@@ -244,3 +244,45 @@ hedonic/provenance UI wiring, and the taxonomy loaders are **done**. What's left
 fact-fusion hookups blocked on occupation-crosswalk infrastructure — plus mobile parity, and then
 the run → validate → populate stages. Resume point: build the KldB/OPM/QID→role crosswalks (or an
 in-fuse title resolver) to land the salary-feed + Wikidata fusion, add mobile parity, then run.
+
+---
+
+# UPDATE — round 3 (2026-06-25) — **BUILD STAGE COMPLETE**
+
+The three remaining items from round 2 are done, plus one more found in passing.
+
+1. **Salary-feed fusion — done.** Added curated `KLDB_TO_ROLE` + `OPM_TO_ROLE` maps and a
+   dependency-free `match_title_to_role` (curated-alias seed, exact → word-bounded substring) to
+   `taxonomy.py`. New fuse readers: **Entgeltatlas** (KldB→role, monthly→annualized) and
+   **USAJobs** (OPM-series→role, median of min/max) → `fact_salary_official`; **MyCareersFuture**
+   (title→role) → `fact_salary_job` advertised gap-fill (Adzuna wins on conflict).
+2. **Wikidata adjacency fusion — done.** `_fuse_wikidata_adjacency` maps each occupation's **label**
+   → role via the matcher (no QID hardcoding) and resolves related-occupation QIDs through the same
+   file's qid→label index → `bridge_role_adjacency` (`source='wikidata'`, roles-only).
+3. **Mobile parity — done (already, by architecture).** `mobile.jsx` imports the **desktop
+   `Roles`** component and renders it for an opened role, and `mobile.css` (`.mobile-app .grid →
+   1fr !important`) stacks every dashboard grid — including the new panels' rows — single-column.
+   **Verified live** at 375px: the role dashboard renders (Role progression, Salary over time,
+   Skills present; all 3 grids stacked single-column; data-driven new panels correctly absent on
+   mock; **zero console errors**). No `mobile.jsx` change was needed.
+4. **(Found in passing) Bundesagentur Jobsuche demand — fused.** The bundesagentur module's demand
+   half (vacancy counts per occupation) now lands in `fact_demand` (DE, occupation→role).
+
+**Every connector now reaches a warehouse fact/bridge:** ILOSTAT/Entgeltatlas/USAJobs →
+`fact_salary_official`; gov_projections → `fact_role_outlook`; SE/PyPI/npm/arXiv/HF/Wikipedia/
+Cedefop → `fact_skill_adoption`; EURES/HN/RemoteOK/MyCareersFuture → `fact_demand` (skills→role);
+Bundesagentur → `fact_salary_official` + `fact_demand`; MyCareersFuture → `fact_salary_job`;
+Wikidata/O\*NET → `bridge_role_adjacency` (+ O\*NET `bridge_role_skill_importance`). The only
+intentional non-fusion is **RemoteOK *salary*** — RemoteOK postings carry no country, so the salary
+can't join a country-scoped lens (its demand is still fused via skills); flagged honestly, not a
+missing wire. Pipeline integrity verified: all 26 collect_all stages' modules import; all 10 fuse
+readers present; fuse + marts + API import clean; suite green (23); both bundles build.
+
+## Build stage: COMPLETE
+There is no remaining **construction**. The architecture, code, connectors, fusion, marts, API, UI
+(desktop + mobile), taxonomy loaders, and analytics wiring are built, wired, and tested. **The only
+things left are runs, validation, and population.** Standing caveat unchanged: **all 14 network
+connectors are coded defensively but UNVERIFIED against live endpoints** — endpoint shapes,
+gov-portal re-pathing, and AU/DE spreadsheet/JSON layouts can only be confirmed by an actual run,
+which is the first step of the next (run) stage. Cached-data work (O\*NET, ladder, hedonic,
+taxonomy) is verified. Nothing was run; nothing was populated; commits are local-only, not pushed.
