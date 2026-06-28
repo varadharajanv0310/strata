@@ -484,6 +484,29 @@ def _advertised_from_title_feeds(known_roles: set[str], known_countries: set[str
             for (rid, country, src), vals in by.items()]
 
 
+def _demand_from_bundesagentur(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+    """fact_demand ← Germany Bundesagentur Jobsuche vacancy COUNTS per occupation
+    (the module's demand half). Occupation keyword → role via the curated matcher;
+    sqrt-normalized index. DE only, low-confidence corroboration."""
+    recs = _staging_json("bundesagentur/vacancies.json")
+    if not recs or "DE" not in known_countries:
+        return []
+    from collections import defaultdict
+    from backend.warehouse.taxonomy import match_title_to_role
+    by_role: dict[str, int] = defaultdict(int)
+    for r in recs:
+        rid = match_title_to_role(r.get("occupation"))
+        cnt = int(r.get("count") or 0)
+        if rid in known_roles and cnt:
+            by_role[rid] += cnt
+    if not by_role:
+        return []
+    mx = max(by_role.values())
+    year = max(_YEARS) if _YEARS else 2025
+    return [(rid, "DE", year, float(round(100 * (c / mx) ** 0.5)), c, c, "low",
+             "bundesagentur-jobsuche", False) for rid, c in by_role.items()]
+
+
 _OUTLOOK_SRC = {"soc": "bls_ep", "noc": "ca_cops", "anzsco": "jsa", "isco": "ilostat"}
 
 
@@ -796,7 +819,9 @@ def build_warehouse_from_staging() -> None:
                     "ON CONFLICT (skill_id, country_code, period, metric, ecosystem) DO NOTHING", adoption_rows)
 
             # fact_demand CORROBORATION ← skill-bearing vacancy feeds (skills→role bridge)
-            feed_demand = _demand_from_skill_feeds(known_roles, known_countries)
+            # + Bundesagentur Jobsuche vacancy counts (DE, occupation→role)
+            feed_demand = (_demand_from_skill_feeds(known_roles, known_countries)
+                           + _demand_from_bundesagentur(known_roles, known_countries))
             if feed_demand:
                 for sid in {r[7] for r in feed_demand}:
                     con.execute(
