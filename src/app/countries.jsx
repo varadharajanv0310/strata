@@ -8,11 +8,25 @@ import { Charts } from "./charts.jsx";
   const { useState } = React;
   const S = () => STRATA;
 
+  // Guarded series access: clamp a fixed index to the array so a thin real series
+  // (even 1 point) renders honestly instead of white-screening. Returns the value
+  // at the clamped index, or `dflt` when the series is empty/absent.
+  const at = (series, i, dflt = 0) => {
+    if (!series || !series.length) return dflt;
+    const j = Math.max(0, Math.min(i, series.length - 1));
+    return series[j]?.value ?? dflt;
+  };
+  // Growth between two fixed indices, clamped; 0 when the series can't support it.
+  const growthAt = (series, lo, hi) => {
+    const a = at(series, lo, 0), b = at(series, hi, 0);
+    return a ? b / a - 1 : 0;
+  };
+
   function countryStat(code) {
     const meds = S().roles.map(r => r.countries[code]);
     const avgPPP = meds.reduce((a, r) => a + S().pppUSD(r.median, code), 0) / meds.length;
     const disclose = meds.reduce((a, r) => a + r.transparency, 0) / meds.length;
-    const growth = meds.reduce((a, r) => a + (r.series[r.series.length - 1].value / r.series[0].value - 1), 0) / meds.length;
+    const growth = meds.reduce((a, r) => a + growthAt(r.series, 0, r.series.length - 1), 0) / meds.length;
     return { avgPPP, disclose, growth };
   }
 
@@ -23,7 +37,7 @@ import { Charts } from "./charts.jsx";
     const ui = UI;
     const byDemand = [...S().roles].sort((a, b) => b.countries[code].demand - a.countries[code].demand);
     const byPay = [...S().roles].sort((a, b) => b.countries[code].median - a.countries[code].median);
-    const byGrowth = [...S().roles].map(r => ({ r, g: r.countries[code].series[8].value / r.countries[code].series[3].value - 1 })).sort((a, b) => b.g - a.g);
+    const byGrowth = [...S().roles].map(r => ({ r, g: growthAt(r.countries[code].series, 3, 8) })).sort((a, b) => b.g - a.g);
     const byDisclosure = [...S().roles].sort((a, b) => b.countries[code].transparency - a.countries[code].transparency);
 
     return (

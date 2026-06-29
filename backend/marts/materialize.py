@@ -49,7 +49,8 @@ def materialize_from_warehouse() -> None:
                 "FROM dim_country ORDER BY ord"
             ).fetchall()
             roles = duck.execute(
-                "SELECT role_id,name,family_id,family_name,family_hue,blurb,ord,is_seed FROM dim_role ORDER BY ord"
+                "SELECT role_id,name,family_id,family_name,family_hue,blurb,ord,is_seed,cluster_lineage "
+                "FROM dim_role ORDER BY ord"
             ).fetchall()
             skills = duck.execute(
                 "SELECT role_id,skill_name,level,ord FROM bridge_role_skill ORDER BY role_id,ord"
@@ -64,7 +65,8 @@ def materialize_from_warehouse() -> None:
                 "FROM fact_salary_job WHERE experience_code='pooled' ORDER BY role_id,country_code,year"
             ).fetchall()
             demand = duck.execute(
-                "SELECT role_id,country_code,year,demand_index FROM fact_demand ORDER BY role_id,country_code,year"
+                "SELECT role_id,country_code,year,demand_index,postings_count FROM fact_demand "
+                "ORDER BY role_id,country_code,year"
             ).fetchall()
             forecast = duck.execute(
                 "SELECT role_id,country_code,year,value,lo,hi FROM fact_demand_forecast ORDER BY role_id,country_code,year"
@@ -114,10 +116,13 @@ def materialize_from_warehouse() -> None:
         country_cur = {c[0]: c[3] for c in countries}     # code -> ISO currency (advertised lens basis)
 
         def _latest(rows):
+            # carry the lens row's YEAR through so each lens can be stamped "(2024)" —
+            # a realized/official lens may be from a different year than the headline (B8).
             m: dict[tuple, tuple] = {}
-            for (rid, code, _yr, med, n, cur, src) in rows:
+            for (rid, code, yr, med, n, cur, src) in rows:
                 if med is not None:
-                    m[(rid, code)] = (float(med), int(n or 0), sources.get(src, src), cur or "")
+                    m[(rid, code)] = (float(med), int(n or 0), sources.get(src, src),
+                                      cur or "", int(yr) if yr is not None else None)
             return m
         realized_m = _latest(person)
         official_m = _latest(official)
@@ -147,7 +152,11 @@ def materialize_from_warehouse() -> None:
             srows = salary_g.get((rid, code))
             series = ([{"year": int(y), "value": int(round(v))} for (_, _, y, v, *_rest) in srows]
                       if srows else [])
-            dser = [{"year": int(y), "value": int(round(v))} for (_, _, y, v) in demand_g.get((rid, code), [])]
+            drows = demand_g.get((rid, code), [])
+            dser = [{"year": int(y), "value": int(round(v))} for (_, _, y, v, *_d) in drows]
+            # latest-year unique-posting count behind the demand cell (A9). Rows are
+            # year-ascending, so the last carries the newest postings_count.
+            postings = int(drows[-1][4] or 0) if drows else 0
             fc = [{"year": int(y), "value": int(round(v)), "lo": int(round(lo)), "hi": int(round(hi))}
                   for (_, _, y, v, lo, hi) in forecast_g.get((rid, code), [])]
             rl = realized_m.get((rid, code))
@@ -157,35 +166,44 @@ def materialize_from_warehouse() -> None:
             if rl and rl[1] < MIN_SAMPLE_REALIZED:
                 rl = None
             # headline median = advertised (salary fact) → realized → official → None.
+            # year_adv stamps the headline (advertised) lens with the year it came from (B8).
             if srows:
                 last = srows[-1]
                 median, sample, conf, kind, freshness, transparency, source_id, is_seed = (
                     float(series[-1]["value"]), last[4], last[5], last[6], last[7], last[8], last[9], bool(last[10]))
                 cur_adv = country_cur.get(code)
+                year_adv = series[-1]["year"]
             elif rl:
                 median, sample, conf, kind, freshness, transparency, source_id, is_seed, cur_adv = (
                     rl[0], rl[1], "med", "person-level", "—", 0.0, "stack-overflow-survey", False, rl[3])
+                year_adv = rl[4]
             elif of:
                 median, sample, conf, kind, freshness, transparency, source_id, is_seed, cur_adv = (
                     of[0], of[1], "med", "official", "—", 0.0, "official-anchor", False, of[3])
+                year_adv = of[4]
             else:                                          # demand-only (derived) role — no salary anywhere
                 median, sample, conf, kind, freshness, transparency, source_id, is_seed, cur_adv = (
                     None, 0, "low", "demand-only", "—", 0.0, "derived", False, None)
+                year_adv = None
             sc = score_m.get((rid, code)) or (rid, code, 0.0, 0.0, 0.0, 0.0, 0, 0)
             row = M.MartRoleCountry(
                 role_id=rid, country_code=code,
                 median=float(median) if median is not None else None,
                 demand=dser[-1]["value"] if dser else 0,
                 interest=interest_m.get((rid, code), 0),
+                postings=postings,
                 currency_advertised=cur_adv,
+                year_advertised=year_adv,
                 median_realized=rl[0] if rl else None,
                 sample_realized=rl[1] if rl else None,
                 source_realized=rl[2] if rl else None,
                 currency_realized=rl[3] if rl else None,
+                year_realized=rl[4] if rl else None,
                 median_official=of[0] if of else None,
                 sample_official=of[1] if of else None,
                 source_official=of[2] if of else None,
                 currency_official=of[3] if of else None,
+                year_official=of[4] if of else None,
                 score_total=sc[2], score_demand=sc[3], score_pay=sc[4], score_opp=sc[5],
                 score_rank=int(sc[6]), score_pctile=int(sc[7]),
                 sample=int(sample), conf=conf, kind=kind, source=sources.get(source_id, source_id),
@@ -240,7 +258,7 @@ def materialize_from_warehouse() -> None:
                     fam_seen[r[2]] = M.MartFamily(id=r[2], name=r[3], hue=r[4], ord=len(fam_seen))
             db.add_all(list(fam_seen.values()))
             db.add_all([M.MartRole(id=r[0], name=r[1], family_id=r[2], family_name=r[3],
-                                   family_hue=r[4], blurb=r[5], ord=r[6]) for r in roles])
+                                   family_hue=r[4], blurb=r[5], ord=r[6], lineage=r[8]) for r in roles])
             db.add_all([M.MartRoleSkill(role_id=s[0], name=s[1], level=s[2],
                                         dura=0, trend="", ord=s[3]) for s in skills])  # dura/trend filled below
             db.add_all([M.MartRoleLadder(role_id=l[0], ord=l[1], title=l[2], mult=l[3]) for l in ladder])

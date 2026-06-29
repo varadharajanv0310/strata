@@ -3,7 +3,7 @@ from __future__ import annotations
 
 DATASET_KEYS = {"countries", "families", "roles", "years", "fyears", "marketPulse", "resume_sample", "resume_b"}
 ROLE_KEYS = {"id", "name", "family", "blurb", "skills", "ladder", "countries"}
-RC_KEYS = {"median", "series", "demandSeries", "forecast", "demand", "interest", "score",
+RC_KEYS = {"median", "series", "demandSeries", "forecast", "demand", "postings", "interest", "score",
            "sample", "conf", "kind", "source", "freshness", "transparency"}
 SCORE_KEYS = {"total", "demand", "pay", "opp", "rank", "pctile"}
 COUNTRY_KEYS = {"code", "name", "cur", "curCode", "natFactor", "pppRate", "transparency", "c1", "c2"}

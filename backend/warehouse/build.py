@@ -60,9 +60,14 @@ def build_warehouse_from_dataset(ds: dict, is_seed: bool = True) -> None:
                   c["transparency"], c["c1"], c["c2"], i)
                  for i, c in enumerate(ds["countries"])],
             )
+            # A11: dim_ppp.col_index (Numbeo cost-of-living) has no real source yet
+            # (COL collection is licence-gated, still out of scope — see
+            # scaffold_sources) and nothing reads it. Rather than write a dead NULL,
+            # we name the columns we actually populate and OMIT col_index — it keeps
+            # its schema-default NULL. Drop-in a real value here once COL lands.
             con.executemany(
-                "INSERT INTO dim_ppp VALUES (?, ?, ?, ?, ?)",
-                [(c["code"], y, c["pppRate"], None, "seed:ppp-flat" if seed else "oecd-ppp")
+                "INSERT INTO dim_ppp (country_code, year, ppp_factor, source) VALUES (?, ?, ?, ?)",
+                [(c["code"], y, c["pppRate"], "seed:ppp-flat" if seed else "oecd-ppp")
                  for c in ds["countries"] for y in years + fyears],
             )
 

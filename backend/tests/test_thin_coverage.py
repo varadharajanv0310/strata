@@ -264,8 +264,11 @@ def test_a4_demand_only_role_has_null_median_cell():
         cell = role["countries"]["GB"]
         assert cell["median"] is None, "no-salary cell must report a null headline median"
         assert cell["demand"] == 42                    # the real demand signal is present
+        assert cell["postings"] == 137                 # honest unique-posting count behind it (A9)
         # all three salary lenses are honestly empty
         assert all(cell["salaryLenses"][k] is None for k in ("advertised", "realized", "official"))
+        # lineage absent here (cluster_lineage=None in the fixture) → null, never fabricated (A10)
+        assert role.get("lineage") is None
 
 
 def test_a4_bare_derived_role_appears_with_empty_countries():

@@ -1,15 +1,19 @@
 """Demand forecasting — back-tested and honest (brief §4/§7).
 
 Validates against held-out history (stores predicted vs actual in
-`fact_forecast_backtest`), then forecasts the horizon with a **confidence band
-derived from real back-test error** that widens with horizon — never a confident
-invented line. A GPU-free numpy baseline (least-squares trend + residual band)
+`fact_forecast_backtest`, and rolls that ledger up into a compact mean-abs-%-error
+summary at `staging/forecast/backtest_summary.json` the serving layer can read),
+then forecasts the horizon with a **confidence band derived from real back-test
+error** that widens with horizon — never a confident invented line. A GPU-free
+numpy baseline (least-squares trend + residual band)
 runs now; if `darts`/`statsmodels` (requirements-ml) are present they are used for
 stronger models. Reads/writes the warehouse only.
 """
 from __future__ import annotations
 
+import json
 import math
+from collections import defaultdict
 
 import numpy as np
 
@@ -20,6 +24,47 @@ from backend.core.logging import get_logger, stage_timer
 log = get_logger("ml.forecasting")
 
 Z = 1.28  # ~80% interval
+
+
+def _write_backtest_summary(bt_rows: list[tuple], holdout: int) -> dict:
+    """A8: surface a COMPACT predicted-vs-actual accuracy summary so the honesty
+    story the back-test computes is actually readable downstream.
+
+    `fact_forecast_backtest` is the full per-(role,country,year) ledger, but nothing
+    queried it — the model's measured error was computed then dropped. We roll it up
+    here into mean-absolute-%-error per role (+ an overall figure) and persist it to
+    a small staging JSON under the same `staging_dir` the warehouse fusion already
+    reads from (`build._staging_json`). That keeps this file the only writer while
+    giving the serving/provenance layer a real "how accurate is the forecast" number
+    to show beside the confidence band, instead of an invented one. Returns the
+    overall summary dict (also logged)."""
+    # bt row = (role, country, year, predicted, actual, abs_error, source_id, is_seed)
+    per_role: dict[str, list[float]] = defaultdict(list)
+    overall: list[float] = []
+    for rid, _code, _yr, pred, actual, abs_err, *_ in bt_rows:
+        if actual:  # % error only meaningful against a non-zero actual
+            pct = abs(pred - actual) / abs(actual) * 100.0
+            per_role[rid].append(pct)
+            overall.append(pct)
+    roles = [
+        {"role_id": rid, "mape": round(sum(v) / len(v), 2), "n": len(v)}
+        for rid, v in sorted(per_role.items())
+    ]
+    summary = {
+        "method": "compute:forecast",
+        "holdout_periods": holdout,
+        "overall_mape": round(sum(overall) / len(overall), 2) if overall else None,
+        "n_backtest_points": len(bt_rows),
+        "per_role": roles,
+    }
+    try:
+        out = settings.staging_dir / "forecast"
+        out.mkdir(parents=True, exist_ok=True)
+        (out / "backtest_summary.json").write_text(
+            json.dumps(summary, indent=2), encoding="utf-8")
+    except Exception as e:  # noqa: BLE001 — staging is best-effort; never fail the run
+        log.warning("backtest summary not written: %s", e)
+    return summary
 
 
 def _fit_predict(years: np.ndarray, vals: np.ndarray, future: np.ndarray) -> np.ndarray:
@@ -79,14 +124,19 @@ def compute_forecasts(rematerialize: bool = False) -> dict:
             con.executemany("INSERT OR REPLACE INTO fact_forecast_backtest VALUES (?,?,?,?,?,?,?,?)", bt_rows)
             con.execute("COMMIT")
             mae = float(np.mean([b[5] for b in bt_rows])) if bt_rows else 0.0
-            log.info("forecast %d rows, backtest %d rows, holdout=%d, MAE=%.2f",
-                     len(fc_rows), len(bt_rows), k, mae)
+            # A8: roll the back-test ledger up into a compact accuracy summary the
+            # serving layer can read (the table itself had no reader before).
+            summary = _write_backtest_summary(bt_rows, k)
+            log.info("forecast %d rows, backtest %d rows, holdout=%d, MAE=%.2f, MAPE=%s%%",
+                     len(fc_rows), len(bt_rows), k, mae, summary.get("overall_mape"))
     finally:
         con.close()
     if rematerialize:
         from backend.marts.materialize import materialize_from_warehouse
         materialize_from_warehouse()
-    return {"forecast_rows": len(fc_rows), "backtest_rows": len(bt_rows), "holdout_periods": k, "mae": round(mae, 2)}
+    return {"forecast_rows": len(fc_rows), "backtest_rows": len(bt_rows),
+            "holdout_periods": k, "mae": round(mae, 2),
+            "overall_mape": summary.get("overall_mape")}
 
 
 def run() -> None:

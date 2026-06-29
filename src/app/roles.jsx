@@ -312,6 +312,14 @@ import { Charts } from "./charts.jsx";
               <h1 className="h1" style={{ color: "#fff" }}>{role.name}</h1>
             </div>
             <div className="body" style={{ maxWidth: 560, marginTop: 2 }}>{role.blurb}</div>
+            {role.lineage && role.lineage.length > 0 && (
+              <div className="small" style={{ color: "var(--t3)", maxWidth: 560, marginTop: 2 }}
+                title="A discovered role — clustered from these member titles, not curated.">
+                <span style={{ color: "var(--t2)", fontWeight: 600 }}>Clustered from</span>{" "}
+                {role.lineage.slice(0, 6).join(" · ")}
+                {role.lineage.length > 6 && <span> +{role.lineage.length - 6} more</span>}
+              </div>
+            )}
           </div>
           <div className="col gap10" style={{ alignItems: "flex-end" }}>
             <div className="row gap8">
@@ -344,7 +352,8 @@ import { Charts } from "./charts.jsx";
           <StatCard>
             <span className="stat-label">Demand vs Interest</span>
             <div className="col gap12 mt16">
-              <DemandInterestGauge label="Market demand" value={cd.demand} color="#4a7cff" />
+              <DemandInterestGauge label="Market demand" value={cd.demand} color="#4a7cff"
+                note={cd.postings != null ? `${cd.postings.toLocaleString()} postings` : null} />
               <DemandInterestGauge label="Learner interest" value={cd.interest} color="#ffcc4d" />
             </div>
             <div className="small mt12" style={{ color: cd.demand > cd.interest ? "var(--good)" : "var(--t3)" }}>
@@ -450,10 +459,16 @@ import { Charts } from "./charts.jsx";
     );
   }
 
-  function DemandInterestGauge({ label, value, color }) {
+  function DemandInterestGauge({ label, value, color, note }) {
     return (
       <div>
-        <div className="row between" style={{ marginBottom: 5 }}><span className="small" style={{ color: "var(--t2)" }}>{label}</span><span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{value}</span></div>
+        <div className="row between" style={{ marginBottom: 5 }}>
+          <span className="small" style={{ color: "var(--t2)" }}>{label}</span>
+          <span className="row gap8" style={{ alignItems: "baseline" }}>
+            {note && <span className="small tnum" style={{ color: "var(--t3)", fontSize: 11 }}>{note}</span>}
+            <span className="tnum" style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{value}</span>
+          </span>
+        </div>
         <div style={{ height: 6, borderRadius: 9, background: "rgba(255,255,255,0.07)", overflow: "hidden" }}>
           <div style={{ width: `${value}%`, height: "100%", background: color, boxShadow: `0 0 10px ${color}`, transition: "width 0.7s" }} />
         </div>

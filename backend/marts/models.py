@@ -7,7 +7,7 @@ Dashboard in a single read. Every row carries provenance + confidence + `is_seed
 """
 from __future__ import annotations
 
-from sqlalchemy import JSON, Boolean, Float, Integer, String
+from sqlalchemy import JSON, Boolean, Float, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from backend.core.db import Base
@@ -47,6 +47,9 @@ class MartRole(Base):
     family_hue: Mapped[int] = mapped_column(Integer)
     blurb: Mapped[str] = mapped_column(String(600))
     ord: Mapped[int] = mapped_column(Integer, default=0)
+    # provenance for DERIVED clusters: JSON list of member titles feeding the cluster
+    # (from dim_role.cluster_lineage). NULL for curated/seed roles. (A10)
+    lineage: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class MartRoleSkill(Base):
@@ -84,21 +87,30 @@ class MartRoleCountry(Base):
     median: Mapped[float | None] = mapped_column(Float, nullable=True)
     demand: Mapped[int] = mapped_column(Integer)
     interest: Mapped[int] = mapped_column(Integer)
+    # honest "N unique postings behind this demand cell" — latest year's
+    # fact_demand.postings_count for this role×country (A9).
+    postings: Mapped[int] = mapped_column(Integer, default=0)
 
     # THREE-LENS salary — advertised (median, above) + realized + official, shown
     # side-by-side, never blended. Nullable: a lens is null when that source has no
     # data (or is below the min-sample floor) → the UI honestly shows "not enough data".
     # Each lens carries its OWN currency so they are never co-plotted as bare integers
     # in mismatched units (advertised = country-native; realized/official = source ccy).
+    # Each lens also carries its OWN source-year so the UI can stamp "(2024)" per
+    # lens — a realized/official lens can be from a different year than the headline,
+    # and showing them year-less invites a false same-period read (B8).
     currency_advertised: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    year_advertised: Mapped[int | None] = mapped_column(Integer, nullable=True)
     median_realized: Mapped[float | None] = mapped_column(Float, nullable=True)
     sample_realized: Mapped[int | None] = mapped_column(Integer, nullable=True)
     source_realized: Mapped[str | None] = mapped_column(String(160), nullable=True)
     currency_realized: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    year_realized: Mapped[int | None] = mapped_column(Integer, nullable=True)
     median_official: Mapped[float | None] = mapped_column(Float, nullable=True)
     sample_official: Mapped[int | None] = mapped_column(Integer, nullable=True)
     source_official: Mapped[str | None] = mapped_column(String(160), nullable=True)
     currency_official: Mapped[str | None] = mapped_column(String(3), nullable=True)
+    year_official: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     score_total: Mapped[float] = mapped_column(Float)
     score_demand: Mapped[float] = mapped_column(Float)

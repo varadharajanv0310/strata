@@ -43,6 +43,11 @@ from backend.core.logging import get_logger
 
 log = get_logger("warehouse.taxonomy")
 
+# Id namespace for mined emergent roles. Kept disjoint from curated dim_role ids
+# (bare slugs like 'swe') and from role_derivation's 'derived:' ids, so a mined node
+# can never shadow a curated birth row. Mirrors that derived-namespace discipline.
+EMERGING_PREFIX = "emerging:"
+
 # --------------------------------------------------------------------------- #
 #  Schema (self-contained; does not touch the core star-schema build)          #
 # --------------------------------------------------------------------------- #
@@ -659,6 +664,11 @@ def mine_emergent_roles(con: duckdb.DuckDBPyConnection, *, min_countries: int = 
 
     known = {r[0] for r in con.execute("SELECT norm FROM dim_role_alias").fetchall()}
     existing = {r[0] for r in con.execute("SELECT role_id FROM dim_role_birth").fetchall()}
+    # Namespace discipline (mirrors the 'derived:' id discipline in role_derivation):
+    # an emerging node lives under the 'emerging:' prefix so its id can NEVER collide
+    # with a curated/canonical dim_role id (bare slugs like 'swe'). We assert this so a
+    # mined node can never shadow a curated birth row.
+    curated_ids = set(_existing_role_ids(con)) or set(CURATED_ALIASES.keys())
 
     by_label: dict[str, dict] = defaultdict(lambda: {"countries": set(), "postings": 0})
     for _, r in df.iterrows():
@@ -675,7 +685,14 @@ def mine_emergent_roles(con: duckdb.DuckDBPyConnection, *, min_countries: int = 
         if len(g["countries"]) < min_countries or lab in known:
             continue                              # too local, or already canonical
         candidates += 1
-        rid = "emerging:" + slug(lab)
+        rid = EMERGING_PREFIX + slug(lab)
+        # namespace discipline: the prefix keeps emerging ids disjoint from curated
+        # dim_role ids (bare slugs) so an emerging node can never shadow a curated
+        # birth row. Assert it holds, then belt-and-suspenders skip any slug that
+        # would (impossibly, absent the prefix) match a curated id.
+        assert rid not in curated_ids, f"emerging id {rid!r} collides with a curated role"
+        if slug(lab) in curated_ids:
+            continue                              # would shadow a curated node — never mint
         if rid in existing:
             continue                              # append-only: never re-date
         countries = sorted(c for c in g["countries"] if c)

@@ -27,7 +27,6 @@ from collections import defaultdict
 
 from backend.core.config import settings
 from backend.core.logging import get_logger
-from backend.warehouse.seed import ROLE_DEFS, SK
 
 log = get_logger("ingest.gh_archive")
 
@@ -74,18 +73,8 @@ LANG_SKILL = {
     "r": "Statistics",
 }
 
-# Build skill -> [role_id, ...] once, from the curated taxonomy.
-def _skill_to_roles() -> dict[str, list[str]]:
-    m: dict[str, list[str]] = defaultdict(list)
-    for d in ROLE_DEFS:
-        for sk_name, _level in d.get("sk", []):
-            m[sk_name].append(d["id"])
-    return m
-
-
-SKILL_ROLES = _skill_to_roles()
-
-
+# NB: the skill→role fan-out lives in the warehouse fuse (build.py), not here —
+# this connector lands skill-scoped event counts only (see run() for why).
 def _staging_dir():
     d = settings.staging_dir / "gh_archive"
     d.mkdir(parents=True, exist_ok=True)
@@ -238,11 +227,17 @@ def run(days: list[str] | None = None, years: list[int] | None = None,
             slot["weight"] += v.get("weight", 0)
             slot["events"] += v.get("events", 0)
 
-    # Fan languages out to skills, then skills to roles. We carry the weighted
-    # event count as the demand magnitude (`events` field of each record).
+    # Fan languages out to SKILLS only. We land skill-scoped event counts; the
+    # warehouse fuse (build.py `_demand_overlay`, GH-Archive branch) owns the
+    # skill→role fan-out itself, via the same curated skill→roles bridge, so it can
+    # apply its own normalization. We deliberately do NOT also emit scope:"role"
+    # records: the fuse's role branch keys on a `role_id` field (the reserved
+    # future per-role/per-country format) which these never carried, so it could
+    # never read them — and re-deriving roles here would only duplicate the work
+    # the fuse already does from the skill records, double-counting role demand.
+    # Hence: skill records are the single honest contract; roles are the fuse's job.
     records: list[dict] = []
     skill_year: dict[tuple[str, int], int] = defaultdict(int)
-    role_year: dict[tuple[str, int], int] = defaultdict(int)
     for year, langs in by_year.items():
         for lang, v in langs.items():
             skill = LANG_SKILL.get(lang)
@@ -252,10 +247,6 @@ def run(days: list[str] | None = None, years: list[int] | None = None,
             skill_year[(skill, year)] += w
     for (skill, year), w in skill_year.items():
         records.append({"scope": "skill", "key": skill, "year": year, "events": w})
-        for rid in SKILL_ROLES.get(skill, []):
-            role_year[(rid, year)] += w
-    for (rid, year), w in role_year.items():
-        records.append({"scope": "role", "key": rid, "year": year, "events": w})
 
     out = _staging_dir() / "demand.json"
     out.write_text(json.dumps(records), encoding="utf-8")

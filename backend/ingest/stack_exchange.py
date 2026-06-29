@@ -55,6 +55,12 @@ DUMP_FILES = {
 }
 HEADERS = {"User-Agent": "strata/1.0 (+research; roles-only job-market explorer)"}
 
+# Wall-clock budget for the (huge) Posts.7z download. MUST stay below the
+# collect_all subprocess budget for this stage (21600s, see pipelines/collect_all.py)
+# so a capped run stops itself and leaves the .part behind cleanly, rather than being
+# SIGKILLed mid-write with no checkpoint. ~600s of headroom is left for parse + teardown.
+STAGE_TIME_CAP_S = 21000.0
+
 # Only count tags we can plausibly tie to a tracked technology skill. The dump has
 # ~60k tags (many one-off / meta); the warehouse fuse does the tag→skill crosswalk,
 # so here we land the RAW tag string and a generous volume floor, and let the fuse
@@ -86,6 +92,15 @@ def _volume_file():
 
 
 def _adjacency_file():
+    """Tag co-occurrence graph — INTENTIONALLY STAGED FOR LATER.
+
+    ``tag_adjacency.json`` is computed and landed but has no warehouse reader yet: the
+    fuse currently consumes only ``tag_volume.json`` (the durability/emergence axis).
+    The co-occurrence pairs are a clean skill-adjacency signal earmarked for a future
+    skill-neighbourhood feature (see this module's header). It is *cheap to produce
+    alongside* the volume pass (same single SAX sweep), so we keep it staged rather
+    than recompute it later — this is a known, deliberate parked artifact, not an orphan.
+    """
     return _staging_dir() / "tag_adjacency.json"
 
 
@@ -149,13 +164,15 @@ def _download_file(name: str, fname: str, force: bool, time_cap_s: float,
         return None
 
 
-def land_raw(force: bool = False, time_cap_s: float = 36000.0,
+def land_raw(force: bool = False, time_cap_s: float = STAGE_TIME_CAP_S,
              which: tuple[str, ...] = ("posts",)) -> dict:
     """Download the requested dump members into the raw cache. Returns {name: path|None}.
 
     Defaults to just ``posts`` (Tags.7z is a convenience catalogue we don't strictly
-    need — question Tags strings are self-describing). ``time_cap_s`` defaults to 10h
-    because Posts.7z is enormous; lower it for a probe run.
+    need — question Tags strings are self-describing). ``time_cap_s`` defaults to
+    ``STAGE_TIME_CAP_S`` (just under the collect_all subprocess budget) so a capped
+    download stops itself cleanly instead of being SIGKILLed mid-write; lower it for
+    a probe run.
     """
     out: dict[str, str | None] = {}
     for key in which:
@@ -338,6 +355,8 @@ def build_staging(max_rows: int | None = None, min_volume: int = 50) -> dict:
     adjacency_rows.sort(key=lambda r: r["n"], reverse=True)
 
     _volume_file().write_text(json.dumps(volume_rows), encoding="utf-8")
+    # tag_adjacency.json is deliberately staged-for-later (no fuse reader yet) — see
+    # _adjacency_file()'s docstring. Written here because it's free off the same sweep.
     _adjacency_file().write_text(json.dumps(adjacency_rows), encoding="utf-8")
 
     summary = {
@@ -368,7 +387,7 @@ def load_adjacency() -> list[dict]:
 # ---------------------------------------------------------------------------
 # orchestrator
 # ---------------------------------------------------------------------------
-def run(force: bool = False, time_cap_s: float = 36000.0,
+def run(force: bool = False, time_cap_s: float = STAGE_TIME_CAP_S,
         max_rows: int | None = None, min_volume: int = 50,
         skip_download: bool = False, **kw) -> dict:
     """Land the dump (unless skipped) then parse it into the two staging files.

@@ -42,7 +42,14 @@ import { Countries } from "./countries.jsx";
                 <UI.FamilyDot family={role.family} />
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, color: "#fff" }}>{role.name}</div>
-                  <div className="small" style={{ color: "var(--t3)" }}>{S().fmtCur(cd.median, app.country)} · ★ {cd.score.total.toFixed(1)}</div>
+                  <div className="small" style={{ color: "var(--t3)" }}>
+                    {S().fmtCur(cd.median, app.country)} · ★ {cd.score.total.toFixed(1)}
+                    {cd.outlook && (
+                      <span style={{ color: cd.outlook.growthPct >= 0 ? "var(--good)" : "var(--bad)", fontWeight: 700 }}>
+                        {" "}· {cd.outlook.growthPct >= 0 ? "▲" : "▼"}{cd.outlook.growthPct >= 0 ? "+" : ""}{cd.outlook.growthPct}% outlook
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <button className="m-sheet-item" onClick={() => { app.go("roles", { roleId: role.id }); onClose(); }}><span className="ic">→</span>Open role dashboard</button>
@@ -163,7 +170,13 @@ import { Countries } from "./countries.jsx";
           <UI.FamilyDot family={role.family} />
           <div className="col" style={{ minWidth: 0, flex: 1, gap: 2 }}>
             <span style={{ fontSize: 14.5, fontWeight: 600, color: "#fff", lineHeight: 1.2 }}>{role.name}</span>
-            <span className="small" style={{ color: "var(--t3)", fontSize: 11.5 }}>{role.family.name} · {S().fmtCompact(cd.median, code)}</span>
+            <span className="small" style={{ color: "var(--t3)", fontSize: 11.5 }}>{role.family.name} · {S().fmtCompact(cd.median, code)}
+              {cd.outlook && (
+                <span style={{ color: cd.outlook.growthPct >= 0 ? "var(--good)" : "var(--bad)", fontWeight: 700 }}>
+                  {" "}· {cd.outlook.growthPct >= 0 ? "▲" : "▼"}{cd.outlook.growthPct >= 0 ? "+" : ""}{cd.outlook.growthPct}%
+                </span>
+              )}
+            </span>
           </div>
           <div className="col" style={{ alignItems: "flex-end", flexShrink: 0, gap: 1 }}>
             <span className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "#fff", lineHeight: 1 }}>{sc.total.toFixed(1)}</span>
@@ -248,7 +261,14 @@ import { Countries } from "./countries.jsx";
                 <div className="small" style={{ color: "var(--t3)", lineHeight: 1.4, marginTop: 4 }}>{r.blurb}</div>
                 <div className="row between" style={{ borderTop: "1px solid var(--line)", paddingTop: 11, marginTop: 11 }}>
                   <div><div className="tnum" style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10, color: "var(--t3)" }}>median · {code}</div></div>
-                  <span className="tag">demand {cd.demand}</span>
+                  <div className="col" style={{ alignItems: "flex-end", gap: 3 }}>
+                    <span className="tag">demand {cd.demand}{cd.postings != null ? ` · ${cd.postings.toLocaleString()} postings` : ""}</span>
+                    {cd.outlook && (
+                      <span className="tnum" style={{ fontSize: 10.5, fontWeight: 700, color: cd.outlook.growthPct >= 0 ? "var(--good)" : "var(--bad)" }}>
+                        {cd.outlook.growthPct >= 0 ? "▲" : "▼"}{cd.outlook.growthPct >= 0 ? "+" : ""}{cd.outlook.growthPct}% outlook
+                      </span>
+                    )}
+                  </div>
                 </div>
               </button>
             );

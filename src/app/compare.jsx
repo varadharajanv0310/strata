@@ -9,6 +9,19 @@ import { Charts } from "./charts.jsx";
   const S = () => STRATA;
   const Uc = UI, Cc = Charts;
 
+  // Guarded series access: clamp a fixed index to the array so a thin real series
+  // (even 1 point) renders honestly instead of white-screening. Returns the value
+  // at the clamped index, or `dflt` when the series is empty/absent.
+  const at = (series, i, dflt = 0) => {
+    if (!series || !series.length) return dflt;
+    const j = Math.max(0, Math.min(i, series.length - 1));
+    return series[j]?.value ?? dflt;
+  };
+  const ratioAt = (series, lo, hi) => {       // value[hi]/value[lo], clamped; 1 when flat/empty
+    const a = at(series, lo, 0), b = at(series, hi, 0);
+    return a ? b / a : 1;
+  };
+
   function RolePickerInline({ onPick, exclude = [], label = "+ Add role" }) {
     const [open, setOpen] = useState(false);
     const ref = React.useRef(null);
@@ -124,13 +137,13 @@ import { Charts } from "./charts.jsx";
   // multi-role overlay charts — 2×2, each chart independently selectable (1–4 roles)
   function RoleOverlay({ roles, country }) {
     const cols = Charts.SERIES_COLORS;
-    const slopes = roles.map(r => { const s = r.countries[country].series; return s[s.length - 1].value / s[0].value; });
+    const slopes = roles.map(r => { const s = r.countries[country].series; return ratioAt(s, 0, s.length - 1); });
     const spread = Math.max(...slopes) - Math.min(...slopes);
     const axes = ["Pay", "Demand", "Opportunity", "Durability", "Growth", "Ceiling"];
     const shape = r => {
       const cd = r.countries[country];
       const dura = Math.round(r.skills.reduce((a, s) => a + s.dura, 0) / r.skills.length);
-      const growth = Math.min(100, (cd.series[8].value / cd.series[0].value - 1) * 130);
+      const growth = Math.min(100, (ratioAt(cd.series, 0, 8) - 1) * 130);
       const ceiling = Math.min(100, r.ladder[r.ladder.length - 1][1] * 52);
       const pay = Math.min(100, S().pppUSD(cd.median, country) / 2000);
       return [pay, cd.demand, cd.score.opp * 10, dura, growth, ceiling];
@@ -351,7 +364,7 @@ import { Charts } from "./charts.jsx";
       const meds = S().roles.map(r => S().pppUSD(r.countries[code].median, code));
       const avgPPP = meds.reduce((x, y) => x + y, 0) / meds.length;
       const disclose = S().roles.reduce((x, r) => x + r.countries[code].transparency, 0) / S().roles.length;
-      const growth = S().roles.reduce((x, r) => { const s = r.countries[code].series; return x + (s[s.length - 1].value / s[0].value - 1); }, 0) / S().roles.length;
+      const growth = S().roles.reduce((x, r) => { const s = r.countries[code].series; return x + (ratioAt(s, 0, s.length - 1) - 1); }, 0) / S().roles.length;
       const top = [...S().roles].sort((x, y) => y.countries[code].median - x.countries[code].median).slice(0, 5);
       return { avgPPP, disclose, growth, top };
     };
@@ -390,7 +403,7 @@ import { Charts } from "./charts.jsx";
           <Charts.MultiLine height={220}
             series={[[a, "#4a7cff"], [b, "#ffcc4d"]].map(([code, color]) => ({
               label: S().C[code].name, color,
-              points: S().YEARS.map((yr, yi) => ({ year: yr, value: Math.round(S().roles.reduce((acc, r) => acc + S().pppUSD(r.countries[code].series[yi].value, code), 0) / S().roles.length) }))
+              points: S().YEARS.map((yr, yi) => ({ year: yr, value: Math.round(S().roles.reduce((acc, r) => acc + S().pppUSD(at(r.countries[code].series, yi), code), 0) / S().roles.length) }))
             }))}
             fmtFn={v => "◊" + Math.round(v / 1000) + "k"} />
           <div className="row gap16 wrap-f mt12">

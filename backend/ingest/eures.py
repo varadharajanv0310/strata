@@ -315,44 +315,21 @@ def load_vacancies() -> list[dict]:
     return json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
 
 
-def build_staging() -> dict:
-    """Aggregate the landed records into vacancy *counts* per country × ESCO occ × skill.
-
-    fact_demand wants a volume signal, so we roll the raw record list up to counts
-    keyed on the join keys the warehouse fuse needs. Still roles-only — no employer
-    ever enters the aggregation. Writes ``vacancy_counts.json`` beside the raw landing.
-    """
-    rows = load_vacancies()
-    counts: dict[tuple, dict] = {}
-    for r in rows:
-        country, occ = r.get("country", ""), r.get("esco_occ", "")
-        skills = r.get("skills") or [""]
-        for skill in skills:
-            k = (country, occ, skill)
-            agg = counts.setdefault(k, {
-                "country": country, "esco_occ": occ, "skill": skill,
-                "vacancies": 0, "last_date": "",
-            })
-            agg["vacancies"] += 1
-            d = r.get("date", "")
-            if d > agg["last_date"]:
-                agg["last_date"] = d
-    out = list(counts.values())
-    p = _staging_dir() / "vacancy_counts.json"
-    p.write_text(json.dumps(out), encoding="utf-8")
-    log.info("EURES staging: %d (country×occ×skill) demand cells", len(out))
-    return {"cells": len(out), "path": str(p)}
-
-
 def run(**kw) -> dict:
-    """Land EURES vacancies + build the demand-cell staging. Connector entrypoint."""
+    """Land EURES vacancies. Connector entrypoint.
+
+    We land the normalized raw record list (``vacancies.json``) and stop there: the
+    warehouse fuse (build.py ``_vacancy_feed_overlay``) consumes that raw list directly
+    and does its OWN per-(role, country) count using the curated skill→role bridge.
+    We previously also wrote a pre-aggregated ``vacancy_counts.json`` (grouped by
+    country × ESCO-occ × skill), but nothing ever read it — the fuse counts at a
+    different grain — so it was a dead artifact. Dropped to keep staging honest.
+    """
     rows = fetch_vacancies(**kw)
-    agg = build_staging() if rows else {"cells": 0, "path": ""}
     return {
         "rows": len(rows),
         "countries": sorted({r["country"] for r in rows if r["country"]}),
         "de_rows": sum(1 for r in rows if r["country"] in OUR_EURES_COUNTRIES),
-        "cells": agg["cells"],
         "written": bool(rows),
     }
 

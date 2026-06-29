@@ -6,12 +6,27 @@ endpoints (brief §7). Provenance + confidence travel on every figure.
 """
 from __future__ import annotations
 
+import json
 from collections import defaultdict
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from backend.marts import models as M
+
+
+def _lineage(role: M.MartRole) -> list | None:
+    """Member titles of a DERIVED role cluster (dim_role.cluster_lineage), parsed from
+    JSON → list so derived-role provenance survives to serving. None for curated roles
+    (and for anything that isn't a JSON list)."""
+    raw = getattr(role, "lineage", None)
+    if not raw:
+        return None
+    try:
+        v = json.loads(raw)
+    except (TypeError, ValueError):
+        return None
+    return v if isinstance(v, list) else None
 
 
 def _country_payload(c: M.MartCountry) -> dict:
@@ -29,13 +44,14 @@ def _score(rc: M.MartRoleCountry) -> dict:
     }
 
 
-def _lens(median, sample, source, currency) -> dict | None:
-    """A single salary lens with its OWN currency + basis, so the three lenses are never
-    shown as bare integers in mismatched units. None when the lens has no data."""
+def _lens(median, sample, source, currency, year=None) -> dict | None:
+    """A single salary lens with its OWN currency + basis + source-year, so the three
+    lenses are never shown as bare integers in mismatched units OR as if they shared a
+    period (the UI stamps "(2024)" from `year`). None when the lens has no data."""
     if median is None:
         return None
     return {"median": int(median), "sample": sample or 0, "source": source,
-            "currency": currency or "", "basis": "annual"}
+            "currency": currency or "", "basis": "annual", "year": year}
 
 
 def _role_country_payload(rc: M.MartRoleCountry) -> dict:
@@ -45,6 +61,7 @@ def _role_country_payload(rc: M.MartRoleCountry) -> dict:
         "demandSeries": rc.demand_series,
         "forecast": rc.forecast,
         "demand": rc.demand,
+        "postings": rc.postings,
         "interest": rc.interest,
         "score": _score(rc),
         "sample": rc.sample,
@@ -57,9 +74,11 @@ def _role_country_payload(rc: M.MartRoleCountry) -> dict:
         # shown on its own with its source; null where that lens has no data so the
         # UI honestly says "not enough data" rather than borrowing another lens.
         "salaryLenses": {
-            "advertised": _lens(rc.median, rc.sample, rc.source, rc.currency_advertised),
-            "realized": _lens(rc.median_realized, rc.sample_realized, rc.source_realized, rc.currency_realized),
-            "official": _lens(rc.median_official, rc.sample_official, rc.source_official, rc.currency_official),
+            "advertised": _lens(rc.median, rc.sample, rc.source, rc.currency_advertised, rc.year_advertised),
+            "realized": _lens(rc.median_realized, rc.sample_realized, rc.source_realized,
+                              rc.currency_realized, rc.year_realized),
+            "official": _lens(rc.median_official, rc.sample_official, rc.source_official,
+                              rc.currency_official, rc.year_official),
         },
     }
 
@@ -105,10 +124,18 @@ def _pay_ladder_by_role(db: Session, role_id: str | None = None) -> dict:
 
 
 def _premium_map(db: Session) -> dict:
-    """skill_id → {premium_pct, n, r2} (hedonic within-market marginal skill premium)."""
+    """skill_id → {premium_pct, n, r2} (hedonic within-market marginal skill premium).
+
+    hedonic.run emits skill_id == slug(skill_name), so the primary key matches the UI's
+    slugged-name lookup. We ALSO key by slug(skill_name) as a fallback (B7) so the lookup
+    still hits if a premium row ever carries a skill_id that diverges from the slug."""
+    from backend.warehouse.build import slug
+
     out: dict[str, dict] = {}
     for p in db.scalars(select(M.MartSkillPremium)):
-        out[p.skill_id] = {"premiumPct": round(p.premium_pct, 1), "n": p.n, "r2": p.r2}
+        rec = {"premiumPct": round(p.premium_pct, 1), "n": p.n, "r2": p.r2}
+        out[p.skill_id] = rec
+        out.setdefault(slug(p.skill_name), rec)
     return out
 
 
@@ -182,6 +209,7 @@ def assemble_dataset(db: Session) -> dict:
             "id": r.id, "name": r.name,
             "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue},
             "blurb": r.blurb,
+            "lineage": _lineage(r),
             "skills": skills_by_role.get(r.id, []),
             "ladder": ladder_by_role.get(r.id, []),
             "payLadder": pay_ladder.get(r.id, []),
@@ -274,7 +302,7 @@ def get_role(db: Session, role_id: str) -> dict | None:
         countries[rc.country_code] = pay
     return {"id": r.id, "name": r.name,
             "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue},
-            "blurb": r.blurb, "skills": skills, "ladder": ladder,
+            "blurb": r.blurb, "lineage": _lineage(r), "skills": skills, "ladder": ladder,
             "payLadder": _pay_ladder_by_role(db, role_id).get(role_id, []),
             "trajectory": _trajectory_by_role(db, role_id).get(role_id, []),
             "importance": _importance_by_role(db, role_id).get(role_id, []),
