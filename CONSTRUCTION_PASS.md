@@ -286,3 +286,85 @@ connectors are coded defensively but UNVERIFIED against live endpoints** — end
 gov-portal re-pathing, and AU/DE spreadsheet/JSON layouts can only be confirmed by an actual run,
 which is the first step of the next (run) stage. Cached-data work (O\*NET, ladder, hedonic,
 taxonomy) is verified. Nothing was run; nothing was populated; commits are local-only, not pushed.
+
+---
+
+# UPDATE — round 4 (2026-06-25) — the FINAL construction pass (audit-driven) + the LLM layer
+
+A full read-only **audit council** (5 layer-auditors + chair, file-grounded) produced a ~50-item
+punch-list across 8 areas — far beyond the known gaps. Every item was then built/fixed (mostly via
+disjoint-file agent fan-outs, integrated + verified here). **Suite 40 passed; both desktop+mobile
+bundles build; the run-gate executes read-only; the roles-only guardrail held.** 5 granular commits.
+
+## The audit found (and we fixed) — by the Definition of Done
+
+**Crash-safety (no real run aborts) — all green.** `materialize` `score_m.get`+default not KeyError
+(A1); 5 unguarded `max(_YEARS)` sites guarded (A2); **`import json` added to taxonomy.py** — it
+*would* have `NameError`'d the first real emergent-mining publish (F1); short-series guards in
+roles/countries/compare so a real 1-point series never white-screens (C4); ScoreBoard filters to
+roles with a score (C6); the `validate_run` row-floor gate (G2).
+
+**Honesty contract (no number is a lie) — all green.** Three-lens salary now carries **its own
+currency + basis + source-year** column→mart→service→render — the flagship feature no longer
+co-plots EUR/USD/×12 as bare integers (B2/C2/B8); **min-sample suppression** end-to-end (a realized
+lens below n=30 reads "not enough data"; official anchors kept + flagged) (B3/C3); provenance row
+counts now include official/outlook/adoption + source-dir hints for all ~15 sources, so snapshots
+hash (B4/B5); the fabricated `{sample:84000,'3 days'}` board badge replaced with a real aggregate
+(C5); a **seed/demo banner** (C7); monthly→annual `×12` guarded by period + **per-country PPP-anchored
+sanity bounds** (no $5M median) (A6); **deterministic `fact_demand` source precedence** — a primary
+is never clobbered by a corroborator (A3).
+
+**Whole-feature surfacing (nothing computed-then-dropped) — all green.** Typed `/api/roles/{id}`
+now carries lenses/outlook/ladder/trajectory/importance (was stripping them) (B1); **derived roles
+reach the served marts** via a union-spine materialize (was dropped — the entire role-derivation
+output was unsurfaced) (A4); derived skills land in `dim_skill` (no durability=0 ghosts) (A5);
+`hydrate()` copies skillAdoption/skillPremiums/provenance (three signals were rendering `undefined`)
+(C1); `postings_count` served as the honest "N postings behind this" (A9); derived-cluster lineage
+survives to serving (A10); forecast back-test surfaced as a per-role MAPE summary (A8); dead
+`dim_ppp.col_index` NULL stopped (A11).
+
+**Connector catalog truthful — all green.** `run_connector` reaches **all 29 real connectors** (the
+stale scaffolds no longer shadow stack_exchange/esco/onet/so_survey/… and the 16 council connectors
+are no longer absent) (E1/E2); cedefop URL + usajobs key config slots (E3/E8); count_stage dir-name
+fixes (E4); orphan artifacts resolved — gh_archive role records dropped, eures vacancy_counts dropped,
+stack_exchange tag_adjacency documented-as-parked (E5/E6/E7); stack_exchange time-cap below the stage
+budget (E9).
+
+**Taxonomy/crosswalk built — all green.** `load_crosswalk_file` wired (staging/crosswalks/<system>.csv
+drop-in) (F2); real anchor codes seeded for noc2021/anzsco/ssoc/kldb (CA/AU/SG/DE) (F3); emergent-miner
+stores real counts (F4); `normalize_surface` robust to Tech Lead/Head-of + a 7-case test (F5); honest
+crosswalk confidence tiers (F7); emerging-id namespace assert (F8); docstring (F9).
+
+**Scale headroom — green.** O(n²) `AgglomerativeClustering` replaced with a **FAISS kNN-graph
+threshold clusterer** in both role_derivation + fingerprint — preserves the no-fixed-k threshold
+semantics, scales past the ~50k-row cap; MiniLM clustering reframed honestly as preprocessing (H1/H3).
+
+**Validation gate — green.** `backend/pipelines/validate_run.py` (row-floors, PPP-anchored sanity
+bounds, schema contract, min-sample assertion, disclosure) wired into `publish_served` as a gate
+(`warn` default / `strict` refuses to publish); a deliberately-thin pytest fixture exercises the
+suppression/sparse-mart/derived paths the seed masks (10 tests) (G1/G3).
+
+## The LLM extraction layer (the GPU differentiator) — built, role-only, ready to run, NOT run
+
+- **`backend/ml/llm_extract.py`** — vLLM 7B-FP8 guided-JSON corpus extraction. Schema (verified
+  roles-only — **zero employer/company/industry/team fields**): `disambiguated_role, role_confidence,
+  skills` (vocab-clamped), `skills_emerging` (free), `seniority, years_required,
+  responsibilities_summary, work_arrangement, comp_structure, language, abstain, honesty_flag`. Lazy
+  heavy deps → imports clean + skips gracefully without the GPU stack; resumable per shard.
+- **`backend/ml/extract_validate.py`** — **NO hand-labels**: (1) ground-truth — extracted role/skills
+  vs O\*NET occupation→skill + ESCO + the title-resolver (real agreement %); (2) LLM-as-judge for the
+  fuzzy responsibility summary; (3) self-consistency (temp-varied re-extraction) + cross-field logic.
+  Per-field **TIER** gating: `ground-truth`=surfaceable-as-fact / `judge`+`self-consistency`=moderate /
+  `unvalidated`=store-only, never surfaced as fact.
+- Both wired as `collect_all` stages (between common_crawl and gpu_normalize) — build-only this pass.
+
+## Construction status: COMPLETE
+Every Definition-of-Done box is green. The architecture, all connectors + their fusion, the marts,
+the typed API, the UI (desktop + mobile), the taxonomy/crosswalk loaders, the honesty/correctness
+invariants, the LLM extraction + no-hand-label validation pipeline, and the run-gate are **built,
+wired, and tested-on-seed (suite 40)**. **The only stages left are: smoke test → real run → validate
+→ populate → publish.** Standing caveat: every **network connector AND the LLM extraction** are coded
+defensively but **UNVERIFIED until an actual run** (endpoint shapes, gov-portal drift, and 7B
+extraction accuracy can only be confirmed by running them — extraction accuracy is then measured by
+the no-hand-label harness, not assumed). Nothing was run or populated; all commits are local on
+`build-pass`, not pushed.
