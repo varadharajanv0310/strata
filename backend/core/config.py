@@ -62,12 +62,26 @@ class Settings(BaseSettings):
     adzuna_app_key: str = ""
     lightcast_client_id: str = ""
     lightcast_client_secret: str = ""
+    # Cedefop Skills-OVATE open-data download URL — the portal moves periodically, so
+    # the connector reads this override via getattr and stays gracefully disabled when unset.
+    cedefop_ovate_url: str | None = Field(None, validation_alias="CEDEFOP_OVATE_URL")
+    # USAJOBS API: free Authorization-Key + a contact email (required in the User-Agent).
+    # Both optional → the connector skips+flags gracefully when absent.
+    usajobs_api_key: str | None = Field(None, validation_alias="USAJOBS_API_KEY")
+    usajobs_email: str | None = Field(None, validation_alias="USAJOBS_EMAIL")
 
     # ---- GPU / ML ----
     ml_device: str = "cuda"
     embed_model: str = "sentence-transformers/all-MiniLM-L6-v2"
     embed_batch_size: int = 256
     ml_vram_budget_gb: int = 16
+
+    # cedefop_ovate.py reads the override as ``getattr(settings, "CEDEFOP_OVATE_URL")``
+    # (uppercase). pydantic stores the field lowercased, so expose an uppercase alias
+    # property to satisfy that getattr; stays None (gracefully disabled) when unset.
+    @property
+    def CEDEFOP_OVATE_URL(self) -> str | None:  # noqa: N802
+        return self.cedefop_ovate_url
 
     # ---------- derived paths / helpers ----------
     def _resolve(self, p: str) -> Path:

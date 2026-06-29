@@ -6,8 +6,10 @@ Two jobs from the brainstorm, at scale:
      document* — normalized title ⊕ skill-bag ⊕ department ⊕ salary-band — so "Data
      Engineer" (Spark/Airflow) and "Analytics Engineer" (dbt/Looker) stay distinct
      despite near-identical titles, and "MTS" (zero title signal) still lands via its
-     skills. Embedded on the RTX 5080 (reusing role_derivation's MiniLM path) and
-     clustered; dense clusters become candidate role nodes.
+     skills. The MiniLM embedding is **preprocessing**, not the product: postings are
+     embedded on the RTX 5080 (reusing role_derivation's MiniLM path), then grouped by
+     a SUB-QUADRATIC threshold clusterer (FAISS kNN graph → connected components at the
+     cosine threshold). Dense clusters become candidate role nodes.
 
   2. **Cross-board dedup so "millions" is honest.** Block on (employer, country) →
      MinHash signatures over shingles of (title+description) → collapse near-dups.
@@ -15,6 +17,13 @@ Two jobs from the brainstorm, at scale:
 
 The composite-document builder is deterministic + testable. The clustering + MinHash
 dedup are implemented here and proven on a bounded sample before any scale run.
+
+Scale note: the original ``AgglomerativeClustering(distance_threshold=…, linkage=
+'average')`` materialized an O(n²) distance matrix and OOM'd past ~30-50k rows, which
+capped the whole pipeline. ``threshold_cluster`` below preserves the same no-fixed-k,
+cosine-distance-threshold semantics but builds only a sparse kNN graph (FAISS), so it
+scales to the corpus. sklearn Agglomerative is kept ONLY as a small-n exact fallback
+when FAISS is absent (guarded by a row cap).
 """
 from __future__ import annotations
 
@@ -116,6 +125,90 @@ def extract_skills(text: str | None, limit: int = 12) -> list[str]:
 
 
 # --------------------------------------------------------------------------- #
+#  sub-quadratic threshold clusterer (FAISS kNN graph → connected components)   #
+# --------------------------------------------------------------------------- #
+# Default exact-fallback row cap: above this, an O(n²) agglomerative distance
+# matrix is too large to materialize, so we refuse the exact path and require the
+# FAISS graph (never silently OOM).
+_AGGLO_MAX_N = 12_000
+
+
+def threshold_cluster(emb, *, distance_threshold: float = 0.32, knn: int = 32) -> list[int]:
+    """Group L2-normalized embeddings into clusters at a cosine-distance THRESHOLD,
+    with NO fixed k — the same semantics the old AgglomerativeClustering carried, but
+    sub-quadratic in memory.
+
+    Strategy (preferred): build a sparse k-nearest-neighbour graph with FAISS
+    (inner-product on normalized vectors = cosine similarity), keep only edges with
+    cosine distance < ``distance_threshold`` (i.e. similarity > 1 - threshold), then
+    take connected components via union-find. This touches only ``n·knn`` similarities
+    instead of the full n² matrix, so it scales to the corpus.
+
+    Fallback (small n only): sklearn AgglomerativeClustering with the identical
+    distance_threshold / cosine / average-linkage settings, guarded by ``_AGGLO_MAX_N``
+    so it can never materialize an OOM-sized distance matrix. Determinism: both paths
+    are order-deterministic for a fixed embedding matrix.
+    """
+    import numpy as np
+
+    x = np.ascontiguousarray(np.asarray(emb, dtype="float32"))
+    n = x.shape[0]
+    if n == 0:
+        return []
+    if n == 1:
+        return [0]
+    sim_floor = 1.0 - float(distance_threshold)
+
+    try:
+        import faiss
+
+        # renormalize defensively so inner product == cosine similarity
+        faiss.normalize_L2(x)
+        index = faiss.IndexFlatIP(x.shape[1])
+        index.add(x)
+        k = min(knn + 1, n)  # +1: the first neighbour is the point itself
+        sims, nbrs = index.search(x, k)
+
+        parent = list(range(n))
+
+        def find(a):
+            while parent[a] != a:
+                parent[a] = parent[parent[a]]
+                a = parent[a]
+            return a
+
+        def union(a, b):
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[max(ra, rb)] = min(ra, rb)
+
+        for i in range(n):
+            for j_pos in range(k):
+                j = int(nbrs[i, j_pos])
+                if j == i or j < 0:
+                    continue
+                if float(sims[i, j_pos]) >= sim_floor:
+                    union(i, j)
+
+        # relabel roots to contiguous 0..m-1 in first-seen order (deterministic)
+        remap: dict[int, int] = {}
+        return [remap.setdefault(find(i), len(remap)) for i in range(n)]
+    except ImportError:
+        if n > _AGGLO_MAX_N:
+            raise RuntimeError(
+                f"threshold_cluster: FAISS unavailable and n={n} exceeds the exact "
+                f"agglomerative cap ({_AGGLO_MAX_N}); install faiss for scale runs"
+            )
+        from sklearn.cluster import AgglomerativeClustering
+
+        labels = AgglomerativeClustering(
+            n_clusters=None, distance_threshold=distance_threshold,
+            metric="cosine", linkage="average",
+        ).fit_predict(x)
+        return [int(v) for v in labels]
+
+
+# --------------------------------------------------------------------------- #
 #  clustering — composite fingerprint, embedded on the GPU                      #
 # --------------------------------------------------------------------------- #
 def cluster_fingerprints(
@@ -144,7 +237,6 @@ def cluster_fingerprints(
 
     try:
         import numpy as np
-        from sklearn.cluster import AgglomerativeClustering
 
         from backend.core.config import settings
         from backend.ml.role_derivation import _canon_title, _get_model
@@ -153,10 +245,11 @@ def cluster_fingerprints(
         device = str(getattr(model, "device", "?"))
         emb = model.encode(docs, batch_size=settings.embed_batch_size,
                            normalize_embeddings=True, show_progress_bar=False)
-        labels = AgglomerativeClustering(
-            n_clusters=None, distance_threshold=distance_threshold,
-            metric="cosine", linkage="average",
-        ).fit_predict(np.asarray(emb, dtype="float32"))
+        # sub-quadratic threshold clustering (FAISS kNN graph → connected components),
+        # same no-fixed-k cosine-threshold semantics as the old agglomerative path but
+        # without the O(n²) distance matrix that capped scale.
+        labels = threshold_cluster(
+            np.asarray(emb, dtype="float32"), distance_threshold=distance_threshold)
         mode = "embed"
     except Exception as e:  # noqa: BLE001 — never silently sell a lexical run as GPU
         log.warning("fingerprint: embed path unavailable (%s) — LEXICAL fallback", e)

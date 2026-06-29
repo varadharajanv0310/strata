@@ -44,8 +44,33 @@ class ForecastPoint(BaseModel):
     hi: int
 
 
-class RoleCountryOut(BaseModel):
+class SalaryLensOut(BaseModel):
     median: int
+    sample: int
+    source: str | None = None
+    currency: str
+    basis: str
+
+
+class SalaryLensesOut(BaseModel):
+    # each lens is null where that lens has no data (honest "not enough data")
+    advertised: SalaryLensOut | None = None
+    realized: SalaryLensOut | None = None
+    official: SalaryLensOut | None = None
+
+
+class OutlookOut(BaseModel):
+    horizon: int
+    growthPct: float
+    openingsPerYear: float | None = None
+    rating: str | None = None
+    shortage: str | None = None
+    source: str | None = None
+
+
+class RoleCountryOut(BaseModel):
+    # median is null where the role/country has no salary number (honest gap)
+    median: int | None = None
     series: list[SeriesPoint]
     demandSeries: list[SeriesPoint]
     forecast: list[ForecastPoint]
@@ -58,6 +83,35 @@ class RoleCountryOut(BaseModel):
     source: str
     freshness: str
     transparency: float
+    # three salary lenses (advertised / realized / official), each on its own basis
+    salaryLenses: SalaryLensesOut | None = None
+    # forward demand-outlook (official occupation projection), when available
+    outlook: OutlookOut | None = None
+
+
+class PayLadderStepOut(BaseModel):
+    ord: int
+    label: str
+    median: int
+    n: int
+    stepAbs: int | None = None
+    stepPct: float | None = None
+    country: str
+
+
+class TrajectoryEdgeOut(BaseModel):
+    to: str
+    name: str
+    similarity: float
+    type: str
+    source: str | None = None
+
+
+class SkillImportanceOut(BaseModel):
+    skill: str
+    importance: float
+    essential: bool
+    source: str | None = None
 
 
 class RoleOut(BaseModel):
@@ -67,6 +121,10 @@ class RoleOut(BaseModel):
     blurb: str
     skills: list[SkillOut]
     ladder: list[list[Any]]
+    # real H-1B pay ladder + roles-only adjacency + O*NET/ESCO skill importance
+    payLadder: list[PayLadderStepOut] = []
+    trajectory: list[TrajectoryEdgeOut] = []
+    importance: list[SkillImportanceOut] = []
     countries: dict[str, RoleCountryOut]
 
 

@@ -3,12 +3,13 @@
 Roles are **not** a fixed list. Cluster postings per country into canonical roles;
 a role enters the catalog only when it clears the **minimum posting-volume floor**
 (``ROLE_VOLUME_FLOOR``, config) for the period. Different countries surface different
-roles organically.
+roles organically. Grouping per (country) also blocks the clusterer so n stays bounded.
 
 The unit of clustering is the **composite fingerprint** — title ⊕ skills ⊕ department
 ⊕ salary-band (built by ``_composite_docs`` via ``fingerprint.composite_document``),
-*not* the bare title. This is the SAME representation ``fingerprint.cluster_fingerprints``
-uses at scale, so role discovery and the scale path can't diverge (there is no longer a
+*not* the bare title. The MiniLM embedding of that fingerprint is **preprocessing**, not
+the product. This is the SAME representation ``fingerprint.cluster_fingerprints`` uses at
+scale, so role discovery and the scale path can't diverge (there is no longer a
 title-only clustering path): "Data Engineer" (Spark) and "Analytics Engineer" (dbt) stay
 distinct despite near-identical titles, and a title-less "MTS" still lands via its skills.
 
@@ -17,9 +18,12 @@ that cleared the floor: (role_id, country, label_title, posting_count, member_ti
 The warehouse build promotes these into ``dim_role`` (is_seed=False) where present,
 otherwise keeps the curated catalogue.
 
-hdbscan is not installed, so the sklearn AgglomerativeClustering fallback is used
-(matches the brief). When the embedding stack itself can't import, a deterministic
-normalized-title grouping is used so the stage still writes real clusters.
+Clustering backend: ``_cluster_embed`` prefers hdbscan when installed, but hdbscan is
+NOT installed in this environment, so at runtime it falls through to
+``fingerprint.threshold_cluster`` — a sub-quadratic FAISS kNN-graph → connected-components
+clusterer at the cosine-distance threshold (no fixed k, no O(n²) distance matrix). When
+the embedding stack itself can't import, a deterministic normalized-title grouping is used
+so the stage still writes real clusters.
 """
 from __future__ import annotations
 
@@ -79,21 +83,31 @@ def _get_model():
 
 
 def _cluster_embed(docs: list[str]) -> list[int]:
-    """Embed + cluster the COMPOSITE documents on the GPU (same representation as
-    fingerprint.cluster_fingerprints, so the two clustering paths agree)."""
+    """Embed (MiniLM, GPU) the COMPOSITE documents — this is PREPROCESSING, not the
+    product — then group them with a SUB-QUADRATIC threshold clusterer so role
+    discovery and ``fingerprint.cluster_fingerprints`` share one representation AND one
+    scaling story.
+
+    If hdbscan is installed it is used (density-based, already sub-quadratic); it is
+    not in this environment, so the default is ``fingerprint.threshold_cluster`` — a
+    FAISS kNN-graph → connected-components clusterer at the cosine-distance threshold
+    (0.32). That preserves the old AgglomerativeClustering's no-fixed-k threshold
+    semantics without its O(n²) distance matrix, which OOM'd past ~30-50k rows.
+    """
     import numpy as np
-    try:
-        from hdbscan import HDBSCAN as Clusterer
-        kw = {"min_cluster_size": max(10, settings.role_volume_floor // 10)}
-    except Exception:
-        from sklearn.cluster import AgglomerativeClustering as Clusterer
-        kw = {"n_clusters": None, "distance_threshold": 0.32, "metric": "cosine", "linkage": "average"}
 
     model = _get_model()
     emb = model.encode(docs, batch_size=settings.embed_batch_size,
                        normalize_embeddings=True, show_progress_bar=False)
-    labels = Clusterer(**kw).fit_predict(np.asarray(emb, dtype="float32"))
-    return [int(x) for x in labels]
+    arr = np.asarray(emb, dtype="float32")
+    try:
+        from hdbscan import HDBSCAN
+        kw = {"min_cluster_size": max(10, settings.role_volume_floor // 10)}
+        labels = HDBSCAN(**kw).fit_predict(arr)
+        return [int(x) for x in labels]
+    except Exception:  # noqa: BLE001 — hdbscan absent (default) → FAISS threshold graph
+        from backend.ml.fingerprint import threshold_cluster
+        return threshold_cluster(arr, distance_threshold=0.32)
 
 
 def _composite_docs(grp) -> list[str]:

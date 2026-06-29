@@ -165,6 +165,57 @@ def build_warehouse_from_dataset(ds: dict, is_seed: bool = True) -> None:
 # Every staging file is optional: we fuse what exists and skip what's absent, so a
 # partial overnight run still produces a coherent warehouse.
 
+# ---------------------------------------------------------------------------
+# fact_demand source precedence (A3). fact_demand's PK is (role,country,year),
+# so multiple demand sources collide on the same cell. Precedence must be
+# DETERMINISTIC and independent of insert order: a corroborator must NEVER
+# overwrite a higher-priority source. Lower rank == higher priority == wins.
+#   Common Crawl unique-posting VOLUME is the dedicated demand primary; the
+#   Adzuna demand sibling (carried on the job-level salary feed) is co-primary
+#   but yields to CC; GH Archive, the skill/title vacancy feeds and the German
+#   Bundesagentur counts are progressively-weaker corroborators.
+# Resolution is enforced at every overlay insert via a priority-gated upsert
+# (`_demand_upsert`): DO UPDATE only when the incoming source strictly outranks
+# the incumbent — so corroborators land only in cells a primary never filled,
+# and the outcome is identical regardless of which overlay runs first.
+_DEMAND_SOURCE_PRIORITY: dict[str, int] = {
+    slug("Common Crawl JobPosting"): 0,          # dedicated unique-posting volume
+    "adzuna-aggregated-postings": 1,             # Adzuna demand sibling (REAL_SOURCE)
+    "adzuna-demand-modeled-salary": 1,           # Adzuna demand, modeled salary (MIXED)
+    "modeled-estimate-sparse-market": 1,         # sparse-market modeled (still Adzuna-shaped)
+    slug("GH Archive"): 2,                       # global skill-adoption corroboration
+    "eures": 3, "hn-hiring": 3, "remoteok": 3, "mycareersfuture": 3,  # vacancy feeds
+    "bundesagentur-jobsuche": 4,                 # DE occupation counts
+}
+_DEMAND_PRIORITY_DEFAULT = 5                      # unknown source: never clobbers a known one
+
+
+def _demand_prio_case(col: str) -> str:
+    """SQL CASE mapping a source_id column → its precedence rank (lower wins)."""
+    whens = " ".join(f"WHEN '{src}' THEN {rank}"
+                     for src, rank in _DEMAND_SOURCE_PRIORITY.items())
+    return f"CASE {col} {whens} ELSE {_DEMAND_PRIORITY_DEFAULT} END"
+
+
+def _demand_upsert(con, rows: list[tuple]) -> None:
+    """Idempotent, order-independent fact_demand overlay insert. On a (role,country,
+    year) collision, overwrite ONLY when the incoming source strictly outranks the
+    incumbent (see `_DEMAND_SOURCE_PRIORITY`); a tie or weaker source is left as-is.
+    rows are the 9-col fact_demand tuples (source_id is column 8)."""
+    if not rows:
+        return
+    sql = (
+        "INSERT INTO fact_demand VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT (role_id, country_code, year) DO UPDATE SET "
+        "demand_index=excluded.demand_index, postings_count=excluded.postings_count, "
+        "sample_size=excluded.sample_size, confidence=excluded.confidence, "
+        "source_id=excluded.source_id, is_seed=excluded.is_seed "
+        f"WHERE ({_demand_prio_case('excluded.source_id')}) "
+        f"< ({_demand_prio_case('fact_demand.source_id')})"
+    )
+    con.executemany(sql, rows)
+
+
 def _staging_json(rel: str):
     p = settings.staging_dir / rel
     if not p.exists():
@@ -331,7 +382,51 @@ def _interest_overlay(known_roles: set[str], known_countries: set[str]) -> list[
     return rows
 
 
-def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+# ---------------------------------------------------------------------------
+# A6: annualization guard + per-country sanity bounds for the official lens.
+#
+# Several official feeds publish MONTHLY earnings that we *12 to an annual median
+# (ILOSTAT EAR_4MTH_*, Germany Entgeltatlas). That *12 is only valid when the
+# series is genuinely monthly — an already-annual or weekly source would publish
+# 12x wrong at 'med'/'high' confidence. We therefore (a) only *12 when the source
+# period is asserted-monthly, and (b) reject/clamp any annualized median that
+# falls outside a plausible band anchored to the per-country salary distribution
+# already in the warehouse, so a mis-parsed '$5M median' never lands.
+
+# Plausible annual median is within [0.2x, 5x] of a country's reference salary.
+_SANITY_LO, _SANITY_HI = 0.2, 5.0
+
+
+def _country_salary_anchors(con) -> dict[str, float]:
+    """Per-country reference annual salary = median of the job-level medians already
+    loaded into fact_salary_job (real Adzuna, or seed-shaped). Used as the anchor for
+    the official-lens plausibility band. Empty when the table is empty (band skipped)."""
+    try:
+        rows = con.execute(
+            "SELECT country_code, median(median) FROM fact_salary_job "
+            "WHERE median IS NOT NULL AND median > 0 GROUP BY country_code"
+        ).fetchall()
+    except Exception as e:  # noqa: BLE001
+        log.warning("salary anchors unavailable (%s) — sanity band skipped", e)
+        return {}
+    return {code: float(m) for code, m in rows if m}
+
+
+def _sane_annual(value: float, code: str, anchors: dict[str, float], src: str) -> bool:
+    """True if an annualized median is within [0.2x, 5x] of the country anchor.
+    No anchor for the country → pass (we can't judge); out-of-band → drop + log."""
+    anchor = anchors.get(code)
+    if not anchor:
+        return True
+    if _SANITY_LO * anchor <= value <= _SANITY_HI * anchor:
+        return True
+    log.warning("official salary OUTLIER dropped: %s %s annual=%.0f outside [%.0f, %.0f] "
+                "(anchor=%.0f)", src, code, value, _SANITY_LO * anchor, _SANITY_HI * anchor, anchor)
+    return False
+
+
+def _official_salary_rows(known_roles: set[str], known_countries: set[str],
+                          anchors: dict[str, float] | None = None) -> list[tuple]:
     """fact_salary_official rows — the THIRD salary lens, from the official national
     statistical anchors already ingested by the baselines connector (BLS OEWS / ONS
     ASHE / Eurostat / MOM / StatCan). These are real, role-crosswalked, per-country
@@ -344,11 +439,15 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
     except Exception as e:  # noqa: BLE001 — baselines staging may be absent
         log.info("official salary: baselines unavailable (%s)", e)
         return []
+    anchors = anchors or {}
     rows = []
     for r in recs or []:
         rid, code = r.get("role_id"), r.get("country_code")
         median = r.get("median")
         if rid not in known_roles or code not in known_countries or not median:
+            continue
+        # baselines are already-annual official medians — no *12; still sanity-checked.
+        if not _sane_annual(float(median), code, anchors, slug(r.get("source", "official baseline"))):
             continue
         rows.append((rid, code, int(r.get("year") or (max(_YEARS) if _YEARS else 2025)), float(median),
                      r.get("currency_code", "USD"), int(r.get("sample_size") or 0),
@@ -356,19 +455,42 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str]) -> l
                      slug(r.get("source", "official baseline")), False))
 
     # ILOSTAT cross-country wage spine (when landed) — the harmonized 'ilostat' source.
-    # Monthly earnings → annualized; ISCO-08 → role via the curated crosswalk. Graceful
-    # when the connector has not been run (the bulk of council sources land later).
+    # ISCO-08 → role via the curated crosswalk. Graceful when the connector has not run.
+    # A6: the *12 annualization is valid ONLY because the ILOSTAT indicator is mean
+    # nominal MONTHLY earnings (EAR_4MTH_*). We assert that period is monthly before
+    # multiplying — a record flagged otherwise (or an indicator that ever changes off
+    # the monthly series) is landed as-is rather than published 12x wrong — and clamp
+    # the result to the per-country plausibility band.
     try:
+        from backend.ingest import ilostat as _ilo
         from backend.ingest.ilostat import load_earnings
         from backend.warehouse.taxonomy import GOV_CROSSWALK
+        # The harmonized indicator carries its frequency in the id (…_4MTH_… = monthly).
+        indicator_monthly = "MTH" in (getattr(_ilo, "INDICATOR", "") or "").upper()
         isco_to_role = {str(code): rid for rid, sysd in GOV_CROSSWALK.items()
                         for sysn, (code, _l) in sysd.items() if "isco" in sysn.lower()}
         for r in load_earnings():
             rid = isco_to_role.get(str(r.get("isco08")))
             code, earn = r.get("country"), r.get("earnings")
-            if rid in known_roles and code in known_countries and earn:
-                rows.append((rid, code, int(r.get("year") or (max(_YEARS) if _YEARS else 2025)), float(earn) * 12.0,
-                             r.get("currency") or "", 0, "med", "official", "ilostat", False))
+            if rid not in known_roles or code not in known_countries or not earn:
+                continue
+            # honor a per-record period/freq if the connector ever emits one; else fall
+            # back to the indicator-level assertion. Only known-monthly → annualize.
+            period = str(r.get("period") or r.get("freq") or "").lower()
+            if period:
+                is_monthly = "month" in period or period in ("m", "mth", "monthly")
+            else:
+                is_monthly = indicator_monthly
+            if is_monthly:
+                annual = float(earn) * 12.0
+            else:
+                log.warning("ILOSTAT %s: period %r not known-monthly — landing earnings as-is "
+                            "(no *12)", code, period or _ilo.INDICATOR)
+                annual = float(earn)
+            if not _sane_annual(annual, code, anchors, "ilostat"):
+                continue
+            rows.append((rid, code, int(r.get("year") or (max(_YEARS) if _YEARS else 2025)), annual,
+                         r.get("currency") or "", 0, "med", "official", "ilostat", False))
     except Exception as e:  # noqa: BLE001
         log.info("official salary: ILOSTAT unavailable (%s)", e)
     return rows
@@ -417,20 +539,35 @@ def _demand_from_skill_feeds(known_roles: set[str], known_countries: set[str]) -
     return rows
 
 
-def _official_from_entgeltatlas(known_roles: set[str], known_countries: set[str]) -> list[tuple]:
+def _official_from_entgeltatlas(known_roles: set[str], known_countries: set[str],
+                                anchors: dict[str, float] | None = None) -> list[tuple]:
     """fact_salary_official ← Germany Entgeltatlas (bundesagentur wages.json). KldB
-    occupation → role via the curated KldB map; monthly gross → annualized. DE only."""
+    occupation → role via the curated KldB map; monthly gross → annualized. DE only.
+    A6: the *12 is guarded — only the explicitly-monthly field ('median_gross_monthly')
+    is annualized; a record carrying an annual field instead is taken as-is. The result
+    is clamped to the DE plausibility band so a mis-parsed figure never lands."""
     recs = _staging_json("bundesagentur/wages.json")
     if not recs or "DE" not in known_countries:
         return []
+    anchors = anchors or {}
     from backend.warehouse.taxonomy import KLDB_TO_ROLE
     rows = []
     for r in recs:
         rid = KLDB_TO_ROLE.get(str(r.get("kldb")))
-        med = r.get("median_gross_monthly")
-        if rid in known_roles and med:
-            rows.append((rid, "DE", int(r.get("year") or (max(_YEARS) if _YEARS else 2025)),
-                         float(med) * 12.0, "EUR", 0, "high", "official", "entgeltatlas", False))
+        if rid not in known_roles:
+            continue
+        monthly = r.get("median_gross_monthly")
+        annual_field = r.get("median_gross_annual") or r.get("median_gross_yearly")
+        if monthly:                       # known-monthly → annualize
+            annual = float(monthly) * 12.0
+        elif annual_field:                # already annual → take as-is (no *12)
+            annual = float(annual_field)
+        else:
+            continue
+        if not _sane_annual(annual, "DE", anchors, "entgeltatlas"):
+            continue
+        rows.append((rid, "DE", int(r.get("year") or (max(_YEARS) if _YEARS else 2025)),
+                     annual, "EUR", 0, "high", "official", "entgeltatlas", False))
     return rows
 
 
@@ -734,16 +871,10 @@ def build_warehouse_from_staging() -> None:
                     person_rows,
                 )
 
-            # fact_demand ← Common Crawl volume (primary) + GH Archive (corroborate)
+            # fact_demand ← Common Crawl volume (primary) + GH Archive (corroborate).
+            # Priority-gated: CC outranks the Adzuna sibling and GH; GH only fills gaps.
             demand_rows = _demand_overlay(known_roles, known_countries)
-            if demand_rows:
-                con.executemany(
-                    "INSERT INTO fact_demand VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                    "ON CONFLICT (role_id, country_code, year) DO UPDATE SET "
-                    "demand_index=excluded.demand_index, postings_count=excluded.postings_count, "
-                    "source_id=excluded.source_id, is_seed=FALSE",
-                    demand_rows,
-                )
+            _demand_upsert(con, demand_rows)
 
             # fact_interest ← Google Trends
             interest_rows = _interest_overlay(known_roles, known_countries)
@@ -756,9 +887,12 @@ def build_warehouse_from_staging() -> None:
                 )
 
             # fact_salary_official ← official national anchors (the THIRD salary lens):
-            # baselines + ILOSTAT + Germany Entgeltatlas (KldB) + US federal (OPM series)
-            official_rows = (_official_salary_rows(known_roles, known_countries)
-                             + _official_from_entgeltatlas(known_roles, known_countries)
+            # baselines + ILOSTAT + Germany Entgeltatlas (KldB) + US federal (OPM series).
+            # A6: per-country salary anchors gate the *12-annualized feeds so a mis-parsed
+            # or non-monthly median (e.g. a stray '$5M') is dropped, not published.
+            salary_anchors = _country_salary_anchors(con)
+            official_rows = (_official_salary_rows(known_roles, known_countries, salary_anchors)
+                             + _official_from_entgeltatlas(known_roles, known_countries, salary_anchors)
                              + _official_from_usajobs(known_roles, known_countries))
             if official_rows:
                 for sid in {r[8] for r in official_rows}:
@@ -828,9 +962,9 @@ def build_warehouse_from_staging() -> None:
                         "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (source_id) DO NOTHING",
                         (sid, sid.replace("_", " ").title(), "demand", None,
                          "skill-tagged vacancy feed", False, "2026-06-25"))
-                con.executemany(
-                    "INSERT INTO fact_demand VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                    "ON CONFLICT (role_id, country_code, year) DO NOTHING", feed_demand)
+                # priority-gated: these corroborators only fill cells no higher-priority
+                # source (CC / Adzuna / GH) already occupies — never clobber a primary.
+                _demand_upsert(con, feed_demand)
 
             # dim_role + REAL facts ← role_derivation. A derived cluster is NOT just a
             # name: it carries demand from its own unique-posting volume + a skill bag
@@ -843,6 +977,16 @@ def build_warehouse_from_staging() -> None:
                 cc_sid = slug("Common Crawl JobPosting")
                 pc_max = max(1, int(derived["posting_count"].max()))
                 dyear = max(_YEARS)
+                # A5: materialize stamps skill durability/trend by JOINING dim_skill on
+                # NAME. A derived-role skill that never lands in dim_skill silently gets
+                # durability=0 / trend='stable' there — indistinguishable from a real
+                # fading signal. So: register every derived skill in dim_skill. If its
+                # slug matches a CURATED skill, reuse the curated casing (so the name
+                # join hits the real durability/trend); otherwise insert an honest
+                # 'derived' marker (durability 0, trend 'unknown' — explicitly "no data"
+                # rather than a fabricated 'stable').
+                curated_name_by_id = dict(
+                    con.execute("SELECT skill_id, name FROM dim_skill").fetchall())
                 for _, r in derived.iterrows():
                     rid, country, pc = r["role_id"], r.get("country"), int(r["posting_count"])
                     con.execute(
@@ -859,10 +1003,19 @@ def build_warehouse_from_staging() -> None:
                             "ON CONFLICT (role_id, country_code, year) DO NOTHING",
                             (rid, country, dyear, float(idx), pc, pc, "low", cc_sid, False))
                     for i, sk in enumerate(extract_skills(str(r.get("member_titles") or ""))[:12]):
+                        sk_id = slug(sk)
+                        # Reuse curated casing when the slug already names a real skill,
+                        # so the name-keyed materialize join resolves to its true
+                        # durability/trend instead of the derived marker.
+                        sk_name = curated_name_by_id.get(sk_id, sk)
+                        con.execute(
+                            "INSERT INTO dim_skill VALUES (?, ?, ?, ?, ?) "
+                            "ON CONFLICT (skill_id) DO NOTHING",
+                            (sk_id, sk_name, 0, "unknown", "derived"))
                         con.execute(
                             "INSERT INTO bridge_role_skill VALUES (?, ?, ?, ?, ?) "
                             "ON CONFLICT (role_id, skill_id) DO NOTHING",
-                            (rid, slug(sk), sk, "I", i))
+                            (rid, sk_id, sk_name, "I", i))
                     n_derived += 1
 
             con.execute("COMMIT")

@@ -18,10 +18,13 @@ is comparable across 7 markets) and an **append-only** ``dim_role_birth`` ledger
 (first-seen + status, powering the emerging/extinction radar).
 
 Static taxonomy files (O*NET Alternate Titles is already in
-``staging/onet/onet_db.zip``; ESCO / Lightcast are fetchable reference files) feed
-the alias graph. Loaders degrade gracefully when a file is absent — the curated
-seed alone makes the resolver work today. Data-dependent enrichment (emergent-role
-mining from the posting stream) is left as a documented TODO.
+``staging/onet/onet_db.zip``; ESCO / Lightcast are fetchable reference files; and
+official occupation crosswalks drop into ``staging/crosswalks/<system>.csv``) feed
+the alias graph + crosswalk. Loaders degrade gracefully when a file is absent — the
+curated seed alone makes the resolver work today. Data-dependent enrichment via
+emergent-role mining from the clustered posting stream is implemented and wired
+(``mine_emergent_roles``, called from ``build_taxonomy``): it promotes genuinely-new,
+cross-country roles into the role-birth ledger once the at-scale corpus exists.
 """
 from __future__ import annotations
 
@@ -108,27 +111,43 @@ SENIORITY = [
     ("vp",            "VP",                6, "mgr"),
 ]
 
-# surface tokens that signal seniority (stripped before alias matching)
+# surface tokens that signal IC seniority (stripped before alias matching).
+# NOTE: deliberately excludes 'lead', 'head of', 'manager', 'mgr', 'director',
+# 'vp' — those are *role-bearing* on the manager/lead track ('Tech Lead',
+# 'Head of Engineering', 'engineering lead' must NOT collapse to a bare modifier).
+# Stripping them mangled the eng-mgr aliases (see test_taxonomy_normalize).
 _SENIORITY_TOKENS = re.compile(
-    r"\b(intern|graduate|grad|entry|junior|jr|associate|mid|senior|sr|lead|"
-    r"staff|principal|prin|distinguished|fellow|head\s+of|manager|mgr|director|"
-    r"vp|vice\s+president|i{1,3}|iv|v|1|2|3|4)\b",
+    r"\b(intern|graduate|grad|entry|junior|jr|associate|mid|senior|sr|"
+    r"staff|principal|prin|distinguished|fellow|vice\s+president|"
+    r"i{1,3}|iv|v|1|2|3|4)\b",
     re.IGNORECASE,
 )
 _NONWORD = re.compile(r"[^a-z0-9+#./ ]+")
 
 
 def normalize_surface(text: str) -> str:
-    """Lowercase, strip punctuation + seniority tokens — the alias-match key.
+    """Lowercase, strip punctuation + IC-seniority tokens — the alias-match key.
 
     'Sr. Software Engineer II' -> 'software engineer'.  Keeps +,#,.,/ so that
     'c++', 'c#', 'node.js', 'ci/cd' survive.
+
+    Robust to manager/lead-track titles: seniority-stripping is **non-destructive**
+    — if removing the seniority tokens would empty the string (e.g. 'Lead', 'Staff'
+    with no role noun) the un-stripped, punctuation-only normalization is kept, so
+    'Tech Lead' -> 'tech lead' rather than the mangled 'tech'.
     """
     s = (text or "").lower().strip()
     s = _NONWORD.sub(" ", s)
-    s = _SENIORITY_TOKENS.sub(" ", s)
-    # drop tokens left as bare punctuation ('sr.' -> '.'); keep c++, c#, node.js, ci/cd
-    return " ".join(t for t in s.split() if any(ch.isalnum() for ch in t))
+
+    def _clean(x: str) -> str:
+        # drop tokens left as bare punctuation ('sr.' -> '.'); keep c++, c#, node.js, ci/cd
+        return " ".join(t for t in x.split() if any(ch.isalnum() for ch in t))
+
+    stripped = _clean(_SENIORITY_TOKENS.sub(" ", s))
+    if stripped:
+        return stripped
+    # seniority-only surface (no role noun survived) — keep the words verbatim
+    return _clean(s)
 
 
 def _alias_id(norm: str, role_id: str) -> str:
@@ -188,24 +207,46 @@ CURATED_ALIASES: dict[str, list[str]] = {
 # canonical-node -> official occupation codes. O*NET-SOC is seeded with reasonable
 # confidence; other systems are partial — extend via load_crosswalk_file(). The
 # TABLE supports all 7 systems even where the seed is thin (honest: confidence col).
+# Every role carries a real anchor code in the four systems that serve CA/AU/SG/DE
+# (noc2021 / anzsco / ssoc / kldb) in addition to onet_soc + isco08, so cross-market
+# comparability has a spine before any crosswalk file is dropped in. Codes are the
+# official occupation codes for each system (NOC-2021 5-digit, ANZSCO 6-digit,
+# SSOC-2020 5-digit, KldB-2010 5-digit); they remain partial/approximate anchors
+# (confidence is emitted honestly — see build_taxonomy).
 GOV_CROSSWALK: dict[str, dict[str, tuple[str, str]]] = {
     # role_id: { system: (code, label) }
-    "swe":          {"onet_soc": ("15-1252.00", "Software Developers"),        "isco08": ("2512", "Software developers"), "uk_soc2020": ("2134", "Programmers and software development professionals")},
-    "backend":      {"onet_soc": ("15-1252.00", "Software Developers"),        "isco08": ("2512", "Software developers")},
-    "frontend":     {"onet_soc": ("15-1254.00", "Web Developers"),            "isco08": ("2513", "Web and multimedia developers")},
-    "mobile":       {"onet_soc": ("15-1252.00", "Software Developers"),        "isco08": ("2512", "Software developers")},
-    "data-eng":     {"onet_soc": ("15-1243.00", "Database Architects"),        "isco08": ("2521", "Database designers and administrators")},
-    "data-sci":     {"onet_soc": ("15-2051.00", "Data Scientists"),            "isco08": ("2120", "Mathematicians, actuaries and statisticians")},
-    "data-analyst": {"onet_soc": ("15-2051.01", "Business Intelligence Analysts"), "isco08": ("2511", "Systems analysts")},
-    "ml-eng":       {"onet_soc": ("15-2051.00", "Data Scientists"),            "isco08": ("2512", "Software developers")},
-    "devops":       {"onet_soc": ("15-1244.00", "Network and Computer Systems Administrators"), "isco08": ("2522", "Systems administrators")},
-    "sre":          {"onet_soc": ("15-1244.00", "Network and Computer Systems Administrators"), "isco08": ("2522", "Systems administrators")},
-    "cloud-arch":   {"onet_soc": ("15-1241.00", "Computer Network Architects"), "isco08": ("2523", "Computer network professionals")},
-    "security":     {"onet_soc": ("15-1212.00", "Information Security Analysts"), "isco08": ("2529", "Database and network professionals nec")},
-    "qa":           {"onet_soc": ("15-1253.00", "Software Quality Assurance Analysts and Testers"), "isco08": ("2512", "Software developers")},
-    "eng-mgr":      {"onet_soc": ("11-3021.00", "Computer and Information Systems Managers"), "isco08": ("1330", "ICT service managers")},
-    "pm":           {"onet_soc": ("11-3021.00", "Computer and Information Systems Managers"), "isco08": ("1330", "ICT service managers")},
-    "ux":           {"onet_soc": ("15-1255.00", "Web and Digital Interface Designers"), "isco08": ("2166", "Graphic and multimedia designers")},
+    "swe":          {"onet_soc": ("15-1252.00", "Software Developers"),        "isco08": ("2512", "Software developers"), "uk_soc2020": ("2134", "Programmers and software development professionals"),
+                     "noc2021": ("21232", "Software developers and programmers"), "anzsco": ("261313", "Software Engineer"), "ssoc": ("25121", "Software developer"), "kldb": ("43412", "Softwareentwicklung")},
+    "backend":      {"onet_soc": ("15-1252.00", "Software Developers"),        "isco08": ("2512", "Software developers"),
+                     "noc2021": ("21232", "Software developers and programmers"), "anzsco": ("261313", "Software Engineer"), "ssoc": ("25121", "Software developer"), "kldb": ("43412", "Softwareentwicklung")},
+    "frontend":     {"onet_soc": ("15-1254.00", "Web Developers"),            "isco08": ("2513", "Web and multimedia developers"),
+                     "noc2021": ("21234", "Web developers and programmers"), "anzsco": ("261212", "Web Developer"), "ssoc": ("25132", "Web and multimedia developer"), "kldb": ("43422", "Web- und Multimediaprogrammierung")},
+    "mobile":       {"onet_soc": ("15-1252.00", "Software Developers"),        "isco08": ("2512", "Software developers"),
+                     "noc2021": ("21232", "Software developers and programmers"), "anzsco": ("261313", "Software Engineer"), "ssoc": ("25121", "Software developer"), "kldb": ("43412", "Softwareentwicklung")},
+    "data-eng":     {"onet_soc": ("15-1243.00", "Database Architects"),        "isco08": ("2521", "Database designers and administrators"),
+                     "noc2021": ("21223", "Database analysts and data administrators"), "anzsco": ("262111", "Database Administrator"), "ssoc": ("25211", "Database designer and administrator"), "kldb": ("43442", "Datenbankadministration")},
+    "data-sci":     {"onet_soc": ("15-2051.00", "Data Scientists"),            "isco08": ("2120", "Mathematicians, actuaries and statisticians"),
+                     "noc2021": ("21211", "Data scientists"), "anzsco": ("224115", "Statistician"), "ssoc": ("21201", "Data scientist"), "kldb": ("43432", "IT-Systemanalyse und -beratung")},
+    "data-analyst": {"onet_soc": ("15-2051.01", "Business Intelligence Analysts"), "isco08": ("2511", "Systems analysts"),
+                     "noc2021": ("21223", "Database analysts and data administrators"), "anzsco": ("224712", "Organisation and Methods Analyst"), "ssoc": ("25111", "Systems analyst"), "kldb": ("43432", "IT-Systemanalyse und -beratung")},
+    "ml-eng":       {"onet_soc": ("15-2051.00", "Data Scientists"),            "isco08": ("2512", "Software developers"),
+                     "noc2021": ("21211", "Data scientists"), "anzsco": ("261313", "Software Engineer"), "ssoc": ("25121", "Software developer"), "kldb": ("43412", "Softwareentwicklung")},
+    "devops":       {"onet_soc": ("15-1244.00", "Network and Computer Systems Administrators"), "isco08": ("2522", "Systems administrators"),
+                     "noc2021": ("21222", "Information systems specialists"), "anzsco": ("262113", "Systems Administrator"), "ssoc": ("25221", "Systems administrator"), "kldb": ("43302", "Informatik- und IT-Systemadministration")},
+    "sre":          {"onet_soc": ("15-1244.00", "Network and Computer Systems Administrators"), "isco08": ("2522", "Systems administrators"),
+                     "noc2021": ("21222", "Information systems specialists"), "anzsco": ("262113", "Systems Administrator"), "ssoc": ("25221", "Systems administrator"), "kldb": ("43302", "Informatik- und IT-Systemadministration")},
+    "cloud-arch":   {"onet_soc": ("15-1241.00", "Computer Network Architects"), "isco08": ("2523", "Computer network professionals"),
+                     "noc2021": ("21222", "Information systems specialists"), "anzsco": ("263111", "Computer Network and Systems Engineer"), "ssoc": ("25231", "Computer network professional"), "kldb": ("43314", "Netzwerkadministration und -technik")},
+    "security":     {"onet_soc": ("15-1212.00", "Information Security Analysts"), "isco08": ("2529", "Database and network professionals nec"),
+                     "noc2021": ("21220", "Cybersecurity specialists"), "anzsco": ("262112", "ICT Security Specialist"), "ssoc": ("25291", "Information security specialist"), "kldb": ("43512", "IT-Netzwerktechnik, -administration, -organisation")},
+    "qa":           {"onet_soc": ("15-1253.00", "Software Quality Assurance Analysts and Testers"), "isco08": ("2512", "Software developers"),
+                     "noc2021": ("21232", "Software developers and programmers"), "anzsco": ("261314", "Software Tester"), "ssoc": ("25124", "Software and applications tester"), "kldb": ("43412", "Softwareentwicklung")},
+    "eng-mgr":      {"onet_soc": ("11-3021.00", "Computer and Information Systems Managers"), "isco08": ("1330", "ICT service managers"),
+                     "noc2021": ("20012", "Computer and information systems managers"), "anzsco": ("135112", "ICT Project Manager"), "ssoc": ("13301", "Information technology service manager"), "kldb": ("43494", "Aufsichtskräfte - Informatik und IT")},
+    "pm":           {"onet_soc": ("11-3021.00", "Computer and Information Systems Managers"), "isco08": ("1330", "ICT service managers"),
+                     "noc2021": ("20012", "Computer and information systems managers"), "anzsco": ("135112", "ICT Project Manager"), "ssoc": ("13301", "Information technology service manager"), "kldb": ("43484", "Führungskräfte - Informatik und IT")},
+    "ux":           {"onet_soc": ("15-1255.00", "Web and Digital Interface Designers"), "isco08": ("2166", "Graphic and multimedia designers"),
+                     "noc2021": ("52120", "Graphic designers and illustrators"), "anzsco": ("232411", "Graphic Designer"), "ssoc": ("21663", "Multimedia / web designer"), "kldb": ("23222", "Grafik- und Kommunikationsdesign")},
 }
 
 SPECIALIZATIONS = [
@@ -274,22 +315,38 @@ def load_onet_alternate_titles(zip_path: Path | None = None) -> list[tuple[str, 
     return pairs
 
 
-def load_crosswalk_file(path: Path, system: str) -> list[tuple[str, str, str]]:
-    """Load an official occupation crosswalk file (role_id, code, label).
+# official occupation systems read by the file-drop convention (curated seed already
+# carries an anchor for each; a dropped file *extends* them with extra codes).
+CROSSWALK_FILE_SYSTEMS = ("uk_soc2020", "noc2021", "anzsco", "ssoc", "kldb")
 
-    TODO(ingestion): wire ESCO occupations.csv / UK SOC2020 / NOC2021 / ANZSCO /
-    SSOC / KldB official crosswalk files here. Until a file is dropped in, the
-    curated GOV_CROSSWALK seed carries O*NET-SOC + ISCO-08. Expected CSV columns:
-    role_id, code, label. Returns [] gracefully when absent.
+
+def load_crosswalk_file(system: str, path: Path | None = None) -> list[tuple[str, str, str]]:
+    """Load an official occupation crosswalk file → (role_id, code, label) rows.
+
+    **File-drop convention**: drop ``staging/crosswalks/<system>.csv`` (UK SOC2020 /
+    NOC2021 / ANZSCO / SSOC / KldB) with columns ``role_id, code, label`` and it is
+    folded into ``dim_role_crosswalk`` at ``low`` confidence (dropped-file rows are
+    soft, not curator-anchored — see build_taxonomy). Until a file is dropped in, the
+    curated GOV_CROSSWALK seed carries the per-role anchors. Returns ``[]`` gracefully
+    when absent or malformed (a missing/bad reference file must never break the build).
+    ROLES-ONLY: occupation codes + labels only.
     """
-    if not path or not Path(path).exists():
-        log.info("crosswalk file for %s absent (%s) — using curated seed only [TODO]", system, path)
+    path = Path(path) if path else (settings.staging_dir / "crosswalks" / f"{system}.csv")
+    if not path.exists():
+        log.info("crosswalk file for %s absent (%s) — using curated seed only [drop %s.csv to extend]",
+                 system, path, system)
         return []
     rows: list[tuple[str, str, str]] = []
-    with open(path, encoding="utf-8") as fh:
-        for r in csv.DictReader(fh):
-            if r.get("role_id") and r.get("code"):
-                rows.append((r["role_id"], r["code"], r.get("label", "")))
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for r in csv.DictReader(fh):
+                if r.get("role_id") and r.get("code"):
+                    rows.append((r["role_id"], str(r["code"]).strip(), (r.get("label") or "").strip()))
+    except Exception as e:  # noqa: BLE001 — a malformed reference file must not break the build
+        log.error("crosswalk file parse failed for %s: %s", system, e)
+        return []
+    log.info("crosswalk file %s → %d rows across %d roles",
+             system, len(rows), len({r[0] for r in rows}))
     return rows
 
 
@@ -514,18 +571,34 @@ def build_taxonomy(con: duckdb.DuckDBPyConnection, *, as_of: str | None = None) 
     if alias_rows:
         con.executemany("INSERT INTO dim_role_alias VALUES (?,?,?,?,?,?,?)", alias_rows)
 
-    # government-code crosswalk — full reload from curated seed (+ any dropped files)
+    # government-code crosswalk — full reload from curated seed (+ any dropped files).
+    # Honest confidence tiers: onet_soc anchors are curator-verified (high); the
+    # ISCO/ESCO group mappings are softer (med); rows folded in from a dropped
+    # crosswalk file are unverified anchors (low). De-dup on (role_id, system, code)
+    # so a dropped file extending the seed never collides with the table PK.
     con.execute("DELETE FROM dim_role_crosswalk")
     xwalk_rows: list[tuple] = []
+    seen_xwalk: set[tuple[str, str, str]] = set()
+
+    def _add_xwalk(role_id: str, system: str, code: str, label: str, conf: str):
+        if role_id not in role_ids or not code:
+            return
+        key = (role_id, system, code)
+        if key in seen_xwalk:
+            return
+        seen_xwalk.add(key)
+        xwalk_rows.append((role_id, system, code, label, conf))
+
     for role_id, systems in GOV_CROSSWALK.items():
-        if role_id not in role_ids:
-            continue
         for system, (code, label) in systems.items():
-            conf = "high" if system in ("onet_soc",) else "med"
-            xwalk_rows.append((role_id, system, code, label, conf))
+            conf = "high" if system == "onet_soc" else "med"
+            _add_xwalk(role_id, system, code, label, conf)
     for role_id, code, label in esco_xwalk:                    # ESCO occupations (when present)
-        if role_id in role_ids:
-            xwalk_rows.append((role_id, "esco", code, label, "med"))
+        _add_xwalk(role_id, "esco", code, label, "med")
+    # file-drop crosswalks: staging/crosswalks/<system>.csv → low-confidence extension
+    for system in CROSSWALK_FILE_SYSTEMS:
+        for role_id, code, label in load_crosswalk_file(system):
+            _add_xwalk(role_id, system, code, label, "low")
     if xwalk_rows:
         con.executemany("INSERT INTO dim_role_crosswalk VALUES (?,?,?,?,?)", xwalk_rows)
 
@@ -605,10 +678,13 @@ def mine_emergent_roles(con: duckdb.DuckDBPyConnection, *, min_countries: int = 
         rid = "emerging:" + slug(lab)
         if rid in existing:
             continue                              # append-only: never re-date
+        countries = sorted(c for c in g["countries"] if c)
         meta = json.dumps({"detected_from": "emergent-miner",
-                           "countries": sorted(c for c in g["countries"] if c),
+                           "countries": countries,
                            "postings": g["postings"]})
-        rows.append((rid, "2026", "emerging", None, None, "miner", meta, stamp))
+        # F4: store the real radar counts (postings / distinct countries), not NULL
+        rows.append((rid, "2026", "emerging", int(g["postings"]), len(countries),
+                     "miner", meta, stamp))
     if rows:
         con.executemany("INSERT INTO dim_role_birth VALUES (?,?,?,?,?,?,?,?)", rows)
     log.info("emergent miner: %d cross-country candidates, %d newly promoted (>=%d countries)",

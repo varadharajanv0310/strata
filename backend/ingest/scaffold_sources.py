@@ -11,15 +11,6 @@ from __future__ import annotations
 from backend.ingest.base import ScaffoldConnector
 
 
-class StackOverflowSurvey(ScaffoldConnector):
-    name = "so_survey"
-    description = "Stack Overflow Developer Survey 2011–2025 — person-level salary × skills × country × experience"
-    joins_on = ("country", "skill", "role", "time")
-    adds_signal = "longitudinal person-level salary engine"
-    plan = ("Download per-year public CSVs, harmonize the shifting schema across years, "
-            "map titles→roles and skills→taxonomy, land person-level rows to fact_salary_person.")
-
-
 class DolOflc(ScaffoldConnector):
     name = "dol_oflc"
     description = "US DOL OFLC H-1B/PERM disclosure — ~8M+ individual cases with SOC code + base salary"
@@ -27,32 +18,6 @@ class DolOflc(ScaffoldConnector):
     adds_signal = "US individual-level wage ground truth (migration-relevant)"
     plan = ("Download quarterly OFLC disclosure files, parse employer/title/SOC/worksite/base-wage, "
             "crosswalk SOC→role, land to fact_salary_person (person-level).")
-
-
-class GhArchive(ScaffoldConnector):
-    name = "gh_archive"
-    description = "GH Archive public GitHub events since 2011 — technology/skill demand trajectory"
-    joins_on = ("skill", "time")
-    adds_signal = "billions-scale skill-adoption demand signal"
-    plan = ("Stream hourly gzipped JSON (or the BigQuery dataset), aggregate push/PR/repo-language "
-            "events to skill demand over time → fact_demand inputs.")
-
-
-class StackExchange(ScaffoldConnector):
-    name = "stack_exchange"
-    description = "Stack Exchange data dump — tag co-occurrence over time (secondary demand signal)"
-    joins_on = ("skill", "time")
-    adds_signal = "secondary demand signal (analysis-only, caveated)"
-    plan = ("Use the archive.org community mirror (official dumps are login-gated/licence-restricted). "
-            "Aggregate tag co-occurrence by year; flag caveats; never load-bearing.")
-
-
-class GoogleTrends(ScaffoldConnector):
-    name = "google_trends"
-    description = "Google Trends — learner/search interest by skill/country/time (feeds Job Score interest)"
-    joins_on = ("skill", "country", "time")
-    adds_signal = "learner-interest axis (labelled interest, not competition)"
-    plan = "Pull interest-over-time per skill/country via pytrends with backoff; land to fact_interest."
 
 
 class PyPiNpm(ScaffoldConnector):
@@ -123,7 +88,12 @@ class BlsOews(ScaffoldConnector):
 # NOTE: a CompanyEnrich scaffold (Wikidata/GitHub-org → company size/industry) was
 # removed here — strata is ROLES-only and never enriches or surfaces companies.
 
+# NOTE: so_survey, gh_archive, google_trends and stack_exchange scaffolds were
+# removed — those sources now have **real** extractor modules
+# (backend/ingest/{so_survey,gh_archive,google_trends,stack_exchange}.py) wired
+# into the registry's real-connector dispatch. Only genuinely-pending sources
+# remain as scaffolds below.
 SCAFFOLD_CONNECTORS = [
-    StackOverflowSurvey, DolOflc, GhArchive, StackExchange, GoogleTrends, PyPiNpm,
+    DolOflc, PyPiNpm,
     Lightcast, Esco, Onet, OecdPpp, WorldBankIcp, Numbeo, BlsOews,
 ]

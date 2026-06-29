@@ -29,7 +29,10 @@ log = get_logger("warehouse.provenance")
 # bumped whenever the staging→warehouse fusion logic changes shape
 TRANSFORM_VERSION = "2026.06.25"
 
-# source_id / source_name keyword -> staging subdirectory
+# source_id / source_name keyword -> staging subdirectory.
+# ORDER MATTERS: the first keyword found in "<source_id> <source_name>" wins, so
+# specific multi-word / occupation-projection hints precede the broad baseline ones
+# (e.g. 'bls_ep'/'cops'/'jsa' are gov_projections, NOT the 'bls'/'statcan' baselines).
 _SOURCE_DIR_HINTS = [
     ("so", "so_survey"), ("stack overflow", "so_survey"), ("survey", "so_survey"),
     ("h1b", "h1b"), ("h-1b", "h1b"), ("oflc", "h1b"), ("perm", "h1b"), ("dol", "h1b"),
@@ -38,13 +41,36 @@ _SOURCE_DIR_HINTS = [
     ("trend", "google_trends"), ("google", "google_trends"),
     ("crawl", "common_crawl"), ("commoncrawl", "common_crawl"),
     ("world bank", "worldbank"), ("worldbank", "worldbank"), ("ppp", "worldbank"),
+    # official wage anchors (the third salary lens)
+    ("ilostat", "ilostat"), ("isco", "ilostat"),
+    ("entgeltatlas", "bundesagentur"), ("bundesagentur", "bundesagentur"),
+    ("usajobs", "usajobs"), ("opm", "usajobs"),
+    # occupation-projection outlook sources (source_ids: bls_ep / ca_cops / jsa)
+    ("gov_projection", "gov_projections"), ("projection", "gov_projections"),
+    ("bls_ep", "gov_projections"), ("bls ep", "gov_projections"),
+    ("cops", "gov_projections"), ("jsa", "gov_projections"),
+    # skill-tagged vacancy feeds (demand corroboration)
+    ("eures", "eures"), ("hn_hiring", "hn_hiring"), ("hn hiring", "hn_hiring"),
+    ("remoteok", "remoteok"), ("mycareersfuture", "mycareersfuture"),
+    # skill-adoption / durability signals
+    ("arxiv", "arxiv"), ("huggingface", "huggingface"), ("hugging face", "huggingface"),
+    ("wikipedia", "wikipedia"), ("stack_exchange", "stack_exchange"),
+    ("stack exchange", "stack_exchange"),
+    ("package_registries", "package_registries"), ("package registries", "package_registries"),
+    ("cedefop", "cedefop"),
+    # roles-only occupation adjacency
+    ("wikidata", "wikidata"),
+    # broad official baselines (must stay AFTER the specific outlook hints above)
     ("bls", "baselines"), ("ons", "baselines"), ("eurostat", "baselines"),
     ("mom", "baselines"), ("statcan", "baselines"), ("baseline", "baselines"),
     ("onet", "onet"), ("o*net", "onet"),
 ]
 
 # fact tables carrying a source_id (for row-count attribution)
-_FACT_TABLES = ["fact_salary_person", "fact_salary_job", "fact_demand", "fact_interest"]
+_FACT_TABLES = [
+    "fact_salary_person", "fact_salary_job", "fact_salary_official",
+    "fact_demand", "fact_interest", "fact_role_outlook", "fact_skill_adoption",
+]
 
 
 def _staging_dir_for(source_id: str, source_name: str) -> Path | None:
