@@ -79,7 +79,9 @@ class MartRoleCountry(Base):
     role_id: Mapped[str] = mapped_column(String(120), primary_key=True)
     country_code: Mapped[str] = mapped_column(String(2), primary_key=True)
 
-    median: Mapped[float] = mapped_column(Float)          # ADVERTISED lens (fact_salary_job)
+    # headline median — best available lens (advertised→realized→official). NULLABLE:
+    # a derived/demand-only role with no salary anywhere reads "not enough data".
+    median: Mapped[float | None] = mapped_column(Float, nullable=True)
     demand: Mapped[int] = mapped_column(Integer)
     interest: Mapped[int] = mapped_column(Integer)
 

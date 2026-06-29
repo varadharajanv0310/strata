@@ -136,35 +136,48 @@ def materialize_from_warehouse() -> None:
                 skill_id=sid, skill_name=skill_names.get(sid, sid), metric=metric,
                 ecosystem=eco, latest_period=lp, latest_value=lv, momentum_pct=mom))
 
-        # ---- assemble per role×country ----
+        # ---- assemble per role×country — from the UNION of all signals, NOT just the
+        #      salary fact, so DERIVED / demand-only roles still surface (A4). Missing
+        #      Job Score defaults to 0 (recomputed post-fusion) instead of KeyError (A7).
+        all_keys = (set(salary_g) | set(demand_g) | set(forecast_g)
+                    | set(realized_m) | set(official_m) | set(score_m) | set(interest_m))
         rc_rows: list[M.MartRoleCountry] = []
         rc_index: dict[tuple, dict] = {}
-        for (rid, code), srows in salary_g.items():
-            series = [{"year": int(y), "value": int(round(v))} for (_, _, y, v, *_rest) in srows]
-            last = srows[-1]
-            sample, conf, kind, freshness, transparency, source_id = last[4], last[5], last[6], last[7], last[8], last[9]
+        for (rid, code) in sorted(all_keys):
+            srows = salary_g.get((rid, code))
+            series = ([{"year": int(y), "value": int(round(v))} for (_, _, y, v, *_rest) in srows]
+                      if srows else [])
             dser = [{"year": int(y), "value": int(round(v))} for (_, _, y, v) in demand_g.get((rid, code), [])]
             fc = [{"year": int(y), "value": int(round(v)), "lo": int(round(lo)), "hi": int(round(hi))}
                   for (_, _, y, v, lo, hi) in forecast_g.get((rid, code), [])]
-            # crash-path guard: a role×country with salary but no computed Job Score is
-            # an incomplete cell (score is recomputed post-fusion to cover all cells) —
-            # skip it loudly rather than KeyError the whole materialize (A7).
-            sc = score_m.get((rid, code))
-            if sc is None:
-                log.warning("marts: %s/%s has salary but no job_score — skipped (recompute scores)", rid, code)
-                continue
             rl = realized_m.get((rid, code))
             of = official_m.get((rid, code))
             # min-sample suppression (honesty): realized lens below the floor → null so
             # the UI reads "not enough data". Official anchors kept (aggregate, no sample).
             if rl and rl[1] < MIN_SAMPLE_REALIZED:
                 rl = None
+            # headline median = advertised (salary fact) → realized → official → None.
+            if srows:
+                last = srows[-1]
+                median, sample, conf, kind, freshness, transparency, source_id, is_seed = (
+                    float(series[-1]["value"]), last[4], last[5], last[6], last[7], last[8], last[9], bool(last[10]))
+                cur_adv = country_cur.get(code)
+            elif rl:
+                median, sample, conf, kind, freshness, transparency, source_id, is_seed, cur_adv = (
+                    rl[0], rl[1], "med", "person-level", "—", 0.0, "stack-overflow-survey", False, rl[3])
+            elif of:
+                median, sample, conf, kind, freshness, transparency, source_id, is_seed, cur_adv = (
+                    of[0], of[1], "med", "official", "—", 0.0, "official-anchor", False, of[3])
+            else:                                          # demand-only (derived) role — no salary anywhere
+                median, sample, conf, kind, freshness, transparency, source_id, is_seed, cur_adv = (
+                    None, 0, "low", "demand-only", "—", 0.0, "derived", False, None)
+            sc = score_m.get((rid, code)) or (rid, code, 0.0, 0.0, 0.0, 0.0, 0, 0)
             row = M.MartRoleCountry(
                 role_id=rid, country_code=code,
-                median=float(series[-1]["value"]),
+                median=float(median) if median is not None else None,
                 demand=dser[-1]["value"] if dser else 0,
                 interest=interest_m.get((rid, code), 0),
-                currency_advertised=country_cur.get(code),
+                currency_advertised=cur_adv,
                 median_realized=rl[0] if rl else None,
                 sample_realized=rl[1] if rl else None,
                 source_realized=rl[2] if rl else None,
@@ -176,11 +189,11 @@ def materialize_from_warehouse() -> None:
                 score_total=sc[2], score_demand=sc[3], score_pay=sc[4], score_opp=sc[5],
                 score_rank=int(sc[6]), score_pctile=int(sc[7]),
                 sample=int(sample), conf=conf, kind=kind, source=sources.get(source_id, source_id),
-                freshness=freshness, transparency=float(transparency), is_seed=bool(last[10]),
+                freshness=freshness, transparency=float(transparency), is_seed=is_seed,
                 series=series, demand_series=dser, forecast=fc,
             )
             rc_rows.append(row)
-            rc_index[(rid, code)] = {"median": row.median, "demand": row.demand,
+            rc_index[(rid, code)] = {"median": median or 0, "demand": row.demand,
                                      "score": row.score_total, "dser": dser}
 
         # ---- market pulse (computed aggregate, per country) ----

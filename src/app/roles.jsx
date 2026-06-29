@@ -296,7 +296,7 @@ import { Charts } from "./charts.jsx";
     // short-series safe: a real 1-point series must not white-screen the dashboard.
     const ser = cd.series && cd.series.length ? cd.series : [{ year: 0, value: cd.median }];
     const prev = ser.length > 1 ? ser[ser.length - 2].value : ser[ser.length - 1].value;
-    const deltaPct = prev ? ((cd.median - prev) / prev) * 100 : 0;
+    const deltaPct = (prev && cd.median != null) ? ((cd.median - prev) / prev) * 100 : 0;
     const baseIdx = Math.max(0, ser.length - 6);
     const baseVal = ser[baseIdx].value;
     const fiveYr = baseVal ? ser[ser.length - 1].value / baseVal - 1 : 0;

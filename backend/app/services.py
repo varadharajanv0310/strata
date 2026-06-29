@@ -40,7 +40,7 @@ def _lens(median, sample, source, currency) -> dict | None:
 
 def _role_country_payload(rc: M.MartRoleCountry) -> dict:
     return {
-        "median": int(rc.median),
+        "median": int(rc.median) if rc.median is not None else None,
         "series": rc.series,
         "demandSeries": rc.demand_series,
         "forecast": rc.forecast,

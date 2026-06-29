@@ -298,7 +298,12 @@ let LAND_CACHE = null;
 
   // ---- big salary headline ----
   function BigSalary({ value, code, size = 44 }) {
-    const animated = useCountUp(value, 900, [code]);
+    const hasVal = value != null && !Number.isNaN(value);
+    const animated = useCountUp(hasVal ? value : 0, 900, [code]);
+    if (!hasVal) {
+      // a demand-only / derived role with no salary lens reads honestly, never ₹0
+      return <span style={{ fontSize: Math.round(size * 0.42), fontWeight: 600, color: "var(--t3)", lineHeight: 1 }}>not enough data</span>;
+    }
     return <span className="tnum" style={{ fontSize: size, fontWeight: 700, letterSpacing: "-0.03em", color: "#fff", lineHeight: 1 }}>
       {S().fmtCur(Math.round(animated), code)}
     </span>;
