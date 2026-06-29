@@ -74,6 +74,10 @@ STAGES: dict[str, tuple[str, int]] = {
     # roles-only occupation graph (employer-stripped) → bridge_role_adjacency
     "wikidata_occupations": ("from backend.ingest.wikidata_occupations import run; print(run())", 2400),
     "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
+    # LLM corpus extraction (the GPU differentiator) → staging/extracted; then validate it.
+    # Long GPU budget (~15-28 GPU-hours for the full corpus). Build-only this pass; run later.
+    "llm_extract": ("from backend.ml.llm_extract import run; print(run(shard_size=2000))", 100800),
+    "extract_validate": ("from backend.ml.extract_validate import run; print(run())", 7200),
     "gpu_normalize": (
         "from backend.ml.skill_norm import run as s; from backend.ml.entity_resolution import run as e; "
         "from backend.ml.role_derivation import run as r; "
@@ -91,7 +95,8 @@ ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilosta
          "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
          "wikipedia_pageviews", "eures", "bundesagentur", "mycareersfuture", "usajobs",
          "cedefop_ovate", "hn_hiring", "remoteok", "wikidata_occupations",
-         "common_crawl", "gpu_normalize", "onet_trajectory", "role_ladders", "hedonic", "fuse"]
+         "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
+         "onet_trajectory", "role_ladders", "hedonic", "fuse"]
 
 
 def _ts() -> str:
@@ -173,11 +178,24 @@ def count_stage(name: str) -> str:
         if name == "hedonic":
             from backend.ml.hedonic import load_premiums
             return f"{len(load_premiums())} skill premiums"
+        if name == "llm_extract":
+            from backend.ml.llm_extract import load_extracted
+            rows = load_extracted()
+            n = len(rows) if rows is not None else 0
+            ab = sum(1 for r in rows if r.get("abstain")) if rows is not None and n else 0
+            return f"{n} postings extracted, {ab} abstained"
+        if name == "extract_validate":
+            import os
+            p = sd / "extracted" / "validation_report.json"
+            return "validated (report present)" if p.exists() else "no validation report yet"
         if name in {"gov_projections", "stack_exchange", "package_registries", "arxiv",
                     "huggingface", "wikipedia_pageviews", "eures", "bundesagentur",
                     "mycareersfuture", "usajobs", "cedefop_ovate", "hn_hiring", "remoteok",
                     "wikidata_occupations"}:
-            d = sd / name
+            # E4: a few connectors land to a shorter dir than their stage name.
+            _DIR = {"cedefop_ovate": "cedefop", "wikipedia_pageviews": "wikipedia",
+                    "wikidata_occupations": "wikidata"}
+            d = sd / _DIR.get(name, name)
             if not d.exists():
                 return "no staging yet"
             total = 0

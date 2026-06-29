@@ -26,11 +26,16 @@ from backend.core.logging import get_logger
 log = get_logger("pipelines.publish")
 
 
-def publish_served(*, with_taxonomy: bool = True, compute: bool = True) -> dict:
+def publish_served(*, with_taxonomy: bool = True, compute: bool = True,
+                   gate: str = "warn") -> dict:
     """Run the full warehouse→served path. Returns a summary of row counts.
 
     Visible heartbeat per stage. Idempotent (every stage clears + rewrites its
     target). Reads staging read-only; writes the configured warehouse + app.db.
+
+    ``gate`` runs the validate_run honesty/sanity gate before materialize:
+      * ``"warn"`` (default) — log any breach + proceed (seed/test harness).
+      * ``"strict"`` — REFUSE to publish if the gate finds any breach (real run).
     """
     t0 = time.time()
     summary: dict = {"warehouse": settings.duckdb_path, "db": settings.resolved_database_url}
@@ -61,6 +66,22 @@ def publish_served(*, with_taxonomy: bool = True, compute: bool = True) -> dict:
         from backend.ml.forecasting import compute_forecasts
         compute_job_scores()
         compute_forecasts()
+
+    # 3.5) RUN-GATE: validate the warehouse before it can reach the served marts.
+    _beat("validate_run (gate=%s)" % gate)
+    try:
+        from backend.pipelines.validate_run import validate_run
+        code = validate_run()
+        summary["validation_exit"] = code
+        if code != 0:
+            msg = f"run-gate found {code} breach(es) — see validation_report.json"
+            if gate == "strict":
+                raise SystemExit("publish refused: " + msg)
+            log.warning("publish: %s — proceeding (gate=warn)", msg)
+    except SystemExit:
+        raise
+    except Exception as e:  # noqa: BLE001 — never let a gate import error block a warn-mode publish
+        log.warning("publish: validate_run unavailable (%s)", e)
 
     # 4) materialize serving marts (the spine)
     _beat("materialize_from_warehouse")

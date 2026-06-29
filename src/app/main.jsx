@@ -185,6 +185,14 @@ import { useTweaks, TweaksPanel, TweakSection, TweakSlider, TweakColor, TweakRad
           </div>
         </div>
 
+        {/* honesty: demo/seed data must announce itself, never pose as the real run */}
+        {S().isSeed && (
+          <div style={{ padding: "6px 18px", fontSize: 12, fontWeight: 600, textAlign: "center",
+            color: "#1a1205", background: "var(--warn, #ffcc4d)", letterSpacing: 0.2 }}>
+            Demo data — representative seed, not the live ingested run. Numbers are illustrative.
+          </div>
+        )}
+
         {/* scroll region + surfaces */}
         <div className="scroll-region" ref={scrollRef}>
           <div className="shell-pad">

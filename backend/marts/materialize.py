@@ -206,8 +206,12 @@ def materialize_from_warehouse() -> None:
             def rank_by(metric):
                 if metric == "rising":
                     def grow(rid):
+                        # baseline = ~5 points back from the latest, derived from THIS
+                        # series' length (not a hardcoded seed-year index) so a real
+                        # series of any length/start compares like-for-like (B6).
                         d = rc_index[(rid, code)]
-                        base = d["dser"][YEAR_2020_INDEX]["value"] if len(d["dser"]) > YEAR_2020_INDEX else 0
+                        ds = d["dser"]
+                        base = ds[max(0, len(ds) - 6)]["value"] if ds else 0
                         return d["demand"] - base
                     return sorted(present, key=grow, reverse=True)[:5]
                 key = {"hottest": "demand", "topPay": "median", "topScore": "score"}[metric]
