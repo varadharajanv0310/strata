@@ -402,6 +402,11 @@ def _vllm_available() -> bool:
 # --------------------------------------------------------------------------- #
 #  Ollama engine (native-Windows path; stdlib HTTP, schema-constrained)         #
 # --------------------------------------------------------------------------- #
+class OllamaUnavailable(RuntimeError):
+    """The Ollama server/model went unreachable mid-run — abort cleanly (resumable),
+    rather than grinding per-request timeouts for hours."""
+
+
 def ollama_chat(messages: list[dict[str, str]], *, model: str,
                 host: str = "http://localhost:11434", fmt: dict | None = None,
                 temperature: float = 0.0, num_ctx: int = 8192, timeout: int = 300) -> str:
@@ -460,10 +465,35 @@ class _OllamaEngine:
 
     def run_batch(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
         if self._concurrency == 1:
-            return [self._one(m) for m in messages_batch]
-        from concurrent.futures import ThreadPoolExecutor
-        with ThreadPoolExecutor(max_workers=self._concurrency) as ex:
-            return list(ex.map(self._one, messages_batch))  # map preserves input order
+            results = [self._one(m) for m in messages_batch]
+        else:
+            from concurrent.futures import ThreadPoolExecutor
+            with ThreadPoolExecutor(max_workers=self._concurrency) as ex:
+                results = list(ex.map(self._one, messages_batch))  # map preserves input order
+        # circuit breaker: a *whole* batch of empty strings means transport failures, not
+        # real abstains (a schema-constrained reply is always non-empty JSON). If the
+        # server is genuinely down, abort fast — don't burn the per-request timeout on
+        # every remaining posting for hours. The checkpoint makes the restart resumable.
+        if messages_batch and all(r == "" for r in results):
+            if not _ollama_available(self._host, self._model):
+                raise OllamaUnavailable(
+                    f"Ollama unreachable at {self._host} (model {self._model}) — aborting; "
+                    "rerun to resume from the last completed shard")
+        return results
+
+
+def _model_present(model: str, names: set[str]) -> bool:
+    """Match a configured model against pulled Ollama tag names. Exact tag wins; a bare
+    name (no ':') matches any pulled tag with that base; ':latest' matches the base too.
+    'qwen3:8b' matches only 'qwen3:8b'; 'qwen3' or 'qwen3:latest' match 'qwen3:8b'."""
+    if model in names:
+        return True
+    base, _, tag = model.partition(":")          # 'qwen3:8b'->('qwen3','8b'); 'qwen3'->('qwen3','')
+    for n in names:
+        nbase, _, ntag = n.partition(":")
+        if nbase == base and (tag in ("", "latest") or tag == ntag):
+            return True
+    return False
 
 
 def _ollama_available(host: str, model: str) -> bool:
@@ -476,10 +506,7 @@ def _ollama_available(host: str, model: str) -> bool:
         log.info("llm_extract: no Ollama server at %s (%s)", host, e)
         return False
     names = {m.get("name", "") for m in tags.get("models", [])}
-    # accept an exact match or the bare name without an explicit :latest tag
-    if model in names or any(n.split(":")[0] == model.split(":")[0] and
-                             model.split(":")[-1] in ("latest", n.split(":")[-1])
-                             for n in names):
+    if _model_present(model, names):
         return True
     log.warning("llm_extract: Ollama up but model '%s' not pulled (have: %s) — "
                 "run `ollama pull %s`", model, sorted(names), model)
@@ -598,8 +625,14 @@ def _process_shard(engine: _Engine, shard, *, batch_size: int = 64) -> list[dict
         msgs = [build_messages(r["title"], r["description"]) for r in batch]
         try:
             texts = engine.run_batch(msgs)
+        except OllamaUnavailable:
+            raise  # server down — abort the run cleanly; the checkpoint resumes it later
         except Exception as e:  # noqa: BLE001 — a bad batch must not sink the shard
             log.warning("llm_extract: batch failed (%s) — abstaining %d rows", e, len(batch))
+            texts = [""] * len(batch)
+        if len(texts) != len(batch):  # defensive: a length skew would misalign posting_id
+            log.warning("llm_extract: batch/result count skew (%d≠%d) — abstaining batch",
+                        len(batch), len(texts))
             texts = [""] * len(batch)
         for r, txt in zip(batch, texts):
             rec = _coerce(txt, int(r["posting_id"]))
@@ -690,8 +723,12 @@ def run(
                     "note": "no extraction backend available: install vllm (Linux/WSL), "
                             "or start an Ollama server and pull the model (native Windows)"}
 
-        # the run() default model is the vLLM HF id; for Ollama use the configured tag
-        if backend == "ollama" and model == DEFAULT_MODEL:
+        # the run() default model is the vLLM HF id; for Ollama use the configured tag.
+        # also catch an explicitly-passed HF id (contains '/') that Ollama can't serve.
+        if backend == "ollama" and (model == DEFAULT_MODEL or "/" in model):
+            if model != DEFAULT_MODEL:
+                log.warning("llm_extract: '%s' is not an Ollama tag — using ollama_model '%s'",
+                            model, settings.ollama_model)
             model = settings.ollama_model
         log.info("llm_extract: backend=%s model=%s", backend, model)
 

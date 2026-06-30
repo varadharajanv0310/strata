@@ -552,11 +552,16 @@ def _load_judge_llm():
         pass
 
     # ---- native-Windows fallback: a local Ollama server ----
-    from backend.ml.llm_extract import _ollama_available, ollama_chat
-    host = settings.ollama_host
-    model_id = settings.ollama_judge_model
-    if not _ollama_available(host, model_id):
-        log.warning("no judge backend (vLLM absent, Ollama model '%s' unavailable) — "
+    try:
+        from backend.ml.llm_extract import _ollama_available, ollama_chat
+        host = settings.ollama_host
+        model_id = settings.ollama_judge_model
+        available = _ollama_available(host, model_id)
+    except Exception as e:  # noqa: BLE001 — any import/probe failure → skip judge gracefully
+        log.warning("judge Ollama fallback unavailable (%s) — skipping LLM-as-judge", e)
+        return None
+    if not available:
+        log.warning("no judge backend (vLLM unavailable, Ollama model '%s' not pulled) — "
                     "skipping LLM-as-judge [responsibilities_summary stays unvalidated]",
                     model_id)
         return None
