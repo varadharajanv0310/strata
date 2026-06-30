@@ -57,9 +57,14 @@ ROLE_TERM = {
 
 BATCH_SIZE = 5          # pytrends hard max terms per interest_over_time request
 TIMEFRAME = "today 5-y"  # weekly series over ~5y; we read the latest-year mean
-MAX_RETRIES = 4          # bounded — Google blocks are expected, give up gracefully
-BASE_BACKOFF = 12.0      # seconds; exponential. 429 from Google can need a long cooldown
-THROTTLE = 8.0           # base spacing between successful requests (jittered)
+MAX_RETRIES = 6          # bounded — Google blocks are expected, give up gracefully
+BASE_BACKOFF = 10.0      # seconds; exponential. 429 from Google can need a long cooldown
+MAX_BACKOFF = 150.0      # cap the exponential so a 429 storm can't hang one batch forever
+THROTTLE = 11.0          # base spacing between requests (jittered ±50%) — proactive 429 avoidance
+EMPTY_RETRIES = 2        # an empty frame is usually a SOFT block, not "no data" — retry a couple times
+# a realistic desktop UA makes Google's bot-heuristics far less likely to 429 us
+_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+       "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
 
 
 def _staging_dir():
@@ -85,7 +90,8 @@ def _new_pytrends():
     # Retry-After header *inside* the call — stacking on our backoff and hanging the
     # process for minutes. We want all retry/backoff control here, with the exception
     # surfacing immediately so _fetch_batch can decide. timeout caps a single attempt.
-    return TrendReq(hl="en-US", tz=0, timeout=(10, 25), retries=0, backoff_factor=0)
+    return TrendReq(hl="en-US", tz=0, timeout=(10, 25), retries=0, backoff_factor=0,
+                    requests_args={"headers": {"User-Agent": _UA}})
 
 
 def _fetch_batch(pytrends, terms: list[str], geo: str) -> dict | None:
@@ -94,13 +100,27 @@ def _fetch_batch(pytrends, terms: list[str], geo: str) -> dict | None:
     Returns {term: latest_year_mean_0_100} or None if Google blocked us past our
     retry budget (caller treats None as "stop this unit, keep what's cached").
     """
+    empties = 0
     for attempt in range(MAX_RETRIES):
         try:
             pytrends.build_payload(terms, timeframe=TIMEFRAME, geo=geo)
             df = pytrends.interest_over_time()
             if df is None or df.empty:
-                log.warning("trends %s %s — empty frame", geo, terms)
-                return {}
+                # an empty frame from Google is usually a SOFT block, not real "no data" —
+                # back off + rebuild the session a couple of times before believing it.
+                empties += 1
+                if empties > EMPTY_RETRIES:
+                    log.warning("trends %s %s — empty after %d tries (treating as no data)", geo, terms, empties)
+                    return {}
+                wait = min(MAX_BACKOFF, BASE_BACKOFF * (2 ** (empties - 1))) + random.uniform(0, 4)
+                log.warning("trends %s %s — empty frame (likely soft block), retry %d/%d in %.0fs",
+                            geo, terms, empties, EMPTY_RETRIES, wait)
+                time.sleep(wait)
+                try:
+                    pytrends = _new_pytrends()
+                except Exception:  # noqa: BLE001
+                    pass
+                continue
             if "isPartial" in df.columns:
                 df = df.drop(columns=["isPartial"])
             # latest-year mean per term (last ~52 weekly points), rounded 0-100.
@@ -117,7 +137,7 @@ def _fetch_batch(pytrends, terms: list[str], geo: str) -> dict | None:
                 log.error("trends %s %s — giving up after %d tries: %s",
                           geo, terms, MAX_RETRIES, msg)
                 return None
-            wait = BASE_BACKOFF * (2 ** attempt) + random.uniform(0, 4)
+            wait = min(MAX_BACKOFF, BASE_BACKOFF * (2 ** attempt)) + random.uniform(0, 4)
             log.warning("trends %s %s — %s (attempt %d/%d), backoff %.0fs",
                         geo, terms, "429/block" if is_429 else "error",
                         attempt + 1, MAX_RETRIES, wait)
@@ -159,6 +179,7 @@ def fetch_all(throttle: float = THROTTLE, max_units: int | None = None,
                 break
             if pytrends is None:
                 pytrends = _new_pytrends()
+                time.sleep(random.uniform(2.0, 5.0))   # gentle warmup before the first request
             terms = [ROLE_TERM[rid] for rid in batch]
             res = _fetch_batch(pytrends, terms, GEO[cc])
             if res is None:
