@@ -23,17 +23,31 @@ guess. ``skills`` is CONSTRAINED to the taxonomy vocab (``fingerprint.SKILL_VOCA
 precision; ``skills_emerging`` is free text so genuinely new tech still surfaces;
 ``disambiguated_role`` is free text so EMERGING roles aren't crushed into a fixed list.
 
-Throughput
-----------
-On an RTX 5080 (16 GB, FP8) with vLLM continuous batching + guided JSON, a 7B instruct
-model sustains roughly **~4k–7k postings/GPU-hour** on real posting-length text, i.e.
-**~15–28 GPU-hours for a 400k-posting corpus**. The same corpus on a CPU laptop with a
-naive per-posting call is a **6–10 week** job — this stage is the reason the GPU exists.
+Backends (vLLM or Ollama)
+-------------------------
+Two interchangeable engines implement the same ``run_batch(messages) -> [json_str]``:
+
+* **vLLM** (``_Engine``) — Linux/WSL only (no native-Windows wheel). FP8 + continuous
+  batching + ``guided_json`` give the highest throughput: roughly **~4k–7k postings/
+  GPU-hour** on an RTX 5080, i.e. ~15–28 GPU-hours for a 400k corpus.
+* **Ollama** (``_OllamaEngine``) — the **native-Windows** path (this machine). Talks to a
+  local Ollama server over HTTP with ``format=<json schema>`` (llama.cpp grammar-
+  constrained decoding), so output is still always schema-valid. Throughput is lower —
+  roughly **~1–3 s/posting warm** per request, lifted by issuing ``ollama_concurrency``
+  requests in parallel — but it needs no WSL and reuses the already-installed GPU runtime.
+  The 123-entry skills enum is dropped from Ollama's schema (kept free-text) to keep the
+  grammar fast; ``_coerce`` clamps skills back to the vocab afterwards, so the guarantee
+  holds either way.
+
+``settings.llm_backend`` selects: ``auto`` (vLLM if importable, else a live Ollama server)
+/ ``vllm`` / ``ollama``. Either way the corpus, schema, prompt, coercion, sharding and
+resume logic are identical — only the engine differs.
 
 Build notes
 -----------
-* Heavy deps (vllm, torch) are imported **lazily**. If they are absent the module still
-  imports cleanly; ``run()`` logs a clear skip and returns a summary with ``mode="skipped"``.
+* Heavy deps (vllm, torch) are imported **lazily** inside ``_Engine``; the Ollama engine
+  uses only stdlib HTTP. If neither backend is available the module still imports cleanly;
+  ``run()`` logs a clear skip and returns a summary with ``mode="skipped"``.
 * Idempotent + resumable: the corpus is split into shards of ``shard_size``; a completed
   shard writes ``shard_XXX.parquet`` + appends to the raw JSONL, and a checkpoint file
   records which shards are done. Re-running skips finished shards. Heartbeat every
@@ -119,13 +133,22 @@ EXTRACT_FIELDS: list[str] = [
 ]
 
 
-def extraction_json_schema() -> dict[str, Any]:
-    """JSON Schema handed to vLLM ``guided_json`` so every output is schema-valid.
+def extraction_json_schema(constrain_skills: bool = True) -> dict[str, Any]:
+    """JSON Schema handed to the engine for constrained decoding (schema-valid output).
 
     ``skills`` is constrained to the taxonomy vocab (closed enum) for precision;
     ``skills_emerging`` and ``disambiguated_role`` are free so new tech / emerging
     roles still surface. Roles-only: no employer/company axis anywhere.
+
+    ``constrain_skills=False`` drops the 123-entry skills enum (skills become a free
+    string array). vLLM handles the big enum fine; llama.cpp/Ollama grammars get slow
+    with a large alternation, so the Ollama engine relaxes it and relies on ``_coerce``
+    to clamp skills back to the vocab afterwards — the final vocab guarantee is identical.
     """
+    skills_items: dict[str, Any] = (
+        {"type": "string", "enum": list(SKILL_VOCAB)} if constrain_skills
+        else {"type": "string"}
+    )
     return {
         "type": "object",
         "additionalProperties": False,
@@ -134,7 +157,7 @@ def extraction_json_schema() -> dict[str, Any]:
             "role_confidence": {"type": "string", "enum": CONFIDENCE_ENUM},
             "skills": {
                 "type": "array",
-                "items": {"type": "string", "enum": list(SKILL_VOCAB)},
+                "items": skills_items,
             },
             "skills_emerging": {"type": "array", "items": {"type": "string"}},
             "seniority": {"type": "string", "enum": SENIORITY_ENUM},
@@ -362,14 +385,120 @@ class _Engine:
                 rendered.append(messages[-1]["content"])
         return rendered
 
+    def run_batch(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        """Unified engine interface: chat messages → raw model JSON strings (in order)."""
+        return self.generate(self.render(messages_batch))
+
 
 def _vllm_available() -> bool:
     try:
         import vllm  # noqa: F401
         return True
     except Exception as e:  # noqa: BLE001
-        log.warning("llm_extract: vLLM/torch stack unavailable (%s) — stage will SKIP", e)
+        log.info("llm_extract: vLLM stack not importable (%s)", e)
         return False
+
+
+# --------------------------------------------------------------------------- #
+#  Ollama engine (native-Windows path; stdlib HTTP, schema-constrained)         #
+# --------------------------------------------------------------------------- #
+def ollama_chat(messages: list[dict[str, str]], *, model: str,
+                host: str = "http://localhost:11434", fmt: dict | None = None,
+                temperature: float = 0.0, num_ctx: int = 8192, timeout: int = 300) -> str:
+    """One Ollama ``/api/chat`` round-trip → the assistant message text.
+
+    Shared by the extraction engine and the LLM-judge (extract_validate). ``fmt`` is an
+    optional JSON schema for grammar-constrained output; ``think=False`` strips reasoning
+    models' chain-of-thought so the reply is just the answer. Raises on transport error
+    (callers decide whether to abstain/skip).
+    """
+    import urllib.request
+    payload: dict[str, Any] = {
+        "model": model, "messages": messages, "stream": False, "think": False,
+        "options": {"temperature": float(temperature), "num_ctx": int(num_ctx)},
+    }
+    if fmt is not None:
+        payload["format"] = fmt
+    req = urllib.request.Request(
+        host.rstrip("/") + "/api/chat", data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read()).get("message", {}).get("content", "") or ""
+
+
+class _OllamaEngine:
+    """Same ``run_batch`` interface, backed by a local Ollama server over HTTP.
+
+    Uses ``/api/chat`` with ``format=<json schema>`` so llama.cpp grammar-constrains the
+    output to be schema-valid. The skills enum is relaxed (see ``extraction_json_schema``)
+    and clamped post-hoc by ``_coerce``. ``think=False`` suppresses reasoning models'
+    chain-of-thought so the response is just the JSON object. Requests in a batch are
+    issued ``concurrency``-at-a-time (order preserved) to lift throughput.
+    """
+
+    def __init__(self, model: str, temperature: float, *, host: str,
+                 concurrency: int = 4, num_ctx: int = 8192, timeout: int = 300):
+        self._model = model
+        self._host = host
+        self._schema = extraction_json_schema(constrain_skills=False)
+        self._temperature = float(temperature)
+        self._num_ctx = int(num_ctx)
+        self._concurrency = max(1, int(concurrency))
+        self._timeout = timeout
+        self.model = model
+        log.info("llm_extract: Ollama engine up — model=%s host=%s concurrency=%d",
+                 model, host, self._concurrency)
+
+    def _one(self, messages: list[dict[str, str]]) -> str:
+        try:
+            return ollama_chat(messages, model=self._model, host=self._host,
+                               fmt=self._schema, temperature=self._temperature,
+                               num_ctx=self._num_ctx, timeout=self._timeout)
+        except Exception as e:  # noqa: BLE001 — a failed call abstains, never sinks the shard
+            log.warning("llm_extract: ollama request failed (%s) — abstaining 1 row", e)
+            return ""
+
+    def run_batch(self, messages_batch: list[list[dict[str, str]]]) -> list[str]:
+        if self._concurrency == 1:
+            return [self._one(m) for m in messages_batch]
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=self._concurrency) as ex:
+            return list(ex.map(self._one, messages_batch))  # map preserves input order
+
+
+def _ollama_available(host: str, model: str) -> bool:
+    """True iff the Ollama server responds AND the requested model is pulled."""
+    import urllib.request
+    try:
+        with urllib.request.urlopen(host.rstrip("/") + "/api/tags", timeout=5) as r:
+            tags = json.loads(r.read())
+    except Exception as e:  # noqa: BLE001
+        log.info("llm_extract: no Ollama server at %s (%s)", host, e)
+        return False
+    names = {m.get("name", "") for m in tags.get("models", [])}
+    # accept an exact match or the bare name without an explicit :latest tag
+    if model in names or any(n.split(":")[0] == model.split(":")[0] and
+                             model.split(":")[-1] in ("latest", n.split(":")[-1])
+                             for n in names):
+        return True
+    log.warning("llm_extract: Ollama up but model '%s' not pulled (have: %s) — "
+                "run `ollama pull %s`", model, sorted(names), model)
+    return False
+
+
+def _select_backend(requested: str, *, ollama_host: str, ollama_model: str) -> str:
+    """Resolve the extraction backend: 'vllm' | 'ollama' | 'none'."""
+    req = (requested or "auto").lower()
+    if req == "vllm":
+        return "vllm" if _vllm_available() else "none"
+    if req == "ollama":
+        return "ollama" if _ollama_available(ollama_host, ollama_model) else "none"
+    # auto: prefer the faster vLLM path, else fall back to a live Ollama server
+    if _vllm_available():
+        return "vllm"
+    if _ollama_available(ollama_host, ollama_model):
+        return "ollama"
+    return "none"
 
 
 # --------------------------------------------------------------------------- #
@@ -468,8 +597,7 @@ def _process_shard(engine: _Engine, shard, *, batch_size: int = 64) -> list[dict
         batch = records[b0:b0 + batch_size]
         msgs = [build_messages(r["title"], r["description"]) for r in batch]
         try:
-            prompts = engine.render(msgs)
-            texts = engine.generate(prompts)
+            texts = engine.run_batch(msgs)
         except Exception as e:  # noqa: BLE001 — a bad batch must not sink the shard
             log.warning("llm_extract: batch failed (%s) — abstaining %d rows", e, len(batch))
             texts = [""] * len(batch)
@@ -551,10 +679,21 @@ def run(
         n = len(corpus)
         shards_total = (n + shard_size - 1) // shard_size
 
-        if not _vllm_available():
-            return {"mode": "skipped", "reason": "no_vllm", "postings": n,
+        backend = _select_backend(
+            settings.llm_backend,
+            ollama_host=settings.ollama_host,
+            ollama_model=settings.ollama_model,
+        )
+        if backend == "none":
+            return {"mode": "skipped", "reason": "no_llm_backend", "postings": n,
                     "shards_total": shards_total, "written": False,
-                    "note": "install vllm+torch on the 5080 to run extraction"}
+                    "note": "no extraction backend available: install vllm (Linux/WSL), "
+                            "or start an Ollama server and pull the model (native Windows)"}
+
+        # the run() default model is the vLLM HF id; for Ollama use the configured tag
+        if backend == "ollama" and model == DEFAULT_MODEL:
+            model = settings.ollama_model
+        log.info("llm_extract: backend=%s model=%s", backend, model)
 
         state = _load_checkpoint()
         if state.get("model") not in (None, model):
@@ -565,11 +704,17 @@ def run(
         done_shards = set(state.get("done_shards", []))
 
         try:
-            engine = _Engine(model, temperature=temperature)
-        except Exception as e:  # noqa: BLE001 — construction needs the GPU
-            log.warning("llm_extract: could not start vLLM engine (%s) — SKIP", e)
-            return {"mode": "skipped", "reason": "engine_init_failed", "error": str(e),
-                    "postings": n, "shards_total": shards_total, "written": False}
+            if backend == "ollama":
+                engine = _OllamaEngine(
+                    model, temperature=temperature, host=settings.ollama_host,
+                    concurrency=settings.ollama_concurrency, num_ctx=settings.ollama_num_ctx)
+            else:
+                engine = _Engine(model, temperature=temperature)
+        except Exception as e:  # noqa: BLE001 — engine construction may need the GPU/server
+            log.warning("llm_extract: could not start %s engine (%s) — SKIP", backend, e)
+            return {"mode": "skipped", "reason": "engine_init_failed", "backend": backend,
+                    "error": str(e), "postings": n, "shards_total": shards_total,
+                    "written": False}
 
         rows_written = 0
         shards_run = 0
@@ -612,6 +757,7 @@ def run(
 
         summary = {
             "mode": "extract",
+            "backend": backend,
             "model": model,
             "postings": n,
             "shards_total": shards_total,

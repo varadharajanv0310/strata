@@ -81,6 +81,19 @@ class Settings(BaseSettings):
     embed_batch_size: int = 256
     ml_vram_budget_gb: int = 16
 
+    # ---- LLM corpus-extraction backend ----
+    # "auto" prefers vLLM (Linux/WSL) and falls back to a local Ollama server (the
+    # native-Windows path); "vllm" / "ollama" force one. Ollama needs its server up
+    # (``ollama serve``) and the model pulled (``ollama pull <model>``).
+    llm_backend: str = "auto"
+    ollama_host: str = "http://localhost:11434"
+    ollama_model: str = "qwen3:8b"
+    ollama_concurrency: int = 4          # parallel /api/chat requests per batch
+    ollama_num_ctx: int = 8192           # context window passed to Ollama
+    # LLM-as-judge (extract_validate): a STRONGER/different model than the extractor.
+    judge_model: str = "Qwen/Qwen2.5-14B-Instruct"   # vLLM judge id
+    ollama_judge_model: str = "gpt-oss:20b"          # native-Windows judge (strongest local)
+
     # cedefop_ovate.py reads the override as ``getattr(settings, "CEDEFOP_OVATE_URL")``
     # (uppercase). pydantic stores the field lowercased, so expose an uppercase alias
     # property to satisfy that getattr; stays None (gracefully disabled) when unset.

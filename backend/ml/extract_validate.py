@@ -515,33 +515,69 @@ JUDGE_USER_TEMPLATE = (
 )
 
 
-def _load_judge_llm():
-    """Lazily build the judge LLM (a *different/stronger* model than the extractor).
+# constrained judge output: {score: 1-5, reason: str} — keeps Ollama replies parseable.
+_JUDGE_FMT = {
+    "type": "object", "additionalProperties": False,
+    "properties": {"score": {"type": "integer", "enum": [1, 2, 3, 4, 5]},
+                   "reason": {"type": "string"}},
+    "required": ["score", "reason"],
+}
 
-    Returns a callable ``generate(prompts: list[str]) -> list[str]`` or ``None``
-    when the GPU stack is unavailable. Import-clean: nothing heavy at module load.
+
+def _load_judge_llm():
+    """Lazily build the judge generate() — vLLM if present, else a live Ollama server.
+
+    The judge is a *different/stronger* model than the extractor (Qwen2.5-14B on vLLM,
+    or ``ollama_judge_model`` — gpt-oss:20b — natively). Returns a callable
+    ``generate(prompts: list[str]) -> list[str]`` or ``None`` when no backend is
+    available (judge stage then skips → tier stays ``unvalidated``). Import-clean.
     """
+    # ---- preferred: vLLM (Linux/WSL), highest throughput ----
     try:
         from vllm import LLM, SamplingParams  # noqa: WPS433 (lazy heavy dep)
-    except Exception as e:  # noqa: BLE001 — vllm/torch absent → graceful skip
-        log.warning("vLLM unavailable (%s) — skipping LLM-as-judge "
-                    "[responsibilities_summary stays unvalidated]", e)
+        model_id = settings.judge_model or "Qwen/Qwen2.5-14B-Instruct"
+        try:
+            llm = LLM(model=model_id, dtype="auto", gpu_memory_utilization=0.85,
+                      max_model_len=8192, enforce_eager=True)
+            sp = SamplingParams(temperature=0.0, max_tokens=128)
+        except Exception as e:  # noqa: BLE001 — OOM / bad id → fall through to Ollama
+            log.error("judge vLLM init failed (%s: %s) — trying Ollama", model_id, e)
+        else:
+            def generate(prompts: list[str]) -> list[str]:
+                outs = llm.generate(prompts, sp)
+                return [o.outputs[0].text if o.outputs else "" for o in outs]
+            log.info("judge LLM ready (vLLM): %s", model_id)
+            return generate
+    except Exception:  # noqa: BLE001 — vllm absent; fall through to the Ollama path
+        pass
+
+    # ---- native-Windows fallback: a local Ollama server ----
+    from backend.ml.llm_extract import _ollama_available, ollama_chat
+    host = settings.ollama_host
+    model_id = settings.ollama_judge_model
+    if not _ollama_available(host, model_id):
+        log.warning("no judge backend (vLLM absent, Ollama model '%s' unavailable) — "
+                    "skipping LLM-as-judge [responsibilities_summary stays unvalidated]",
+                    model_id)
         return None
 
-    model_id = getattr(settings, "judge_model", None) or "Qwen/Qwen2.5-14B-Instruct"
-    try:
-        llm = LLM(model=model_id, dtype="auto", gpu_memory_utilization=0.85,
-                  max_model_len=8192, enforce_eager=True)
-    except Exception as e:  # noqa: BLE001 — OOM / no GPU / bad model id → skip, don't crash
-        log.error("judge LLM init failed (%s: %s) — skipping judge stage", model_id, e)
-        return None
-    sp = SamplingParams(temperature=0.0, max_tokens=128)
+    conc = max(1, int(settings.ollama_concurrency))
 
     def generate(prompts: list[str]) -> list[str]:
-        outs = llm.generate(prompts, sp)
-        return [o.outputs[0].text if o.outputs else "" for o in outs]
+        def _one(p: str) -> str:
+            try:
+                return ollama_chat([{"role": "user", "content": p}], model=model_id,
+                                   host=host, fmt=_JUDGE_FMT, num_ctx=settings.ollama_num_ctx)
+            except Exception as e:  # noqa: BLE001 — failed call → unparseable → dropped score
+                log.warning("judge ollama call failed (%s)", e)
+                return ""
+        if conc == 1:
+            return [_one(p) for p in prompts]
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=conc) as ex:
+            return list(ex.map(_one, prompts))
 
-    log.info("judge LLM ready: %s", model_id)
+    log.info("judge LLM ready (Ollama): %s", model_id)
     return generate
 
 
