@@ -69,6 +69,11 @@ class Settings(BaseSettings):
     # Both optional → the connector skips+flags gracefully when absent.
     usajobs_api_key: str | None = Field(None, validation_alias="USAJOBS_API_KEY")
     usajobs_email: str | None = Field(None, validation_alias="USAJOBS_EMAIL")
+    # BLS (OEWS/baselines) + Hugging Face tokens. Declared so they load from .env;
+    # some connectors read these via ``os.environ.get`` rather than ``settings`` (a
+    # historical inconsistency), so we bridge them into os.environ below. Optional.
+    bls_api_key: str | None = Field(None, validation_alias="BLS_API_KEY")
+    hf_token: str | None = Field(None, validation_alias="HF_TOKEN")
 
     # ---- GPU / ML ----
     ml_device: str = "cuda"
@@ -150,3 +155,14 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+
+# pydantic-settings loads `.env` into the Settings object, NOT into os.environ. A few
+# connectors (baselines, huggingface) read their keys via ``os.environ.get(...)``, so
+# without this bridge a key correctly placed in `.env` would be silently ignored at
+# run time. Push the os.environ-consumed secrets across — but never clobber a real
+# environment variable (keeps test/smoke isolation, which sets real env vars, intact).
+import os as _os  # noqa: E402
+
+for _name, _val in (("BLS_API_KEY", settings.bls_api_key), ("HF_TOKEN", settings.hf_token)):
+    if _val and not _os.environ.get(_name):
+        _os.environ[_name] = _val
