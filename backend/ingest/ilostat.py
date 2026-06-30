@@ -28,14 +28,20 @@ from backend.core.logging import get_logger
 
 log = get_logger("ingest.ilostat")
 
-# mean nominal monthly earnings of employees by sex + occupation (ISCO-08) + currency
-INDICATOR = "EAR_4MTH_SEX_OCU_CUR_NB"
+# Mean MONTHLY earnings of employees by sex + occupation (ISCO-08) + currency.
+# (id confirmed live against the ILOSTAT SDMX dataflow catalog — the older
+# EAR_4MTH_SEX_OCU_CUR_NB id is invalid and 400s.) NOTE: ILOSTAT publishes earnings at
+# the ISCO occupation-GROUP level (mostly 1-digit major groups), so this is a coarse
+# cross-country wage ANCHOR by occupation group, not a 4-digit role-specific wage.
+INDICATOR = "EAR_EMTM_SEX_OCU_CUR_NB"
 # ILOSTAT uses ISO-3; map to our ISO-2.
 ISO3_TO_2 = {"IND": "IN", "USA": "US", "GBR": "GB", "CAN": "CA", "AUS": "AU", "SGP": "SG", "DEU": "DE"}
-# public data API (no key). Coded output so classif1 carries the ISCO-08 code.
+# local-currency (LCU) → the country's ISO currency, so the official lens labels it honestly.
+LCU_CCY = {"IN": "INR", "US": "USD", "GB": "GBP", "CA": "CAD", "AU": "AUD", "SG": "SGD", "DE": "EUR"}
+# public data API (no key). classif1 carries the ISCO code, classif2 the currency type.
 URL = ("https://rplumber.ilo.org/data/indicator/"
        "?id={ind}&ref_area={iso3}&timefrom=2015&format=.csv")
-HEADERS = {"User-Agent": "strata/1.0 (+research; roles-only job-market explorer)"}
+HEADERS = {"User-Agent": "Mozilla/5.0 strata/1.0 (+research; roles-only job-market explorer)"}
 
 
 def _staging_dir():
@@ -57,31 +63,37 @@ def _isco_from_classif(code: str) -> str:
 
 
 def _fetch_country(iso3: str, timeout: int = 60) -> list[dict]:
-    """Fetch one country's earnings-by-occupation CSV → typed rows. Best-effort."""
+    """Fetch one country's earnings-by-occupation CSV → typed rows. Keeps ISCO-08
+    occupation groups (not ISCO-88 or the TOTAL aggregate), SEX_T (totals, so no
+    male/female duplicates), and the LOCAL-currency (LCU) series — the local official
+    monthly wage, labeled with the country's ISO currency. Best-effort."""
     url = URL.format(ind=INDICATOR, iso3=iso3)
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=timeout) as r:
-        text = r.read().decode("utf-8", errors="replace")
+        text = r.read().decode("utf-8-sig", errors="replace")   # response carries a BOM
     rows: list[dict] = []
-    reader = csv.DictReader(io.StringIO(text))
     code2 = ISO3_TO_2.get(iso3, iso3)
-    for row in reader:
-        classif1 = row.get("classif1") or row.get("classif1.label") or ""
-        if "ISCO08" not in classif1.upper():
-            continue                                  # occupation-level rows only
-        val = row.get("obs_value") or row.get("value")
+    ccy = LCU_CCY.get(code2, "")
+    seen: set[tuple] = set()
+    for row in csv.DictReader(io.StringIO(text)):
+        classif1 = (row.get("classif1") or "").upper()
+        if "ISCO08_" not in classif1 or classif1.endswith("TOTAL"):
+            continue                                  # ISCO-08 occupation groups only
+        if (row.get("sex") or "").upper() != "SEX_T":
+            continue                                  # totals only (avoid M/F dup rows)
+        if "LCU" not in (row.get("classif2") or "").upper():
+            continue                                  # local-currency series = the official local wage
         try:
-            earnings = float(val)
+            earnings = float(row.get("obs_value") or row.get("value"))
         except (TypeError, ValueError):
             continue
-        rows.append({
-            "country": code2,
-            "isco08": _isco_from_classif(classif1),
-            "year": int(float(row.get("time") or 0)) or None,
-            "earnings": earnings,
-            "currency": (row.get("classif2") or row.get("classif2.label") or "").replace("CUR_TYPE_", ""),
-            "sex": (row.get("sex") or "").replace("SEX_", ""),
-        })
+        isco = _isco_from_classif(row.get("classif1"))
+        year = int(float(row.get("time") or 0)) or None
+        if (isco, year) in seen:
+            continue                                  # newest source wins; dedup per occ×year
+        seen.add((isco, year))
+        rows.append({"country": code2, "isco08": isco, "year": year,
+                     "earnings": earnings, "currency": ccy, "sex": "T"})
     return rows
 
 
