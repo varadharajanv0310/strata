@@ -112,6 +112,22 @@ SENIORITY_ENUM = [
 CONFIDENCE_ENUM = ["high", "medium", "low", "abstain"]
 WORK_ENUM = ["onsite", "hybrid", "remote", "unknown"]
 COMP_ENUM = ["salary", "salary+equity", "salary+bonus", "contract", "unknown"]
+# council-added role-only axes (all SMALL enums → grammar-cheap for Ollama; abstain via
+# 'unknown'). employment_type = the engagement SHAPE (distinct from comp_structure = pay
+# shape); management_scope = IC-vs-manager TRACK (distinct from seniority = LEVEL);
+# on_call_or_shift = operational lifestyle load. None describe the employer.
+EMPLOYMENT_ENUM = [
+    "full_time", "part_time", "contract", "temporary",
+    "internship", "apprenticeship", "freelance", "unknown",
+]
+EDUCATION_ENUM = [
+    "none_required", "high_school", "associate_or_diploma",
+    "bachelors", "masters", "phd", "unknown",
+]
+MGMT_ENUM = ["ic", "lead", "manager", "director_plus", "unknown"]
+ONCALL_ENUM = [
+    "none", "on_call_rotation", "shift_work", "night_shift", "weekend_coverage", "unknown",
+]
 
 # ALL schema fields are about the ROLE and the WORK. There is deliberately NO
 # company / employer / industry / team / funding / perks / benefits field. If you
@@ -123,9 +139,16 @@ EXTRACT_FIELDS: list[str] = [
     "skills",
     "skills_emerging",
     "seniority",
+    "management_scope",
     "years_required",
+    "years_required_max",
+    "education_requirement",
+    "certifications_required",
+    "spoken_languages_required",
+    "employment_type",
     "responsibilities_summary",
     "work_arrangement",
+    "on_call_or_shift",
     "comp_structure",
     "language",
     "abstain",
@@ -161,9 +184,16 @@ def extraction_json_schema(constrain_skills: bool = True) -> dict[str, Any]:
             },
             "skills_emerging": {"type": "array", "items": {"type": "string"}},
             "seniority": {"type": "string", "enum": SENIORITY_ENUM},
+            "management_scope": {"type": "string", "enum": MGMT_ENUM},
             "years_required": {"type": ["integer", "null"]},
+            "years_required_max": {"type": ["integer", "null"]},
+            "education_requirement": {"type": "string", "enum": EDUCATION_ENUM},
+            "certifications_required": {"type": "array", "items": {"type": "string"}},
+            "spoken_languages_required": {"type": "array", "items": {"type": "string"}},
+            "employment_type": {"type": "string", "enum": EMPLOYMENT_ENUM},
             "responsibilities_summary": {"type": "string"},
             "work_arrangement": {"type": "string", "enum": WORK_ENUM},
+            "on_call_or_shift": {"type": "string", "enum": ONCALL_ENUM},
             "comp_structure": {"type": "string", "enum": COMP_ENUM},
             "language": {"type": "string"},
             "abstain": {"type": "boolean"},
@@ -171,8 +201,10 @@ def extraction_json_schema(constrain_skills: bool = True) -> dict[str, Any]:
         },
         "required": [
             "disambiguated_role", "role_confidence", "skills", "skills_emerging",
-            "seniority", "years_required", "responsibilities_summary",
-            "work_arrangement", "comp_structure", "language", "abstain", "honesty_flag",
+            "seniority", "management_scope", "years_required", "years_required_max",
+            "education_requirement", "certifications_required", "spoken_languages_required",
+            "employment_type", "responsibilities_summary", "work_arrangement",
+            "on_call_or_shift", "comp_structure", "language", "abstain", "honesty_flag",
         ],
     }
 
@@ -186,9 +218,16 @@ def _empty_extraction(posting_id: int, *, language: str = "unknown") -> dict[str
         "skills": [],
         "skills_emerging": [],
         "seniority": "unknown",
+        "management_scope": "unknown",
         "years_required": None,
+        "years_required_max": None,
+        "education_requirement": "unknown",
+        "certifications_required": [],
+        "spoken_languages_required": [],
+        "employment_type": "unknown",
         "responsibilities_summary": "",
         "work_arrangement": "unknown",
+        "on_call_or_shift": "unknown",
         "comp_structure": "unknown",
         "language": language,
         "abstain": True,
@@ -221,6 +260,32 @@ SYSTEM_PROMPT = (
     "5. \"disambiguated_role\" is a clean canonical role title and MAY be an emerging "
     "role not on any fixed list. Use \"unknown\" if the role is unclear.\n"
     "6. \"language\" is the ISO-639-1 code of the posting text.\n"
+    "7. \"employment_type\" is the engagement SHAPE the worker would sign (full_time, "
+    "part_time, contract, temporary, internship, apprenticeship, freelance) — set it ONLY "
+    "from an explicit statement; use \"unknown\" if unstated, never default to full_time. "
+    "This is the contract shape, NOT how pay is structured (that is \"comp_structure\").\n"
+    "8. \"education_requirement\" is the MINIMUM formal education the role explicitly "
+    "requires (none_required, high_school, associate_or_diploma, bachelors, masters, phd). "
+    "Map 'degree not required' / 'or equivalent experience' to \"none_required\"; use "
+    "\"unknown\" if no education bar is stated.\n"
+    "9. \"management_scope\": is the role an individual contributor (\"ic\"), a technical "
+    "lead (\"lead\"), a people manager (\"manager\"), or director-and-above "
+    "(\"director_plus\")? Use explicit signals ('manage a team of N' → manager; 'no direct "
+    "reports' → ic); \"unknown\" if unclear. This is the IC-vs-management track, separate "
+    "from \"seniority\" (the level).\n"
+    "10. \"on_call_or_shift\" is operational lifestyle load, set ONLY from explicit "
+    "statements (on-call rotation, rotational/night shifts, weekend coverage). Use "
+    "\"none\" if the posting states standard hours, \"unknown\" if silent. Do NOT infer "
+    "on-call merely because the role is SRE/support/ops.\n"
+    "11. \"certifications_required\": list ONLY explicitly named professional "
+    "certifications or licences (e.g. 'AWS Solutions Architect', 'CISSP', 'CKA'); do NOT "
+    "promote generic skills/tools (AWS, Kubernetes) into certifications; [] if none named.\n"
+    "12. \"spoken_languages_required\": ISO-639-1 codes of HUMAN languages the role "
+    "requires BEYOND the posting's own language (an English posting that requires German → "
+    "[\"de\"]); codes only, no proficiency level; [] if none stated.\n"
+    "13. \"years_required\" is the MINIMUM years of experience; \"years_required_max\" is "
+    "the UPPER bound when a range is given ('3-5 years' → 3 and 5); use null for either "
+    "when not stated (years_required_max is null unless a real range is given).\n"
     "Return ONLY the JSON object. No prose, no markdown."
 )
 
@@ -557,8 +622,12 @@ def _coerce(raw_text: str, posting_id: int) -> dict[str, Any]:
     out["disambiguated_role"] = str(obj.get("disambiguated_role") or "unknown").strip() or "unknown"
     out["role_confidence"] = _enum(obj.get("role_confidence"), CONFIDENCE_ENUM, "abstain")
     out["seniority"] = _enum(obj.get("seniority"), SENIORITY_ENUM, "unknown")
+    out["management_scope"] = _enum(obj.get("management_scope"), MGMT_ENUM, "unknown")
     out["work_arrangement"] = _enum(obj.get("work_arrangement"), WORK_ENUM, "unknown")
+    out["on_call_or_shift"] = _enum(obj.get("on_call_or_shift"), ONCALL_ENUM, "unknown")
     out["comp_structure"] = _enum(obj.get("comp_structure"), COMP_ENUM, "unknown")
+    out["employment_type"] = _enum(obj.get("employment_type"), EMPLOYMENT_ENUM, "unknown")
+    out["education_requirement"] = _enum(obj.get("education_requirement"), EDUCATION_ENUM, "unknown")
 
     # skills clamped to the vocab (precision); emerging stays free
     sk = obj.get("skills") or []
@@ -567,12 +636,31 @@ def _coerce(raw_text: str, posting_id: int) -> dict[str, Any]:
     em = obj.get("skills_emerging") or []
     if isinstance(em, list):
         out["skills_emerging"] = [str(x).strip() for x in em if str(x).strip()][:24]
+    # certifications: free named-credential array (proper nouns the model copies) — like emerging
+    cr = obj.get("certifications_required") or []
+    if isinstance(cr, list):
+        out["certifications_required"] = [str(x).strip() for x in cr if str(x).strip()][:16]
+    # spoken languages REQUIRED (distinct from `language` = the posting's own language):
+    # free ISO-639-1-ish codes, lowercased + light-validated, no proficiency level.
+    sl = obj.get("spoken_languages_required") or []
+    if isinstance(sl, list):
+        codes: list[str] = []
+        for x in sl:
+            code = str(x).strip().lower()[:3]
+            if code.isalpha() and 2 <= len(code) <= 3 and code not in codes:
+                codes.append(code)
+        out["spoken_languages_required"] = codes[:8]
 
     yr = obj.get("years_required")
     if isinstance(yr, bool):
         yr = None
     if isinstance(yr, (int, float)) and 0 <= yr <= 60:
         out["years_required"] = int(yr)
+    ymx = obj.get("years_required_max")
+    if isinstance(ymx, bool):
+        ymx = None
+    if isinstance(ymx, (int, float)) and 0 <= ymx <= 60:
+        out["years_required_max"] = int(ymx)
 
     out["responsibilities_summary"] = str(obj.get("responsibilities_summary") or "").strip()[:600]
     lang = str(obj.get("language") or "unknown").strip().lower()
