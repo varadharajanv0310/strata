@@ -89,7 +89,7 @@ STAGES: dict[str, tuple[str, int]] = {
     # cached-data analytics → staging the marts materialize reads (no network)
     "role_ladders": ("from backend.analytics.promotion_ladder import run; print(run())", 900),
     "hedonic": ("from backend.ml.hedonic import run; print(run())", 900),
-    "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 1200),
+    "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 5400),
 }
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
          "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
@@ -180,9 +180,9 @@ def count_stage(name: str) -> str:
             return f"{len(load_premiums())} skill premiums"
         if name == "llm_extract":
             from backend.ml.llm_extract import load_extracted
-            rows = load_extracted()
-            n = len(rows) if rows is not None else 0
-            ab = sum(1 for r in rows if r.get("abstain")) if rows is not None and n else 0
+            df = load_extracted()  # a pandas DataFrame — iterating it yields column names, not rows
+            n = len(df) if df is not None else 0
+            ab = int(df["abstain"].sum()) if n and "abstain" in df.columns else 0
             return f"{n} postings extracted, {ab} abstained"
         if name == "extract_validate":
             import os
