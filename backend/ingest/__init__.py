@@ -48,6 +48,7 @@ _REAL_SPECS: dict[str, str] = {
     "arxiv": "backend.ingest.arxiv:run",
     "huggingface": "backend.ingest.huggingface:run",
     "wikipedia_pageviews": "backend.ingest.wikipedia_pageviews:run",
+    "ambitionbox": "backend.ingest.ambitionbox:run",
 }
 
 

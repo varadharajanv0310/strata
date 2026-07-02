@@ -69,6 +69,8 @@ STAGES: dict[str, tuple[str, int]] = {
     "mycareersfuture": ("from backend.ingest.mycareersfuture import run; print(run())", 2400),
     "usajobs": ("from backend.ingest.usajobs import run; print(run())", 2400),
     "cedefop_ovate": ("from backend.ingest.cedefop_ovate import run; print(run())", 1800),
+    # aggregator salary ESTIMATES (role × experience-year, India-deep) → estimate lens
+    "ambitionbox": ("from backend.ingest.ambitionbox import run; print(run())", 2700),
     "hn_hiring": ("from backend.ingest.hn_hiring import run; print(run())", 5400),
     "remoteok": ("from backend.ingest.remoteok import run; print(run())", 600),
     # roles-only occupation graph (employer-stripped) → bridge_role_adjacency
@@ -94,7 +96,7 @@ STAGES: dict[str, tuple[str, int]] = {
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
          "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
          "wikipedia_pageviews", "eures", "bundesagentur", "mycareersfuture", "usajobs",
-         "cedefop_ovate", "hn_hiring", "remoteok", "wikidata_occupations",
+         "cedefop_ovate", "ambitionbox", "hn_hiring", "remoteok", "wikidata_occupations",
          "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
          "onet_trajectory", "role_ladders", "hedonic", "fuse"]
 
@@ -191,7 +193,7 @@ def count_stage(name: str) -> str:
         if name in {"gov_projections", "stack_exchange", "package_registries", "arxiv",
                     "huggingface", "wikipedia_pageviews", "eures", "bundesagentur",
                     "mycareersfuture", "usajobs", "cedefop_ovate", "hn_hiring", "remoteok",
-                    "wikidata_occupations"}:
+                    "wikidata_occupations", "ambitionbox"}:
             # E4: a few connectors land to a shorter dir than their stage name.
             _DIR = {"cedefop_ovate": "cedefop", "wikipedia_pageviews": "wikipedia",
                     "wikidata_occupations": "wikidata"}
