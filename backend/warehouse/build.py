@@ -953,9 +953,26 @@ def build_warehouse_from_staging() -> None:
                         "INSERT INTO dim_source VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT (source_id) DO NOTHING",
                         (sid, sid.replace("_", " ").title(), "adoption", None,
                          "technology adoption signal", False, "2026-06-25"))
-                con.executemany(
-                    "INSERT INTO fact_skill_adoption VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                    "ON CONFLICT (skill_id, country_code, period, metric, ecosystem) DO NOTHING", adoption_rows)
+                # BULK insert — adoption can be tens of thousands of rows (HF/registry feeds).
+                # A row-by-row executemany with per-row ON CONFLICT is ~O(n²) inside the open
+                # transaction (DuckDB re-scans the uncommitted set on each row) and stalls for
+                # 30+ min at ~24k rows. Dedupe on the conflict key, then INSERT…SELECT so the
+                # conflict check is a single indexed set-operation (seconds). Column NAMES here
+                # are only for the dedup; the INSERT…SELECT matches the table positionally.
+                import pandas as _pd
+                _adf = _pd.DataFrame(
+                    adoption_rows,
+                    columns=["skill_id", "country_code", "year", "period", "metric",
+                             "value", "ecosystem", "source_id", "is_seed"],
+                ).drop_duplicates(
+                    subset=["skill_id", "country_code", "period", "metric", "ecosystem"])
+                con.register("_adoption_df", _adf)
+                try:
+                    con.execute(
+                        "INSERT INTO fact_skill_adoption SELECT * FROM _adoption_df "
+                        "ON CONFLICT (skill_id, country_code, period, metric, ecosystem) DO NOTHING")
+                finally:
+                    con.unregister("_adoption_df")
 
             # fact_demand CORROBORATION ← skill-bearing vacancy feeds (skills→role bridge)
             # + Bundesagentur Jobsuche vacancy counts (DE, occupation→role)
