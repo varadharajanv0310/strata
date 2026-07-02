@@ -63,9 +63,10 @@ import { Charts } from "./charts.jsx";
     if (mode === "role") {
       const list = [...S().roles].map(r => {
         const cd = r.countries[country];
-        const v = metric === "median" ? cd.median : metric === "score" ? cd.score.total : cd.demand;
+        if (!cd) return null;   // sparse/derived roles may not cover every country — omit honestly
+        const v = metric === "median" ? cd.median : metric === "score" ? (cd.score?.total ?? 0) : cd.demand;
         return { label: r.name, value: v, geom: v, id: r.id };
-      }).sort((a, b) => b.value - a.value);
+      }).filter(Boolean).sort((a, b) => b.value - a.value);
       items = list;
       sub = `${metricMeta[metric].label} across all roles · ${S().C[country].name}`;
       fmtFn = v => metricMeta[metric].fmt(v, country);
@@ -74,13 +75,14 @@ import { Charts } from "./charts.jsx";
       const usePPP = metric === "median" && app.ppp;
       const list = S().COUNTRIES.map(co => {
         const cd = role.countries[co.code];
+        if (!cd) return null;   // a sparse/derived role may not cover every country
         const pppMed = S().pppUSD(cd.median, co.code);
-        let v = metric === "median" ? cd.median : metric === "score" ? cd.score.total : cd.demand;
+        let v = metric === "median" ? cd.median : metric === "score" ? (cd.score?.total ?? 0) : cd.demand;
         if (usePPP) v = pppMed;
         // median bars sized by PPP so cross-currency lengths are fair
         const geom = metric === "median" ? pppMed : v;
         return { label: co.name, value: v, geom, code: co.code };
-      }).sort((a, b) => b.geom - a.geom);
+      }).filter(Boolean).sort((a, b) => b.geom - a.geom);
       items = list;
       sub = `${metricMeta[metric].label} for ${role.name} · all 7 countries${usePPP ? " · PPP" : metric === "median" ? " · native currency" : ""}`;
       fmtFn = v => metric === "median" ? (usePPP ? "◊" + Math.round(v / 1000) + "k" : metricMeta[metric].fmt(v, items[0].code)) : metricMeta[metric].fmt(v);

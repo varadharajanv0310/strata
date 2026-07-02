@@ -45,7 +45,12 @@ export function hydrate(data) {
   STRATA.COUNTRIES = data.countries;
   STRATA.C = Object.fromEntries(data.countries.map((c) => [c.code, c]));
   STRATA.FAMILIES = data.families;
-  STRATA.roles = data.roles;
+  // Every cross-country surface assumes a role covers all 7 countries; a sparse role
+  // (e.g. a US-only derived cluster with no cell for India) would crash those grids.
+  // Surface only fully-covered roles here — sparse/derived roles stay in the warehouse
+  // for later, dedicated rendering. (proper sparse-role UI is a tracked follow-up.)
+  const _codes = data.countries.map((c) => c.code);
+  STRATA.roles = data.roles.filter((r) => r.countries && _codes.every((c) => r.countries[c]));
   STRATA.YEARS = data.years;
   STRATA.FYEARS = data.fyears;
   STRATA.RESUME_SAMPLE = data.resume_sample;
@@ -57,7 +62,7 @@ export function hydrate(data) {
   STRATA.provenance = data.provenance || {};
   STRATA.isSeed = !!data.is_seed;
   // marketPulse arrives as role-id arrays; reattach the role object references
-  const byId = Object.fromEntries(data.roles.map((r) => [r.id, r]));
+  const byId = Object.fromEntries(STRATA.roles.map((r) => [r.id, r]));
   const mp = {};
   for (const [code, groups] of Object.entries(data.marketPulse || {})) {
     mp[code] = {};
