@@ -165,8 +165,17 @@ def _to_records(rows: Any) -> list[dict]:
 # --------------------------------------------------------------------------- #
 def _g(rec: dict, *keys: str, default=None):
     for k in keys:
-        if k in rec and rec[k] not in (None, ""):
-            return rec[k]
+        if k not in rec:
+            continue
+        v = rec[k]
+        # scalar-safe "present and non-empty" check — never use ``in``/truthiness on v,
+        # which is a numpy array for list cells (skills/certs/languages) loaded from parquet
+        # and would raise "truth value of an array is ambiguous".
+        if v is None:
+            continue
+        if isinstance(v, str) and v == "":
+            continue
+        return v
     return default
 
 
