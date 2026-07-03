@@ -91,6 +91,8 @@ STAGES: dict[str, tuple[str, int]] = {
     # cached-data analytics → staging the marts materialize reads (no network)
     "role_ladders": ("from backend.analytics.promotion_ladder import run; print(run())", 900),
     "hedonic": ("from backend.ml.hedonic import run; print(run())", 900),
+    # zero-collection analytics over the LLM extraction (no network/GPU) → v2 tables
+    "posting_attributes": ("from backend.analytics.posting_attributes import run; print(run())", 600),
     "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 5400),
 }
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
@@ -98,7 +100,7 @@ ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilosta
          "wikipedia_pageviews", "eures", "bundesagentur", "mycareersfuture", "usajobs",
          "cedefop_ovate", "ambitionbox", "hn_hiring", "remoteok", "wikidata_occupations",
          "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
-         "onet_trajectory", "role_ladders", "hedonic", "fuse"]
+         "onet_trajectory", "role_ladders", "hedonic", "posting_attributes", "fuse"]
 
 
 def _ts() -> str:
@@ -180,6 +182,11 @@ def count_stage(name: str) -> str:
         if name == "hedonic":
             from backend.ml.hedonic import load_premiums
             return f"{len(load_premiums())} skill premiums"
+        if name == "posting_attributes":
+            from backend.analytics.posting_attributes import load_frames
+            fr = load_frames()
+            return (f"{len(fr['seniority_yoe'])} concordance, {len(fr['role_attributes'])} "
+                    f"role-attr, {len(fr['demand_yoe'])} demand-yoe rows")
         if name == "llm_extract":
             from backend.ml.llm_extract import load_extracted
             df = load_extracted()  # a pandas DataFrame — iterating it yields column names, not rows
