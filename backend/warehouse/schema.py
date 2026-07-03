@@ -282,7 +282,157 @@ BRIDGES = {
         )""",
 }
 
-ALL_TABLES = {**DIMENSIONS, **FACTS, **BRIDGES}
+# --------------------------------------------------------------------------- #
+#  v2: experience-curve + career-ladder substrate (GRID_PLAN §3)               #
+#  Additive — new tables only; existing lens facts (fact_salary_job/person/    #
+#  official) are untouched. The estimate lens (aggregators) + the derived      #
+#  experience/ladder analytics live here. ROLES-ONLY: no employer axis.        #
+# --------------------------------------------------------------------------- #
+LADDER_V2 = {
+    # Interval-native salary-by-experience OBSERVATIONS (ingest truth). One row per
+    # source's stated cell: AmbitionBox ?experience=N → [N,N]; PayScale bracket →
+    # [0,1)…; SO per-year; Robert Half tiers. Level-labeled sources (levels.fyi,
+    # H-1B I–IV) enter with level_label and NULL years — years are never invented.
+    "fact_salary_yoe_obs": """
+        CREATE TABLE IF NOT EXISTS fact_salary_yoe_obs (
+            role_id       VARCHAR,
+            country_code  VARCHAR,
+            yoe_min       DOUBLE,                 -- NULL when only a level label is known
+            yoe_max       DOUBLE,
+            level_label   VARCHAR,                -- native seniority/level string if any
+            year          INTEGER,
+            median        DOUBLE,
+            p25           DOUBLE,
+            p75           DOUBLE,
+            currency_code VARCHAR,
+            basis         VARCHAR,                -- ctc-annual | base-annual | tc-annual …
+            sample_size   INTEGER,
+            kind          VARCHAR,                -- estimate | advertised | realized | official
+            confidence    VARCHAR,                -- high | med | low
+            source_id     VARCHAR,
+            retrieved_at  VARCHAR
+        )""",
+    # Canonical career-rung spine per role (the ladder). track separates IC vs mgmt;
+    # yoe bounds are filled from the concordance, cross-checked vs H-1B/AmbitionBox.
+    "dim_ladder_rung": """
+        CREATE TABLE IF NOT EXISTS dim_ladder_rung (
+            role_id        VARCHAR,
+            rung_code      VARCHAR,                -- L1_entry…L6_distinguished | M1_lead…M4_director_plus
+            ord            INTEGER,
+            title          VARCHAR,
+            track          VARCHAR,                -- ic | mgmt
+            yoe_min        DOUBLE,
+            yoe_max        DOUBLE,
+            yoe_confidence VARCHAR,
+            fork_from      VARCHAR,                -- rung_code this mgmt rung forks from (else NULL)
+            source_id      VARCHAR,
+            PRIMARY KEY (role_id, rung_code)
+        )""",
+    # Maps each source's NATIVE level string onto a canonical rung (levels only —
+    # salaries stay per-source). ~50 hand-curated + learned rows.
+    "bridge_rung_crosswalk": """
+        CREATE TABLE IF NOT EXISTS bridge_rung_crosswalk (
+            source_id    VARCHAR,
+            native_level VARCHAR,
+            role_family  VARCHAR,                  -- '*' = any
+            rung_code    VARCHAR,
+            weight       DOUBLE,
+            PRIMARY KEY (source_id, native_level, role_family)
+        )""",
+    # Salary per (role, rung, country) — materialized from fact_salary_yoe_obs via the
+    # crosswalk. Kept per-kind (never blended across lenses).
+    "fact_rung_salary": """
+        CREATE TABLE IF NOT EXISTS fact_rung_salary (
+            role_id       VARCHAR,
+            rung_code     VARCHAR,
+            country_code  VARCHAR,
+            year          INTEGER,
+            median        DOUBLE,
+            p25           DOUBLE,
+            p75           DOUBLE,
+            currency_code VARCHAR,
+            sample_size   INTEGER,
+            kind          VARCHAR,
+            source_id     VARCHAR,
+            PRIMARY KEY (role_id, rung_code, country_code, kind, source_id)
+        )""",
+    # The market's own per-country definition of a seniority word, learned from the
+    # LLM-extracted (seniority × years_required) pairs. The ONLY adapter that places
+    # level-labeled observations onto the years axis.
+    "bridge_seniority_yoe": """
+        CREATE TABLE IF NOT EXISTS bridge_seniority_yoe (
+            role_id      VARCHAR,                  -- '*' = global fallback
+            country_code VARCHAR,                  -- '*' = global fallback
+            seniority    VARCHAR,
+            yoe_p25      DOUBLE,
+            yoe_p50      DOUBLE,
+            yoe_p75      DOUBLE,
+            n            INTEGER,
+            PRIMARY KEY (role_id, country_code, seniority)
+        )""",
+    # Fitted pay-vs-experience CURVE per (role, country, lens). Monotone isotonic +
+    # PCHIP; support flags observed|interpolated|borrowed; NO extrapolation past
+    # max-observed+1 (the curve ends). Never blended across kinds.
+    "fact_salary_curve": """
+        CREATE TABLE IF NOT EXISTS fact_salary_curve (
+            role_id      VARCHAR,
+            country_code VARCHAR,
+            kind         VARCHAR,
+            yoe          INTEGER,
+            fit_median   DOUBLE,
+            lo           DOUBLE,
+            hi           DOUBLE,
+            support      VARCHAR,                  -- observed | interpolated | borrowed
+            n_effective  DOUBLE,
+            method       VARCHAR,
+            PRIMARY KEY (role_id, country_code, kind, yoe)
+        )""",
+    # Demand on the experience axis: share of postings asking each YoE bucket.
+    "fact_demand_yoe": """
+        CREATE TABLE IF NOT EXISTS fact_demand_yoe (
+            role_id      VARCHAR,
+            country_code VARCHAR,
+            yoe_bucket   VARCHAR,                  -- 0-1 | 1-3 | 3-5 | 5-9 | 10+
+            year         INTEGER,
+            postings     INTEGER,
+            share        DOUBLE,
+            source_id    VARCHAR,
+            PRIMARY KEY (role_id, country_code, yoe_bucket, year)
+        )""",
+    # Derived progression metrics per (role, country): early CAGR, plateau, pay ratio.
+    "fact_progression": """
+        CREATE TABLE IF NOT EXISTS fact_progression (
+            role_id          VARCHAR,
+            country_code     VARCHAR,
+            kind             VARCHAR,
+            early_cagr_1_5   DOUBLE,               -- pay CAGR yoe 1→5
+            plateau_year     DOUBLE,               -- yoe where the curve flattens
+            pay_multiple_10v1 DOUBLE,
+            support          VARCHAR,
+            PRIMARY KEY (role_id, country_code, kind)
+        )""",
+    # Posting-derived role attributes (zero-collection): remote-pay gap, credential/
+    # education ROI, language share — all from the LLM extraction, per role×country.
+    "fact_role_attributes": """
+        CREATE TABLE IF NOT EXISTS fact_role_attributes (
+            role_id           VARCHAR,
+            country_code      VARCHAR,             -- '*' = all-country (thin per-country)
+            n_postings        INTEGER,
+            remote_share      DOUBLE,
+            onsite_share      DOUBLE,
+            hybrid_share      DOUBLE,
+            remote_pay_gap    DOUBLE,              -- (remote median − onsite median)/onsite
+            degree_required_share DOUBLE,
+            degree_optional_share DOUBLE,
+            degree_pay_gap    DOUBLE,              -- pay lift when a degree is required
+            top_certifications VARCHAR,            -- JSON [{name,count}]
+            oncall_share      DOUBLE,
+            source_id         VARCHAR,
+            PRIMARY KEY (role_id, country_code)
+        )""",
+}
+
+ALL_TABLES = {**DIMENSIONS, **FACTS, **BRIDGES, **LADDER_V2}
 TABLE_NAMES = list(ALL_TABLES.keys())
 
 
