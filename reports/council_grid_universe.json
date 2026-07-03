@@ -1,0 +1,802 @@
+{
+ "rooms": [
+  {
+   "room": "global-source-hunter",
+   "sources": [
+    {
+     "site": "ITJobsWatch (itjobswatch.co.uk)",
+     "url_pattern": "https://www.itjobswatch.co.uk/jobs/uk/{role-or-skill}.do (also /contracts/uk/{...}.do for day rates)",
+     "gives": "Per-role/per-skill GB median salary + 10/25/75/90 percentiles, YoY salary trend, demand rank, vacancy counts, co-occurring skills with %, and contractor day rates (separate freelance axis). Thousands of pages covering extreme long-tail tech roles AND individual skills.",
+     "countries": [
+      "GB"
+     ],
+     "role_coverage": "Excellent tech long-tail: every IT role plus every skill/technology gets its own page (Kafka, Terraform, Rust, etc.)",
+     "experience_axis": "No explicit YoE axis, but percentile spread (10th-90th) is a strong proxy; separate permanent vs contract markets",
+     "ladder_info": "None directly, but skill co-occurrence tables support adjacency inference",
+     "probed": true,
+     "probe_finding": "CONFIRMED OPEN: live probe returned full data in static HTML \u2014 DS median GBP 75,000 (+7.14% YoY), all percentiles, London vs non-London split, skill percentages. No JS, no bot wall, clean predictable URLs.",
+     "data_location": "Static HTML tables (trivially parseable, very consistent template)",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "Best-in-class GB source: open, static, percentiles + trends + contractor rates + skill pages nobody else has. Cheapest high-value connector in the whole hunt."
+    },
+    {
+     "site": "SEEK AU (seek.com.au / au.seek.com)",
+     "url_pattern": "https://au.seek.com/career-advice/role/{role-slug}/salary (also /career-advice/role/{slug} for career-path pages)",
+     "gives": "Per-role AU salary from employer-disclosed ranges on real SEEK job ads (advertised-kind, complements Adzuna), city/region breakdown, salary comparison tool, related-role salaries; separate career-advice role pages have progression info.",
+     "countries": [
+      "AU"
+     ],
+     "role_coverage": "Good mainstream tech coverage; long-tail limited to roles with enough AU ads",
+     "experience_axis": "Weak on the salary page itself (no junior/senior split shown); seniority variants (Senior/Lead X) exist as separate role slugs",
+     "ladder_info": "SEEK career-advice role pages include 'how to become' and related-roles; progression pages exist per role",
+     "probed": true,
+     "probe_finding": "CONFIRMED: 308 redirect seek.com.au -> au.seek.com, then full page with city-level salaries (Melbourne $132,500 etc.), comparison tool, related roles. SEEK is server-rendered React \u2014 expect embedded JSON state in page source (verify locally).",
+     "data_location": "Server-rendered HTML with likely embedded JSON app-state; salary figures visible in static fetch",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "AU is one of our thinnest grid countries and this is the AU market leader with employer-disclosed (not self-reported) numbers. Same platform serves JobStreet SG \u2014 one connector, two countries."
+    },
+    {
+     "site": "JobStreet SG (sg.jobstreet.com \u2014 SEEK platform)",
+     "url_pattern": "https://sg.jobstreet.com/career-advice/role/{role-slug}/salary (identical path scheme to au.seek.com)",
+     "gives": "Per-role SG monthly salary, area-level breakdown, salary comparison tool, related-role salaries (Data Analyst $5,100/mo, Statistician $6,750/mo etc.).",
+     "countries": [
+      "SG"
+     ],
+     "role_coverage": "Good mainstream coverage for SG; long-tail thinner than AU",
+     "experience_axis": "Weak on-page (Junior/Senior/Lead exist as listings but no salary tiers shown); seniority-variant slugs partially fill this",
+     "ladder_info": "Related-roles section; career-advice role pages have progression content",
+     "probed": true,
+     "probe_finding": "CONFIRMED OPEN: same Seek template, monthly salaries by area (Jurong West $10,500, Queenstown $7,500), no blocking. Note: naked jobstreet.com.sg path 308-redirects to sg.jobstreet.com homepage \u2014 use sg.jobstreet.com directly.",
+     "data_location": "Server-rendered HTML, likely embedded JSON state (same codebase as SEEK AU)",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "SG is our single weakest country and this rides for free on the SEEK AU connector \u2014 same URL pattern, same parser."
+    },
+    {
+     "site": "Robert Half Salary Guide (roberthalf.com + roberthalf.ca)",
+     "url_pattern": "https://www.roberthalf.com/us/en/insights/salary-guide/technology (and roberthalf.ca/en/... for Canada; salary calculator tool per role+city)",
+     "gives": "Recruiter-authoritative per-role salary tables with explicit Low/Mid/High EXPERIENCE tiers (defined as limited / moderate / extensive experience) \u2014 a direct experience axis. City adjustment via calculator.",
+     "countries": [
+      "US",
+      "CA"
+     ],
+     "role_coverage": "Curated ~100 tech roles (AI Architect, AI/ML Engineer, RPA Engineer, Data Scientist...) \u2014 no long-tail, but includes new/emerging titles",
+     "experience_axis": "Explicit 3-tier by-experience ranges per role \u2014 exactly our grid shape",
+     "ladder_info": "None",
+     "probed": true,
+     "probe_finding": "CONFIRMED OPEN: full Low/Mid/High table visible in static HTML, no gate (AI Architect $142,750-$196,750 etc.). Calculator suggests XHR endpoint for city-level figures \u2014 inspect locally.",
+     "data_location": "Static HTML tables; city calculator likely XHR/JSON",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "Cheapest credible CA coverage (roberthalf.ca) plus a clean US experience-tier baseline; small role set makes it a half-day connector."
+    },
+    {
+     "site": "Zippia (zippia.com)",
+     "url_pattern": "https://www.zippia.com/{role-slug}-jobs/salary/ (+ /career/ for paths, /demographics/, /skills/)",
+     "gives": "Massive US long-tail: per-role salary percentiles, salary-by-experience-level, salary-by-state, and dedicated career-path pages (what you become next, with salaries) \u2014 the closest match to our ladder+YoE grid ambition.",
+     "countries": [
+      "US"
+     ],
+     "role_coverage": "Best long-tail in the US field (tens of thousands of role pages incl. niche titles)",
+     "experience_axis": "Yes \u2014 entry/mid/senior salary splits on role pages",
+     "ladder_info": "Yes \u2014 explicit career-path graphs (next roles + salary at each step), the strongest ladder data of any candidate",
+     "probed": true,
+     "probe_finding": "BLOCKED from datacenter fetch: Cloudflare 'Verifying you are human' interstitial. This is a JS challenge \u2014 plain curl from local IP will likely also fail; retest locally with browser UA + cookies, expect to need a headless/real-browser fetch. Historically pages are Next.js with __NEXT_DATA__ once past the wall.",
+     "data_location": "__NEXT_DATA__ JSON (once past Cloudflare challenge)",
+     "viability": "medium",
+     "priority": "wave2",
+     "why": "Highest data value of the hunt (long-tail + YoE + ladders) but gated by an active Cloudflare JS challenge; needs a local headless-browser probe before committing connector effort."
+    },
+    {
+     "site": "SalaryExpert / ERI (salaryexpert.com)",
+     "url_pattern": "https://www.salaryexpert.com/salary/job/{role-slug}/{country} (also /{country}/{city})",
+     "gives": "Model-based salary for essentially any role in ALL 7 grid countries, with entry-level (1-3 yrs) vs senior-level (8+ yrs) splits, bonus, and salary-growth projection \u2014 the only single source spanning the full country grid with an experience split.",
+     "countries": [
+      "IN",
+      "US",
+      "GB",
+      "CA",
+      "AU",
+      "SG",
+      "DE"
+     ],
+     "role_coverage": "Very broad (ERI occupational database) incl. non-tech",
+     "experience_axis": "Entry vs senior split per role+geo (coarse but consistent)",
+     "ladder_info": "None",
+     "probed": true,
+     "probe_finding": "403 Forbidden on datacenter fetch \u2014 likely UA/IP filtering rather than JS challenge. Retest locally with residential IP + browser UA before writing off. Numbers are model-derived estimates (label kind=estimate, lower trust than posting-derived).",
+     "data_location": "Unknown until local retest; pages historically server-rendered HTML with charts",
+     "viability": "medium",
+     "priority": "wave2",
+     "why": "Only candidate covering all 7 countries x any-role x experience in one URL scheme; worth one local probe despite 403 and modeled-data caveat."
+    },
+    {
+     "site": "StepStone Gehalt (stepstone.de/gehalt) + Gehalt.de fallback",
+     "url_pattern": "https://www.stepstone.de/gehalt/{Role-Slug}.html (fallback: https://www.gehalt.de/beruf/{role})",
+     "gives": "DE per-role gross salary median + range, breakdown by Berufserfahrung (years of experience), by Bundesland/city, by company size \u2014 Germany's richest open salary pages.",
+     "countries": [
+      "DE"
+     ],
+     "role_coverage": "Good German-market coverage incl. tech; role slugs in German (need role-name mapping)",
+     "experience_axis": "Yes \u2014 explicit years-of-experience brackets on StepStone/Gehalt.de pages",
+     "ladder_info": "None",
+     "probed": true,
+     "probe_finding": "403 Forbidden on datacenter fetch (StepStone). Likely geo/IP + UA filtering; retest locally. Gehalt.de (same publisher family) is the unprobed fallback.",
+     "data_location": "Unknown until local retest",
+     "viability": "medium",
+     "priority": "wave2",
+     "why": "DE is a grid gap (Glassdoor aside) and this has a real YoE axis; blocked probe demands local retest before build."
+    },
+    {
+     "site": "ZipRecruiter Salaries (ziprecruiter.com/Salaries)",
+     "url_pattern": "https://www.ziprecruiter.com/Salaries/{Role}-Salary (+ per-state/city variants)",
+     "gives": "US per-role salary percentiles (25/75/90), by-city/state pages, huge long-tail of odd job titles; posting-derived.",
+     "countries": [
+      "US"
+     ],
+     "role_coverage": "Very large long-tail (auto-generated from postings)",
+     "experience_axis": "No explicit YoE; percentile spread only",
+     "ladder_info": "None",
+     "probed": false,
+     "probe_finding": "Not probed (budget spent on higher-value targets). Known to sit behind aggressive bot detection historically \u2014 expect a fight.",
+     "data_location": "Unknown; likely server-rendered HTML",
+     "viability": "medium",
+     "priority": "wave2",
+     "why": "US long-tail redundancy behind Zippia; only worth it if Zippia's Cloudflare wall proves impassable locally."
+    },
+    {
+     "site": "Wellfound (wellfound.com, ex-AngelList Talent)",
+     "url_pattern": "https://wellfound.com/hiring-data/{role} and salary pages under /role/{slug}",
+     "gives": "Startup compensation by role: salary + EQUITY ranges (an axis nothing else in our stack has), by role and location, from startup job postings.",
+     "countries": [
+      "US",
+      "IN",
+      "GB",
+      "CA",
+      "DE",
+      "SG"
+     ],
+     "role_coverage": "Startup-relevant roles only (~50-100)",
+     "experience_axis": "Some pages split by seniority/level",
+     "ladder_info": "None",
+     "probed": false,
+     "probe_finding": "Not probed. Wellfound is React-heavy and has tightened anti-bot; equity data quality is the draw.",
+     "data_location": "Unknown; likely JSON app-state if accessible",
+     "viability": "medium",
+     "priority": "later",
+     "why": "Equity axis is genuinely novel and decision-relevant, but coverage is narrow and access uncertain \u2014 after the country gaps are filled."
+    },
+    {
+     "site": "Upwork rates + Malt (upwork.com, malt.de/malt.fr)",
+     "url_pattern": "https://www.upwork.com/hire/{skill}-freelancers/cost/ ; https://www.malt.de/t/{skill} (day-rate barometer)",
+     "gives": "FREELANCE hourly/day rates by skill/role \u2014 an entirely new grid dimension (employment-type axis: permanent vs contract vs freelance). Malt gives EU (DE) day-rate distributions; Upwork gives global hourly ranges. Pairs with ITJobsWatch contractor day rates for GB.",
+     "countries": [
+      "US",
+      "IN",
+      "GB",
+      "CA",
+      "AU",
+      "SG",
+      "DE"
+     ],
+     "role_coverage": "Skill-centric rather than role-centric; strong for dev/data/design skills",
+     "experience_axis": "Upwork cost pages give beginner/intermediate/expert tiers",
+     "ladder_info": "None",
+     "probed": false,
+     "probe_finding": "Not probed. Upwork 'cost of hiring' pages are editorial+data hybrids, historically open; Malt barometer pages are open HTML.",
+     "data_location": "Mixed HTML/editorial; Malt barometer reportedly clean HTML",
+     "viability": "medium",
+     "priority": "later",
+     "why": "Adds a decision-relevant employment-type dimension (freelance rates) rather than more of the same; schema work needed (hourly/day-rate fact table), so after core grid fills."
+    },
+    {
+     "site": "Michael Page salary guides/tools (michaelpage.com.au/.co.in/.com.sg/.de/.co.uk)",
+     "url_pattern": "https://www.michaelpage.{tld}/salary-guide + /salary-comparison-tool + /salary-benchmark-tool",
+     "gives": "Recruiter salary benchmarks per role per country, 19 job functions; per-country editions cover IN, SG, AU, DE, GB \u2014 great country fit on paper.",
+     "countries": [
+      "IN",
+      "GB",
+      "AU",
+      "SG",
+      "DE"
+     ],
+     "role_coverage": "Curated recruiter role lists per function (~30-60 tech roles per country)",
+     "experience_axis": "Guides typically give ranges by seniority band",
+     "ladder_info": "None",
+     "probed": true,
+     "probe_finding": "GATED: AU probe shows 'sign up or log in to access the Salary Guide 2026' \u2014 free registration wall. Comparison/benchmark tools may hit open JSON endpoints; check XHR locally before dismissing.",
+     "data_location": "Behind free-registration wall; possible open XHR for the comparison tool",
+     "viability": "medium",
+     "priority": "later",
+     "why": "Country fit (IN/SG/AU/DE) is excellent but the registration gate and small role sets make it a mop-up source, pending an XHR discovery."
+    },
+    {
+     "site": "Hays salary checker (hays.co.uk/.de/.com.au)",
+     "url_pattern": "https://www.hays.co.uk/salary-guide (checker tool per role/region)",
+     "gives": "Recruiter benchmarks per role per region for GB/DE/AU.",
+     "countries": [
+      "GB",
+      "DE",
+      "AU"
+     ],
+     "role_coverage": "Curated recruiter lists",
+     "experience_axis": "Typically single benchmark or band per role/region",
+     "ladder_info": "None",
+     "probed": true,
+     "probe_finding": "403 Forbidden on datacenter fetch. Historically the checker posts to a JSON endpoint \u2014 local XHR inspection could make this cheap, but redundant with ITJobsWatch for GB.",
+     "data_location": "Unknown; suspected XHR JSON behind the checker",
+     "viability": "low",
+     "priority": "later",
+     "why": "Redundant for GB once ITJobsWatch lands; only residual value is DE/AU benchmarks if the XHR is open."
+    },
+    {
+     "site": "CareerOneStop / Dice / BuiltIn / Reed+Totaljobs salary checkers",
+     "url_pattern": "careeronestop.org (US gov API), dice.com tech-salary report, builtin.com/salaries, reed.co.uk/average-salary",
+     "gives": "US official percentiles (CareerOneStop API), US tech survey (Dice, PDF/report-shaped), US tech hub salaries with sliders (BuiltIn), GB posting-derived averages (Reed/Totaljobs).",
+     "countries": [
+      "US",
+      "GB"
+     ],
+     "role_coverage": "Moderate each",
+     "experience_axis": "BuiltIn has YoE sliders; others weak",
+     "ladder_info": "None",
+     "probed": false,
+     "probe_finding": "Not probed. CareerOneStop duplicates our existing official-baseline lens (BLS-derived); Dice is report-shaped not page-per-role; Reed/Totaljobs duplicate ITJobsWatch.",
+     "data_location": "CareerOneStop: real REST API (free key). Others unknown.",
+     "viability": "low",
+     "priority": "later",
+     "why": "Each is redundant with something we already have or something wave1 delivers better; grouped here so they are on record as considered."
+    },
+    {
+     "site": "Comparably / Blind / LinkedIn Career Explorer / Hired / SalaryExplorer / Naukri salary",
+     "url_pattern": "n/a",
+     "gives": "Comparably+Blind: company-centric comp (charter violation; Blind also auth-walled). LinkedIn Career Explorer: discontinued/auth. Hired: shut down 2023. SalaryExplorer: model-fabricated numbers, no methodology. Naukri salary insights: same parent as AmbitionBox (redundant with built connector).",
+     "countries": [],
+     "role_coverage": "n/a",
+     "experience_axis": "n/a",
+     "ladder_info": "n/a",
+     "probed": false,
+     "probe_finding": "Rejected on desk review \u2014 charter conflict (company axis), dead products, or data-quality/redundancy grounds.",
+     "data_location": "n/a",
+     "viability": "low",
+     "priority": "skip",
+     "why": "Explicit skip list so future rooms do not re-litigate: company-centric sources violate the roles-only charter; the rest are dead, redundant, or junk-quality."
+    }
+   ],
+   "notes": "Probe method: WebFetch (datacenter IP) \u2014 so every 403/Cloudflare finding here is a WORST-CASE result; the user's local residential IP + browser UA posture may pass several of them (SalaryExpert, StepStone, Hays are plain 403s likely UA/IP-filterable; Zippia is a genuine Cloudflare JS challenge and will likely need a real/headless browser). Fetch budget: 11 fetches across 9 sites, all \u22642 per site.\n\nHeadline recommendation \u2014 wave1 is four connectors that fill our four weakest grid cells: (1) ITJobsWatch for GB (open static percentiles + trends + contractor day rates + per-skill pages; best effort-to-value in the hunt), (2+3) SEEK AU + JobStreet SG as ONE connector \u2014 identical Seek-platform template at au.seek.com and sg.jobstreet.com, path /career-advice/role/{slug}/salary, employer-disclosed ad salaries (advertised-kind, complements Adzuna) \u2014 covers our two thinnest countries with one parser; note seek.com.au and jobstreet.com.sg both 308-redirect to the new hosts, and (4) Robert Half US+CA (open static Low/Mid/High experience-tier tables; cheapest credible CA source; ~100 curated roles incl. emerging AI titles).\n\nWave2 pivots on ONE local browser-probe session: Zippia (highest prize \u2014 US long-tail + salary-by-experience + explicit career-path ladders with next-role salaries, i.e., our exact goal grid \u2014 behind Cloudflare IUAM), SalaryExpert (only single-scheme source spanning all 7 countries with entry/senior split; modeled estimates, label kind=estimate), StepStone/Gehalt.de for DE YoE brackets, ZipRecruiter only if Zippia fails.\n\nNew-dimension candidates parked in 'later': freelance/contract rates (Upwork tiered hourly + Malt EU day rates + ITJobsWatch contract pages already give GB day rates in wave1) \u2014 this adds an employment-type axis to the grid; and Wellfound equity ranges (startup comp axis). Skips are recorded with reasons so no room re-litigates Comparably/Blind (company-centric charter violation), LinkedIn Career Explorer (dead), Hired (shut down), SalaryExplorer (junk), Naukri (redundant with AmbitionBox).\n\nLadder-data note: Zippia is the only candidate with true career-path graphs (next role + pay at each step); Seek/JobStreet career-advice role pages have soft progression content worth scraping alongside salaries."
+  },
+  {
+   "room": "regional-source-hunter",
+   "sources": [
+    {
+     "site": "ITJobsWatch (itjobswatch.co.uk)",
+     "url_pattern": "https://www.itjobswatch.co.uk/jobs/{region}/{role}.do  (region = uk | london | england | uk-excluding-london; role slug URL-encoded, e.g. jobs/uk/devops%20engineer.do). A-Z browse index exists for slug discovery.",
+     "gives": "Per-role UK median salary + YoY % change, permanent AND contract rates, historical trend (multi-year), vacancy counts/rank, top job locations, and a Top-30 co-occurring skills table where every skill links to its own salary page (skill pages use the same .do pattern).",
+     "countries": [
+      "GB"
+     ],
+     "role_coverage": "Extremely deep for tech: thousands of pages covering roles AND individual skills/technologies (devops, terraform, kubernetes, cicd... each is its own salary page). Best niche-role coverage of any UK source.",
+     "experience_axis": "No explicit YoE axis; junior/senior variants exist as separate role slugs (e.g. 'senior devops engineer'), and contract-vs-permanent is a second seniority-ish lens.",
+     "ladder_info": "Indirect but real: co-occurring-skills graph + links between related role pages let us build a skill-adjacency ladder; senior/lead variants are separate linkable pages.",
+     "probed": true,
+     "probe_finding": "Probed live with curl + browser UA: 200 OK, no bot wall, 103KB static HTML with 25 <table> elements \u2014 median salary, YoY change, contract/permanent split, region variants (London / England / UK excluding London), Top 16 locations, Top 30 co-occurring skills all present in plain HTML. Stable, trivially parseable.",
+     "data_location": "Static HTML tables (no JS needed). No JSON-LD, but tables are clean and consistent across pages.",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "Fills GB with per-role AND per-skill salary + trend + skills-adjacency in one connector; zero JS, zero bot-wall, thousands of niche tech pages \u2014 cheapest high-yield connector in this whole hunt."
+    },
+    {
+     "site": "Canada Job Bank wages (via open.canada.ca ESDC dataset)",
+     "url_pattern": "Bulk CSV download: https://open.canada.ca/data/en/dataset/adad580f-76b0-4502-bd05-20c125de9116 (one CSV per year, 2012-2025). Browsable counterpart: jobbank.gc.ca/trend-analysis/search-wages.",
+     "gives": "Official low/median/high hourly+annual wages per NOC occupation code per economic region/province/national, annual vintages 2012-2025 (trend for free). Open Government Licence \u2014 this is kind=official, not kind=estimate.",
+     "countries": [
+      "CA"
+     ],
+     "role_coverage": "All NOC occupations incl. tech NOCs (21231 software engineers, 21232 software developers, 21234 web developers, 21211 data scientists, etc.). NOC granularity is coarser than role-title granularity but maps cleanly onto our O*NET-style bridges.",
+     "experience_axis": "No YoE axis, but Job Bank documents low/high as approx 10th/90th percentile \u2014 a defensible junior/senior proxy; 13 annual vintages give a cohort trend axis.",
+     "ladder_info": "None directly; NOC hierarchy + our existing O*NET/ladder bridges supply it.",
+     "probed": true,
+     "probe_finding": "Probed live: jobbank search-wages page fetches fine and explicitly links the open.canada.ca dataset; dataset page confirmed CSVs for 2012-2025, latest updated 2025-11-19, fields = NOC code, min/median/max wage, region. No scraping needed at all \u2014 one HTTP download per year.",
+     "data_location": "Downloadable CSV files (open data portal). Zero scraping, zero ToS concern.",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "CA is a thin wave-1 market and this fills it with OFFICIAL granular data (occupation x region x low/median/high x 13 years) for the cost of downloading ~14 CSVs. Also directly patches the known gov_projections/official-baseline gap for CA."
+    },
+    {
+     "site": "SEEK career advice salary pages (seek.com.au)",
+     "url_pattern": "https://www.seek.com.au/career-advice/role/{role-slug}/salary (e.g. /career-advice/role/software-engineer/salary). Same SEEK platform likely serves seek.co.nz and jobstreet.com.sg|.com.my /career-advice/role/... \u2014 verify to get SG for free.",
+     "gives": "Typical salary range + per-state salary breakdown (min/max per AU state, ~50 location entries per role), projected job growth, role reviews stats, 'how to become' career-path text, related-role spec requirements.",
+     "countries": [
+      "AU",
+      "SG"
+     ],
+     "role_coverage": "Hundreds of tech + general role pages; good mainstream coverage, weaker on ultra-niche (niche roles fall back to job-title search).",
+     "experience_axis": "No explicit YoE brackets in the salary module; seniority appears via distinct role pages (senior/lead variants) and salary min/max range.",
+     "ladder_info": "Yes \u2014 'HowToBecome' + RoleSpecReq + related-roles objects in the same JSON are literal career-step content per role.",
+     "probed": true,
+     "probe_finding": "Probed live with curl: 200 OK, no bot wall. 421KB page with window.__APOLLO_STATE__ embedded JSON containing typed objects: TypicalSalary, ClassSalary, Growth, RoleReviewStats, HowToBecome, RoleSpecReq, State/Location (130 state keys, 71 min/max pairs \u2014 full per-state salary table). Structured-JSON-in-HTML, exactly our preferred shape.",
+     "data_location": "window.__APOLLO_STATE__ JSON blob in initial HTML (parse one script tag, no JS execution).",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "AU is thin in wave-1; this gives role x state salary + growth + ladder text from clean embedded JSON. High leverage: the same connector very likely covers JobStreet SG/MY (SEEK-unified platform), fixing SG too \u2014 test jobstreet.com.sg first in implementation."
+    },
+    {
+     "site": "Gehalt.de (StepStone-owned)",
+     "url_pattern": "https://www.gehalt.de/beruf/{slug} (slug from search or sitemap, e.g. beruf/softwareentwickler-softwareentwicklerin \u2014 NOT plain 'softwareentwickler'). Long-tail: https://www.gehalt.de/einkommen/suche/{query} (claims 10000 salary datapoints per query, incl. queries like 'softwareentwickler 1 5 jahre berufserfahrung').",
+     "gives": "Per-role DE salary (median + range), salary by Berufserfahrung brackets (<3, 3-6, 7-9, >9 years \u2014 confirmed on page), by Bundesland/region, by company size; JSON-LD present; related-profession links.",
+     "countries": [
+      "DE"
+     ],
+     "role_coverage": "Deep German role directory incl. specializations (ABAP developer, .NET, game dev, MATSE...). A-Z index exists but is JS-rendered \u2014 use sitemap.xml or search-engine slug discovery instead.",
+     "experience_axis": "Best DE experience axis found: explicit YoE brackets <3 / 3-6 / 7-9 / >9 on every role page; /einkommen/suche/ pages add finer query-driven cuts.",
+     "ladder_info": "Weak-moderate: related professions and career/further-training sections per role, no explicit next-step ladder.",
+     "probed": true,
+     "probe_finding": "Probed live: correct slug returns 200, 125KB HTML with salary figures (e.g. 52.001-58.740 EUR band), YoE bracket labels (3/6/9 Jahre) and 2x JSON-LD blocks in static HTML. Caveat: wrong slugs soft-redirect to a JS-rendered A-Z page, and salary VALUES may be partially client-rendered \u2014 parse both JSON-LD and HTML, keep a headless fallback.",
+     "data_location": "Static HTML + JSON-LD on role pages; A-Z index is JS-only (avoid, use sitemap).",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "DE is our thinnest market and this is the only probed source giving per-YoE-bracket salary there \u2014 directly fills the role x DE x experience cell of the grid."
+    },
+    {
+     "site": "MyCareersFuture (SG government portal)",
+     "url_pattern": "XHR JSON API: https://api.mycareersfuture.gov.sg/v2/jobs?search={query}&limit=100&page=N (public unauthenticated endpoint used by the SPA); each posting carries mandatory salary min/max.",
+     "gives": "SG postings with MANDATORY salary ranges (govt rule), plus seniority/position-level, employment type, skills per posting \u2014 postings-derived salary distribution like our Adzuna lens but SG-specific and salary-complete.",
+     "countries": [
+      "SG"
+     ],
+     "role_coverage": "All roles posted in SG \u2014 query-driven, so covers niche titles as well as our search vocabulary does.",
+     "experience_axis": "Postings include minimum-YoE and position-level fields \u2014 aggregate to per-YoE curves like the LLM-extract pipeline does.",
+     "ladder_info": "None.",
+     "probed": false,
+     "probe_finding": "Not probed this session (budget spent on the 5 above). Known-stable public JSON API pattern; verify the v2 endpoint shape at build time.",
+     "data_location": "Public JSON API (XHR endpoint).",
+     "viability": "high",
+     "priority": "wave2",
+     "why": "SG is thin and NodeFlair is walled; a government API with mandatory salary on every posting is the reliable SG fallback, and it feeds the existing postings/LLM-extract machinery unchanged."
+    },
+    {
+     "site": "NodeFlair Salaries",
+     "url_pattern": "https://nodeflair.com/salaries/{role} and per-company/per-seniority pages (SG-centric, some SEA/IN).",
+     "gives": "Payslip-verified SG salary by seniority level (Intern/Junior/Mid/Senior/Lead) \u2014 the best seniority-ladder salary data for SG when reachable.",
+     "countries": [
+      "SG"
+     ],
+     "role_coverage": "Good tech-role coverage for SG/SEA.",
+     "experience_axis": "Explicit seniority levels per role (their core feature).",
+     "ladder_info": "Seniority-level progression with pay at each level = direct ladder-step data.",
+     "probed": true,
+     "probe_finding": "Probed live and BLOCKED to plain HTTP: curl with browser UA returned a Rails error page + Cloudflare challenge markers; WebFetch got HTTP 403. Not reachable without a real browser session \u2014 needs claude-in-chrome/Playwright with the local residential IP, so cost jumps from parser to browser-automation.",
+     "data_location": "Behind Cloudflare; in-browser the app renders from internal JSON (inspect XHR once inside a real session).",
+     "viability": "medium",
+     "priority": "wave2",
+     "why": "Data is exactly our grid (role x seniority x pay for SG) but the bot wall makes it a browser-automation job; do it after the free wins, or park if MyCareersFuture + JobStreet cover SG well enough."
+    },
+    {
+     "site": "Reed salary checker (reed.co.uk)",
+     "url_pattern": "https://www.reed.co.uk/average-salary/average-{role}-salary (also per-city variants).",
+     "gives": "UK average salary per role title with min/avg/max and location cuts, derived from Reed postings volume.",
+     "countries": [
+      "GB"
+     ],
+     "role_coverage": "Broad job-title coverage beyond pure tech.",
+     "experience_axis": "None explicit.",
+     "ladder_info": "None.",
+     "probed": false,
+     "probe_finding": "Not probed; low urgency because ITJobsWatch already fills GB better for tech.",
+     "data_location": "HTML pages, likely with JSON-LD (verify at build).",
+     "viability": "medium",
+     "priority": "later",
+     "why": "Redundant with ITJobsWatch for tech roles; only worth adding as a cross-check lens or for non-tech-adjacent titles."
+    },
+    {
+     "site": "kununu Gehalt (kununu.com)",
+     "url_pattern": "https://www.kununu.com/de/gehalt/{role-slug} (e.g. /de/gehalt/softwareentwickler-in).",
+     "gives": "DE/AT salary per role from employee submissions: median, range, by experience and region.",
+     "countries": [
+      "DE"
+     ],
+     "role_coverage": "Good German-language role coverage.",
+     "experience_axis": "Salary-by-experience breakdowns on role pages.",
+     "ladder_info": "None.",
+     "probed": false,
+     "probe_finding": "Not probed. CHARTER CAUTION: kununu is primarily an employer-review site \u2014 use ONLY the role-level /gehalt/ pages, never company pages/ratings.",
+     "data_location": "Likely embedded JSON (Next/Nuxt app) \u2014 verify.",
+     "viability": "medium",
+     "priority": "wave2",
+     "why": "Second DE source to cross-check Gehalt.de estimates (both DE sources are self-report-based; two independent ones make the DE cells defensible)."
+    },
+    {
+     "site": "SEEK NZ / JobStreet MY (SEEK platform siblings)",
+     "url_pattern": "https://www.seek.co.nz/career-advice/role/{slug}/salary and https://www.jobstreet.com.my/career-advice/role/{slug}/salary \u2014 same Apollo-state structure expected as seek.com.au.",
+     "gives": "Same payload as SEEK AU (typical salary, per-region salary, growth, how-to-become) for NZ and MY.",
+     "countries": [
+      "SG"
+     ],
+     "role_coverage": "Same as SEEK AU.",
+     "experience_axis": "Same as SEEK AU (none explicit).",
+     "ladder_info": "HowToBecome ladder text, same as AU.",
+     "probed": false,
+     "probe_finding": "Not probed; inferred from SEEK platform unification. One conditional in the SEEK connector should cover all domains.",
+     "data_location": "window.__APOLLO_STATE__ (expected identical).",
+     "viability": "high",
+     "priority": "wave1",
+     "why": "Near-zero marginal cost extension of the SEEK connector; jobstreet.com.sg is the piece that matters for our 7 markets (NZ/MY are bonus rows outside the grid \u2014 only take SG)."
+    },
+    {
+     "site": "Hays AU Salary Guide / Randstad CA salary guide / StepStone Gehaltsreport",
+     "url_pattern": "Annual guide microsites + PDFs (hays.com.au salary-guide, randstad.ca salary-guide, stepstone.de gehaltsreport).",
+     "gives": "Recruiter-survey salary tables per role/city/seniority \u2014 good calibration anchors, poor automation targets (PDF/one-shot).",
+     "countries": [
+      "AU",
+      "CA",
+      "DE"
+     ],
+     "role_coverage": "Curated mainstream roles only.",
+     "experience_axis": "Usually junior/mid/senior columns.",
+     "ladder_info": "None.",
+     "probed": false,
+     "probe_finding": "Not probed \u2014 annual PDFs, manual one-time ingestion, not connector-shaped.",
+     "data_location": "PDF / gated microsites.",
+     "viability": "low",
+     "priority": "later",
+     "why": "One-off manual calibration data at best; do after connectors, as validation anchors for the estimate lens."
+    },
+    {
+     "site": "Naukri / Foundit / Instahyre / Cutshort / Glassdoor-IN (India cluster)",
+     "url_pattern": "n/a (skip)",
+     "gives": "IN salary/postings data largely duplicating what we have.",
+     "countries": [
+      "IN"
+     ],
+     "role_coverage": "n/a",
+     "experience_axis": "n/a",
+     "ladder_info": "n/a",
+     "probed": false,
+     "probe_finding": "Not probed by design: IN is already our deep market, and Naukri salaries ARE AmbitionBox data (both Info Edge; the built AmbitionBox connector already gives per-year YoE 1-8). Instahyre/Cutshort are posting boards with thin aggregate salary pages; Glassdoor is already on the global wave-2 list.",
+     "data_location": "n/a",
+     "viability": "low",
+     "priority": "skip",
+     "why": "Redundant with the built AmbitionBox connector and the existing IN depth; effort better spent on AU/SG/DE/CA gaps."
+    }
+   ],
+   "notes": "Probe session summary (5 live probes, all within the ~6-fetch/site budget, browser UA + throttle respected): SEEK AU and ITJobsWatch UK are clean unwalled wave-1 wins with data in exactly our preferred shapes (embedded Apollo JSON; static HTML tables). Canada Job Bank turned out to be a bulk open-data CSV download (2012-2025, NOC x region x low/median/high) \u2014 build it as kind=official, not estimate, and it also patches the known gov_projections/official-baseline gap for CA. Gehalt.de is the only probed source with explicit per-YoE-bracket salary for DE (<3/3-6/7-9/>9 Jahre); watch two traps: role slugs are non-obvious (use sitemap/search discovery \u2014 wrong slugs soft-redirect to a JS-only A-Z page) and keep a headless fallback in case salary values are partially client-rendered. NodeFlair is Cloudflare-walled to curl AND WebFetch (403/challenge) \u2014 demote to wave-2 browser-automation, with MyCareersFuture's public JSON API (mandatory salary on every SG posting) as the reliable SG substitute. Highest-leverage build order for the thin markets: (1) Job Bank CA CSV (hours of work, official), (2) ITJobsWatch (GB roles+skills+trend+skill-adjacency), (3) SEEK connector written domain-generic so jobstreet.com.sg gives SG for free, (4) Gehalt.de (DE YoE brackets). Charter note: kununu only via /gehalt/ role pages, never company pages. Scratch HTML files from probes are in the session scratchpad (nf.html, ijw.html, seek.html, gd.html, gd2.html) if the builder room wants to inspect exact markup."
+  },
+  {
+   "room": "Role Catalog",
+   "proposals": [
+    {
+     "name": "Catalog data model v2: canonical node + kind + status + unified surface table",
+     "what": "Formalize the master catalog on top of what backend/warehouse/taxonomy.py already half-builds. dim_role gains role_kind ('base' | 'specialization') and parent_role_id (specializations point at a base node: 'LLM Engineer' -> parent ml-eng; UI can roll up or drill down), plus status lifted from dim_role_birth ('canonical' | 'emerging' | 'estimate-only' | 'extinct'). Replace/extend dim_role_alias with dim_role_surface: (surface, norm, role_id, source, source_key, lang, weight, first_seen) where source_key is the connector-native id (ambitionbox slug, levels.fyi title id, ESCO conceptUri, O*NET SOC) so every connector joins back to the catalog by key instead of re-matching titles. Seniority and stack/domain stay orthogonal axes exactly as today (dim_seniority, dim_specialization) \u2014 that is the mechanism that keeps 3,000 nodes from exploding into 30,000 near-dupes. The 'emerging:' id namespace discipline from mine_emergent_roles is kept; 'estimate-only' is the new status for AmbitionBox long-tail designations that have salary estimates but no posting corpus yet.",
+     "data_sources": "Existing curated seed (CURATED_ALIASES, GOV_CROSSWALK), dim_role_birth ledger, connector-native ids from ambitionbox.py SLUGS, levels.fyi payload taxonomy, ESCO occupations_en.csv, O*NET Alternate Titles zip already in staging/onet/.",
+     "data_model": "dim_role(role_id, name, role_kind, parent_role_id, family_id, status, is_seed, ord); dim_role_surface(surface_id, surface, norm, role_id, source, source_key, lang, weight, first_seen); dim_role_crosswalk unchanged; dim_role_birth unchanged (append-only). Migration is additive \u2014 no existing table breaks.",
+     "product_surface": "Invisible spine: resolver, all salary lenses, ladders and coverage marts key on role_id; the catalog browser (separate proposal) reads family -> base -> specialization tree.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 pure role taxonomy; no company axis anywhere in the model. source_key stores designation/occupation ids only, never employer ids."
+    },
+    {
+     "name": "AmbitionBox designation-universe harvest via sitemap (verified live)",
+     "what": "Stop hand-curating the AmbitionBox SLUGS list. Live-probed this session: https://www.ambitionbox.com/sitemap-index.xml -> sitemap-salaries.xml -> sitemap-profilesalaries-1.xml is ONE 2.5 MB XML fetch containing 15,941 designation-salary URLs (/profile/{slug}-salary), including genuine long-tail tech ('ai-engineer', 'machine-learning-scientist-big-data-or-nlp', 'blockchain-developer'). Pipeline: fetch sitemap once per re-crawl cycle -> extract slugs -> run titles through the existing tech_filter.py classifier (built for exactly this: strong-positive / hard-negative word-boundary rules; the universe includes optometrists and counsellors) -> tech subset becomes (a) intake rows for dim_role_surface with source='ambitionbox', source_key=slug, and (b) the connector's crawl frontier, prioritized by whether the slug maps to an existing node (coverage deepening) vs not (catalog growth). Diffing consecutive sitemap snapshots also gives a free new-designation feed for the emerging-role intake.",
+     "data_sources": "AmbitionBox sitemap-profilesalaries-1.xml (verified 200, 15,941 <loc> entries, 2026-07-04); backend/ingest/tech_filter.py (reused as-is); existing ambitionbox.py fetch-once cache.",
+     "data_model": "staging/ambitionbox/designation_index.parquet (slug, title, is_tech, matched_role_id, match_tier, first_seen_snapshot); feeds dim_role_surface and the connector frontier table.",
+     "product_surface": "None directly \u2014 it is the enumeration engine that makes 'almost every tech role' reachable for the India-deep market.",
+     "effort": "small",
+     "value": "core",
+     "charter_check": "PASS with a note \u2014 sitemap-companysalaries-*.xml and sitemap-profilecompanysalaries-*.xml sit alongside it and are deliberately NOT fetched (company axis). robots.txt: generic '*' UA allows /profile/ paths (only AI-bot UAs are blanket-disallowed); our approved posture is local residential IP + browser UA, per the standing user ruling \u2014 noted honestly, not re-litigated."
+    },
+    {
+     "name": "Reference-taxonomy harvest: ESCO ICT subset + O*NET alternate titles + levels.fyi families + Zippia",
+     "what": "Fill the alias graph and the base-node candidate list from the four reference taxonomies the loaders already anticipate. (1) O*NET: staging/onet/onet_db.zip is already on disk and load_onet_alternate_titles() already parses it \u2014 this is a zero-fetch win that adds thousands of US-English surfaces. (2) ESCO: download occupations_en.csv once (plus de/others for multilingual DE aliases); the ICT subset (ISCO groups 25x, 133, 35x) is roughly 150-200 occupations with rich altLabels; load_esco() already exists but currently only maps INTO the 16 curated nodes \u2014 extend it to also emit unmapped ICT occupations as base-node CANDIDATES rather than discarding them. (3) levels.fyi: its taxonomy (job families + specialisations, ~60-80 tech families) already ships in payloads the specced connector will fetch \u2014 mine it as the authoritative source for level-ladder-bearing roles across all 7 countries. (4) Zippia (optional, wave-2): its browsable career-title index is large but US-only and lower quality; treat as alias enrichment, not node source. Each source lands with its own source tag and weight in dim_role_surface, so provenance-ranked matching keeps curated > onet > esco > lightcast > observed.",
+     "data_sources": "staging/onet/onet_db.zip (present), ESCO portal occupations_en.csv (free download, file-drop convention already coded), levels.fyi payload JSON (arrives with the specced connector), Zippia title index (optional crawl, ~6-fetch recon first).",
+     "data_model": "All rows land in dim_role_surface + dim_role_crosswalk (esco system already supported); unmapped ESCO ICT occupations land in a role_candidate staging table feeding the admission ladder.",
+     "product_surface": "Resolver recall \u2014 'never dead-end' becomes real for German-language queries and obscure US titles; crosswalk confidence tiers surface in the methodology page.",
+     "effort": "medium",
+     "value": "high",
+     "charter_check": "PASS \u2014 occupations, titles and labels only; ESCO/O*NET are government taxonomies with no employer dimension."
+    },
+    {
+     "name": "Admission ladder: surface -> canonical dedup pipeline with base-vs-specialization test",
+     "what": "One deterministic pipeline that turns any incoming surface (sitemap slug, ESCO label, derived cluster centroid, user query) into either an alias of an existing node, a new specialization, or a new base-node candidate. Tiers: (1) normalize_surface + exact alias-graph hit -> alias, done; (2) match_title_to_role word-bounded containment -> alias at lower weight; (3) MiniLM embedding vs node centroids (the resolver's tier-3 machinery, reused offline) \u2014 cosine >= ~0.85 to an existing node -> alias; 0.70-0.85 -> SPECIALIZATION of that node (role_kind='specialization', parent = nearest node) when its skill fingerprint shares a majority core with the parent but adds a distinct stack/domain cluster, else candidate; (4) below threshold -> base-node candidate awaiting the emerging-role criteria. Every admission writes to dim_role_birth (append-only) with detected_from + provenance JSON, so the catalog is auditable and never silently renumbered. Realistic size at steady state, stated for planning: ~300-600 canonical BASE tech roles (ESCO ICT ~200 is the floor; AmbitionBox tech designations collapse heavily under seniority-stripping), 1,000-2,500 specializations, and 30,000-60,000 surfaces in the alias graph. 'Almost every tech role' is achieved at the SURFACE layer (every title resolves), not by minting tens of thousands of nodes.",
+     "data_sources": "All intake feeds from the two enumeration proposals + derived_roles.parquet clusters + observed titles from the LLM-extraction disambiguated_role field.",
+     "data_model": "role_candidate(surface, norm, best_node, cosine, skill_overlap, countries, volume, decision, decided_at) staging table; decisions materialize into dim_role / dim_role_surface / dim_role_birth.",
+     "product_surface": "None directly; it is what keeps the catalog clean at 10-100x today's size and what the resolver's honesty copy ('Closest match: X') is grounded in.",
+     "effort": "large",
+     "value": "core",
+     "charter_check": "PASS \u2014 clustering is over titles+skills fingerprints; company fields are already excluded from the composite fingerprint."
+    },
+    {
+     "name": "Emerging-role auto-intake: how 'AI Agent Engineer' gets discovered and admitted",
+     "what": "Extend mine_emergent_roles() from one signal to four, with a promotion lifecycle. Signals: (a) derived_roles.parquet clusters (exists today \u2014 volume floor + >=2 countries + no alias match); (b) AmbitionBox sitemap diff \u2014 a NEW designation slug appearing between snapshots is a strong India-market birth signal with a salary estimate attached from day one; (c) levels.fyi taxonomy diff \u2014 new families/specialisations appear there early for US/global comp-ladder roles; (d) skills_emerging co-occurrence \u2014 when an emerging skill cluster (e.g. 'agent frameworks', 'MCP', 'LangGraph') starts appearing in postings whose titles do NOT resolve to any node, the unresolved title group is a candidate even below the multi-country floor. Lifecycle: candidate -> status='emerging' (born in dim_role_birth with countries/volume provenance, servable immediately behind an 'Emerging' badge) -> auto-promote to 'canonical' after clearing the volume floor in 2 consecutive quarters -> or age out to 'extinct' (ledger keeps it; the extinction radar is already a designed feature). Concretely for 'AI Agent Engineer': it appears as an unresolved title cluster in CC postings + a new ambitionbox slug; tier-3 cosine lands ~0.78 near ml-eng -> admitted as specialization of ml-eng with status emerging; if its skill core later diverges (agents/orchestration vs training/MLOps) a quarterly re-cluster check flags it for base-node promotion.",
+     "data_sources": "derived_roles.parquet, AmbitionBox sitemap snapshots (diff), levels.fyi taxonomy payloads (diff), fact_skill_adoption / skills_emerging, unresolved-query log from the resolver (what users searched that hit tier 3 is itself a demand signal).",
+     "data_model": "Reuses dim_role_birth (append-only, EMERGING_PREFIX namespace) + role_candidate; adds a tiny catalog_snapshot table (source, snapshot_date, n_entries, diff_added) for the diff feeds.",
+     "product_surface": "An 'Emerging roles' rail (born-this-quarter list with first-seen date, countries, and whatever lens data exists) \u2014 a genuinely differentiating, decision-relevant surface for people picking a career direction.",
+     "effort": "medium",
+     "value": "high",
+     "charter_check": "PASS \u2014 emergence is measured in postings/countries/skills volume, never 'which companies are hiring it'."
+    },
+    {
+     "name": "Per-cell coverage mart + honest sparse rendering (kill the silent role-drop)",
+     "what": "The UI currently drops sparse roles (src/app/explore.jsx lines 66 and 78: `if (!cd) return null` omits a role from cross-country grids when any country cell is missing \u2014 commit ec41ca7 made this the blanket fix for the blank dashboard). Replace with per-cell truth. Backend: materialize mart_role_coverage(role_id, country, lens [advertised|realized|official|estimate], yoe_bucket, n_datapoints, n_sources, last_updated) at build time \u2014 it is a cheap GROUP BY over the existing fact tables. API: role payloads always include every catalog role the resolver can land on, with per-country per-lens coverage stamps instead of missing keys. UI: (a) grid/compare cells render a neutral 'no data yet' cell (distinct from zero!) with a tooltip naming which lenses DO have data; (b) role pages show a coverage strip (7 countries x 4 lenses grid of filled/empty dots); (c) estimate-only roles render fully with the kind=estimate badge already mandated by the aggregator-wave rules; (d) sort/rank views rank only over cells with data but never remove the row. This is the prerequisite for growing the catalog at all \u2014 at 500+ roles nearly everything is sparse somewhere, and the current drop behavior would blank the product.",
+     "data_sources": "Existing fact tables (salary lenses, demand, adoption) + dim_role_surface; no new external data.",
+     "data_model": "mart_role_coverage as above, refreshed in the marts build; one added field on role API payloads (coverage: {country: {lens: n}}).",
+     "product_surface": "Every grid, compare view and role page; the coverage strip doubles as the product's honesty signature.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 coverage is per role x country x lens x experience; no company dimension."
+    },
+    {
+     "name": "Catalog browser: family -> base role -> specialization tree with coverage chips",
+     "what": "A navigable front door for the full catalog once it grows past what a flat 16-role list can carry. Tree view: family (Engineering / Data / ML-AI / Infra / Security / Product-Design) -> base roles -> specializations, each node carrying its coverage chips (which countries, which lenses, emerging/canonical badge, first-seen year for emerging nodes). Search stays the never-dead-end resolver; the browser is for discovery ('what roles exist NEAR data engineering and what do they pay at my YoE'). Cheap because it reads dim_role (kind/parent/family/status) + mart_role_coverage only. Also the natural home for the ladder view: clicking a node shows what-you-become-next from bridge_role_ladder + promotion_ladder, which closes the loop on the goal grid (role x country x YoE x ladder-step).",
+     "data_sources": "dim_role v2, mart_role_coverage, bridge_role_ladder, promotion_ladder \u2014 all internal.",
+     "data_model": "No new tables; one API endpoint serving the tree with coverage annotations.",
+     "product_surface": "New 'All roles' page replacing the implicit 16-role assumption in src/app/roles.jsx; entry point for the emerging-roles rail.",
+     "effort": "medium",
+     "value": "high",
+     "charter_check": "PASS \u2014 the tree is roles/families/specializations only."
+    }
+   ],
+   "notes": "Live-probe findings (2026-07-04, within budget: 2 WebFetch datacenter attempts failed as expected \u2014 AmbitionBox hangs and levels.fyi guessed-path 403s from datacenter IPs \u2014 then 7 small local fetches with browser UA at ~3s spacing): (1) AmbitionBox robots.txt points to /sitemap-index.xml; sitemap-salaries.xml splits into companysalaries (ignored, charter), profilecompanysalaries (ignored, charter), and sitemap-profilesalaries-1.xml \u2014 a SINGLE 2.5 MB file with exactly 15,941 designation-salary URLs. The whole India designation universe is enumerable in one polite fetch; no crawling of index pages needed. It spans all professions, so backend/ingest/tech_filter.py (already built for exactly this shape of problem) gates intake; expect roughly 3-6k tech-ish designations collapsing to low-thousands of surfaces after normalize_surface. (2) AmbitionBox robots '*' UA permits /profile/ paths; only named AI-bot UAs are blanket-disallowed \u2014 consistent with the standing approved posture. (3) Key code anchors for whoever builds: taxonomy spine D:\\A1- Job market\\backend\\warehouse\\taxonomy.py (normalize_surface, CURATED_ALIASES, mine_emergent_roles, EMERGING_PREFIX namespace, load_esco/load_onet loaders already graceful-degrade); resolver 3-tier cascade D:\\A1- Job market\\backend\\app\\resolver.py; cluster miner D:\\A1- Job market\\backend\\ml\\role_derivation.py (derived_roles.parquet contract); UI sparse-drop to remove: D:\\A1- Job market\\src\\app\\explore.jsx lines 66 and 78 (`if (!cd) return null`). (4) Sizing answer the room was asked for: canonical BASE nodes land in the low hundreds (300-600), specializations 1-2.5k, alias surfaces 30-60k \u2014 'almost every tech role' is delivered at the surface/alias layer via the resolver, not by minting a node per title; this matches the axes-not-nodes design already documented in taxonomy.py. (5) Build order recommendation: coverage mart + sparse rendering FIRST (proposal 6) \u2014 without it, growing the catalog blanks the UI (the exact regression ec41ca7 papered over); then AmbitionBox sitemap harvest (small, verified), then data model v2, then admission ladder, then emerging intake and browser."
+  },
+  {
+   "room": "Progression Ladder",
+   "proposals": [
+    {
+     "name": "Canonical rung spine: dim_ladder_rung + fact_rung_salary",
+     "what": "Replace the pay-multiple-only bridge_role_ladder (role_id, ord, title, mult) with a real rung dimension and a rung-level salary fact. dim_ladder_rung(role_id, rung_code, ord, title, track, yoe_min, yoe_max, fork_from, confidence, source_id) with a fixed canonical rung vocabulary: IC track L1_entry, L2_mid, L3_senior, L4_staff, L5_principal, L6_distinguished; management track M1_lead, M2_manager, M3_senior_mgr, M4_director_plus. fact_rung_salary(role_id, rung_code, country_code, year, median, p25, p75, currency_code, sample_size, kind, source_id, is_seed) \u2014 kind reuses the existing lens discipline (advertised | realized | estimate | official), lenses shown side-by-side and never blended, matching the three-salary-lens pattern already in the app. This is the spine every other proposal writes into.",
+     "data_sources": "Curated seed (migrate existing bridge_role_ladder rows as source_id=curated with mult retained as fallback when no absolute salary exists); then filled by the empirical/fusion proposals below.",
+     "data_model": "Two new DDLs in backend/warehouse/schema.py (BRIDGES + FACTS); PK (role_id, rung_code) and (role_id, rung_code, country_code, year, source_id). track VARCHAR ('ic'|'mgmt'); fork_from VARCHAR nullable = rung_code where the management track branches (typically L3_senior). Mart: mart_role_ladder per (role_id, country) with rungs ordered, steps (abs + pct deltas) precomputed exactly like promotion_ladder.py already computes steps.",
+     "product_surface": "Foundation \u2014 serves the role-page ladder section and the compare view; API GET /roles/{id}/ladder?country=XX returns rungs + steps + per-lens salaries.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 rungs are role-level abstractions; sources are pooled across employers; no company ladder is ever named or surfaced (canonical rung titles are generic, not company-branded)."
+    },
+    {
+     "name": "Empirical rungs from our own LLM extraction (seniority \u00d7 management_scope \u00d7 years_required)",
+     "what": "We already extract, per posting: seniority (enum), management_scope (ic|lead|manager|director_plus), years_required min/max, plus advertised salary where present. Group the extracted corpus by (role_id, seniority, management_scope, country) \u2192 map to canonical rung_code via a small static dict \u2192 emit per-rung yoe_min/yoe_max (p25/p75 of years_required) and per-rung advertised salary medians. This is the cheapest at-scale rung \u00d7 YoE \u00d7 pay signal we own outright, and it covers niche/new roles the moment postings exist \u2014 no external source needed.",
+     "data_sources": "Existing llm_extract output over the postings corpus (currently common_crawl; grows as corpus grows). Zero new fetching.",
+     "data_model": "New analytics module backend/analytics/rung_empirics.py (same pattern as promotion_ladder.py: pure derivation on cached data \u2192 staging json \u2192 materialize). Writes dim_ladder_rung yoe bounds (source_id=extraction) and fact_rung_salary rows kind=advertised. Min-cell threshold n>=30 like promotion_ladder's min_rung_n; abstain-aware (seniority=unknown rows dropped).",
+     "product_surface": "Fills the ladder for the long tail of roles; also powers the 'expected years at this rung' label (years_required of postings at rung N+1 \u2248 cumulative YoE to reach it).",
+     "effort": "small",
+     "value": "core",
+     "charter_check": "PASS \u2014 aggregates over postings with employers already ignored; extraction fields are role-only by prior audit (extraction-schema-complete)."
+    },
+    {
+     "name": "Multi-source rung crosswalk + fusion rules",
+     "what": "One bridge table maps every source's native level scheme onto the canonical rungs so ladders fuse instead of fragmenting: H-1B prevailing-wage I\u2013IV (promotion_ladder.py, US realized) \u2192 L1/L2/L3/L4-ish; AmbitionBox designation slugs (software-engineer / senior- / lead- / principal-) \u2192 L2/L3/M1-or-L4/L5 with their own per-slug YoE+pay (IN estimate); levels.fyi standardized levels when that connector lands (7-country estimate); LLM seniority enum (advertised); curated titles. Fusion rule: crosswalk maps LEVELS only \u2014 salaries stay per-source per-kind rows in fact_rung_salary and are displayed as lenses, never averaged across kinds (exactly the existing three-lens ruling). Where two sources of the SAME kind disagree on a rung's pay, keep both rows keyed by source_id and let the mart pick by sample_size for the headline with the other as tooltip provenance.",
+     "data_sources": "bridge_rung_crosswalk is hand-curated (~50 rows total \u2014 level schemes are tiny). Consumers: promotion_ladder.py output, ambitionbox.py senior-slug rows, future levels_fyi.py, rung_empirics.",
+     "data_model": "bridge_rung_crosswalk(source_id, native_level VARCHAR, role_family VARCHAR DEFAULT '', rung_code, weight DOUBLE, PK(source_id, native_level, role_family)). role_family override handles e.g. AmbitionBox 'lead' meaning M1 for eng roles but L4 for QA. Materialize joins through it into fact_rung_salary.",
+     "product_surface": "Invisible plumbing that makes the ladder page show US realized + IN estimate + advertised on the same rung rows with per-lens badges.",
+     "effort": "small",
+     "value": "core",
+     "charter_check": "PASS \u2014 crosswalks level VOCABULARIES, not companies; H-1B employers stay pooled; AmbitionBox rows are designation-level aggregates."
+    },
+    {
+     "name": "IC vs management fork as a first-class graph (rung DAG + cross-role fork edges)",
+     "what": "Represent the ladder as a two-track DAG, not a list. Within-role: dim_ladder_rung.track + fork_from gives the branch point (L3_senior \u2192 L4_staff OR M1_lead). Cross-role: when the management branch is really a role change (swe \u2192 eng-mgr, data-sci \u2192 ds-manager), emit it as a bridge_role_adjacency edge with new edge_type='promotion_fork' carrying the target role's M-rung \u2014 reusing the existing adjacency table instead of inventing a parallel one. This makes 'stay IC vs go manager' answerable with pay: the fork card shows staff-IC median vs eng-mgr median in the user's country, computed from fact_rung_salary. Empirical grounding: management_scope extraction already separates track from level, so fork YoE (typical years at which manager postings start asking for this role's background) is derivable.",
+     "data_sources": "dim_ladder_rung (proposal 1), bridge_role_adjacency (exists, just add edge_type), management_scope \u00d7 years_required extraction, eng-mgr/pm rungs from H-1B + AmbitionBox (both cover manager designations).",
+     "data_model": "No new tables: one enum value on bridge_role_adjacency.edge_type + two columns on dim_ladder_rung (track, fork_from). Mart emits ladder as {ic_rungs:[], mgmt_rungs:[], fork:{at, options:[{rung|role, median, delta_pct}]}}.",
+     "product_surface": "Role-page 'The Fork' card at the senior rung: two branches with pay curves diverging; click-through to the manager role's own page.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "PASS \u2014 role\u2192role edges only (the existing adjacency bridge is explicitly roles-only); no employer career graphs."
+    },
+    {
+     "name": "Role-page ladder UI: stepped pay curve with rung bands",
+     "what": "The role page gets a Progression section: x-axis = years of experience, y-axis = pay (country-selected, currency-native). Rung bands (L1..L5, M-track dashed) overlay the curve; each band shows title, yoe range, median + step delta (\u25b2 +26k, +23%) in the promotion_ladder.py style. For IN, the AmbitionBox per-year YoE series (1\u20138) draws a smooth line INSIDE the rung bands \u2014 the only market where we can show both the continuous curve and the discrete rungs; other countries show stepped rung medians only, honestly. Lens toggle (advertised/realized/estimate) switches which fact_rung_salary kind renders; missing lenses are greyed with a 'no data' note, never imputed.",
+     "data_sources": "mart_role_ladder (proposal 1 mart), AmbitionBox per-year rows (fact_salary_job or estimate rows with experience_code per-year), existing three-lens salary marts for the pooled baseline reference line.",
+     "data_model": "Frontend-only beyond the mart: one API endpoint /roles/{id}/ladder?country= returning rungs, steps, fork, and the per-year YoE series when present.",
+     "product_surface": "New section on every role page; the compare page gets a mini-ladder sparkline (total_climb_pct badge \u2014 already computed by promotion_ladder.py).",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 visualizes role-level aggregates; per-country and per-YoE axes are explicitly charter-approved."
+    },
+    {
+     "name": "'Where can I go from here' explorer (vertical + lateral, with pay deltas)",
+     "what": "Interactive panel: user picks current role + rung (or YoE, mapped to rung via yoe bounds). Output: (a) NEXT RUNG UP \u2014 title, expected additional years, pay delta; (b) THE FORK if at branch point; (c) LATERAL MOVES \u2014 top-k bridge_role_adjacency neighbors (O*NET/ESCO/Wikidata edges, already loaded) each annotated with the pay delta at the EQUIVALENT rung in the target role (join both roles' fact_rung_salary at same rung_code and country) and a skill-gap chip (bridge_role_skill_importance diff: skills the target role needs that the source role doesn't). This is the decision product the goal grid points at: role \u00d7 country \u00d7 YoE \u00d7 next-step, in one screen.",
+     "data_sources": "All existing: bridge_role_adjacency, bridge_role_skill_importance, fact_rung_salary (new), O*NET trajectory bridges. No new ingestion.",
+     "data_model": "Query-time composition in a service module; optional cache table mart_next_moves(role_id, rung_code, country_code, moves JSON) if latency demands.",
+     "product_surface": "Standalone 'Career Explorer' page + a compact version embedded at the bottom of each role page. Deep-links so a lateral-move card navigates to the target role's ladder.",
+     "effort": "medium",
+     "value": "high",
+     "charter_check": "PASS \u2014 transitions are occupation\u2192occupation from public taxonomies; skill gaps are role-attribute diffs; no employer data anywhere in the path."
+    },
+    {
+     "name": "AmbitionBox senior-designation harvest as ladder rungs (extend the built connector)",
+     "what": "The AmbitionBox connector already fetches senior-software-engineer / senior-data-scientist / senior-data-engineer slugs because per-year YoE caps at ~5 on base designations. Extend the slug list systematically: for every base role slug, also fetch lead-, principal-, staff-, and -manager variants (404s are cheap, cached, one request each \u2014 the connector already handles clean misses via slug_missing). Each hit is a rung with its OWN YoE range and pay distribution \u2192 rows straight into fact_rung_salary (kind=estimate, country=IN) through the crosswalk. Gives India \u2014 the deep market \u2014 the most complete empirical ladder of any country, including for niche roles where designation pages exist but official data never will.",
+     "data_sources": "AmbitionBox designation pages via existing __NEXT_DATA__ parser; ~4 extra slugs \u00d7 ~40 base roles \u2248 160 additional cached fetches at the existing 2.5s throttle (~7 min once).",
+     "data_model": "No schema change: extends SLUGS in backend/ingest/ambitionbox.py; a rung_hint field on the staged record (parsed from slug prefix) that the crosswalk consumes.",
+     "product_surface": "Directly populates the IN ladder UI rungs above L3; makes the per-year curve + rung bands complete for India.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "PASS \u2014 designation-level aggregates only, per the connector's existing roles-only stance; aggregator-estimate wave already user-approved, rows labeled kind=estimate."
+    },
+    {
+     "name": "Time-to-rung estimator (expected years at each rung, cross-validated)",
+     "what": "Derive 'typical years to reach rung N' from three independent signals and publish the band, not a fake-precise number: (1) years_required distribution of postings AT rung N (advertised bar); (2) AmbitionBox per-year pay curve inflection points (IN \u2014 where the pay slope jumps is where the market prices a rung change); (3) H-1B level-wise wage overlap (US). Store consensus yoe_min/yoe_max per rung; flag rungs where sources disagree by >2 years with confidence=low. Powers the 'you are probably here' marker when a user enters their YoE, and the '~3 yrs to next rung' label.",
+     "data_sources": "rung_empirics output, AmbitionBox per-year rows, promotion_ladder.py buckets (expose the raw per-level wage lists it already collects instead of discarding them).",
+     "data_model": "Fills dim_ladder_rung.yoe_min/yoe_max + adds yoe_confidence; small analytics module, staging json \u2192 materialize like promotion_ladder.",
+     "product_surface": "Rung band widths on the ladder chart ARE these estimates; explorer uses them to place the user.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "PASS \u2014 statistical derivation over already-pooled role-level data."
+    }
+   ],
+   "notes": "Probe verdict on assigned sources: progression.fyi was probed (site + repo search) \u2014 it is a link DIRECTORY to company-branded frameworks (Notion pages, PDFs at gitlab.com, dropbox.design, etc.), not structured data; ingesting it would both be an HTML-scraping slog and drag named-company ladders into a roles-only product. Verdict: do NOT build a connector; use it offline once as a reference when hand-writing the canonical rung vocabulary (L1..L6 / M1..M4 titles). Zippia career-path graphs were not probed (fetch budget spent) but are lower priority than the zero-fetch assets we already hold; treat as wave-2 if lateral-move coverage from O*NET/ESCO/Wikidata proves thin. levels.fyi remains the planned high-value external source and slots cleanly into the crosswalk (proposal 3) \u2014 nothing here blocks on it.\n\nKey architectural rulings embedded in the proposals: (1) canonical rung codes are the fusion spine \u2014 every source keeps its native levels and maps through bridge_rung_crosswalk, so adding a source is ~10 crosswalk rows, no schema change; (2) salary lenses NEVER blend across kind (advertised/realized/estimate/official) \u2014 per-rung rows stay per-source and render as the same lens toggle the app already trains users on; (3) IC/mgmt fork is data (track + fork_from + promotion_fork adjacency edges), not UI hardcoding, because for many roles 'manager' is a role CHANGE and must route to the manager role's own page; (4) the single highest-leverage/lowest-cost item is proposal 2 (rung empirics from our own extraction) \u2014 it is pure derivation on data we already have, covers niche roles automatically, and unblocks the UI even before any aggregator wave lands. Suggested build order: 1 \u2192 2 \u2192 3 \u2192 7 \u2192 5 \u2192 4 \u2192 8 \u2192 6. Grounding files: backend/warehouse/schema.py (bridge_role_ladder at line 250, bridge_role_adjacency at 261), backend/analytics/promotion_ladder.py (H-1B I\u2013IV ladders, steps/total_climb_pct math to reuse), backend/ml/llm_extract.py (seniority/management_scope/years_required enums), backend/ingest/ambitionbox.py (senior-slug pattern + per-year cap note at lines 84\u201388)."
+  },
+  {
+   "room": "Experience Curve Room \u2014 end-to-end design of the years-of-experience axis (canonical scheme, curve fitting, seniority reconciliation, progression metrics, storage + marts)",
+   "proposals": [
+    {
+     "name": "P1 \u2014 Interval-native YoE observation layer (fact_salary_yoe_obs + per-source mapping)",
+     "what": "Stop forcing sources into the coarse experience_code enum. New fact stores every salary observation with its NATIVE experience interval: columns yoe_min REAL, yoe_max REAL (nullable = pooled), plus median/p25/p75, currency, sample_size, year, kind (estimate | job-level | person-level), source_id. Canonical per-source mapping, applied at ingest: AmbitionBox ?experience=N -> [N,N] exact per-year (IN, 1-8, plus a pooled row); PayScale brackets -> [0,1), [1,5), [5,10), [10,20), [20,30] (top bracket capped at 30 to bound the interval); SO survey YearsCodePro -> exact integer [N,N] where cell n>=8, else fall back to current bands; talent.com tiers and levels.fyi levels do NOT get invented years \u2014 they enter with a seniority/level label and null yoe, to be placed on the axis by P3's concordance; H-1B LCA wage levels I-IV likewise enter as level anchors. dim_experience survives only as a display-bucketing helper (add scheme + midpoint columns); it is no longer the storage grain. Existing fact_salary_job/person keep working untouched \u2014 this is an additive layer.",
+     "data_sources": "AmbitionBox (built, per-year 1-8 IN), PayScale (specced, 5 brackets x 7 countries), SO survey raw CSVs (YearsCodePro re-aggregated per-year), H-1B LCA levels, talent.com tiers, levels.fyi levels (specced), future wave-2 aggregators \u2014 every new connector declares its yoe_min/yoe_max mapping in one place (a SOURCE_YOE_MAP dict in the fact loader).",
+     "data_model": "DuckDB: fact_salary_yoe_obs(role_id, country_code, yoe_min DOUBLE NULL, yoe_max DOUBLE NULL, level_label VARCHAR NULL, year, median, p25, p75, currency_code, sample_size, kind, confidence, source_id, retrieved_at, PK(role_id, country_code, source_id, year, coalesce(yoe_min,-1), coalesce(yoe_max,-1), coalesce(level_label,''))). dim_experience gains midpoint + scheme columns for legacy band display. No change to schema.py fact_salary_* tables.",
+     "product_surface": "Not directly user-facing; this is the substrate every other proposal reads. Indirectly powers the source chips ('AmbitionBox n=1.2k at 5y', 'PayScale 5-9y bracket') on the curve view.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 role x country x years only; employer never appears (H-1B rows are already employer-pooled at ingest; aggregator estimates carry kind=estimate labeling per user ruling)."
+    },
+    {
+     "name": "P2 \u2014 Monotone experience-curve fitter with honest bands (answer ANY year)",
+     "what": "Per role x country x lens (estimate / advertised / realized \u2014 fitted separately, NEVER blended), fit a smooth pay-vs-YoE curve over P1 observations so the UI can answer 'what at 5 years?' everywhere. Method: (1) expand each interval observation to its covered integer years with weight w = log1p(sample_size)/interval_width; (2) weighted isotonic regression on (year, median) to enforce monotone non-decreasing pay (economically sound for 0-20y; flat late-career plateaus are allowed since isotonic permits equal steps); (3) PCHIP smoothing through the isotonic step means to get a differentiable curve; (4) confidence band = weighted residual quantiles per year, widened by a support penalty. Sparse cells borrow shape hierarchically: role x country -> role family x country -> same role global-shape rescaled by the country's pooled-median ratio, with shrinkage weight n/(n+k). Every fitted year gets a support flag: observed (inside bracket coverage), interpolated (between observed years), borrowed (family/global shape). HARD RULE: never extrapolate beyond max observed yoe + 1; the curve simply ends and the UI stops the line \u2014 no wild extrapolation.",
+     "data_sources": "fact_salary_yoe_obs (P1) only; pure derived analytics, no new fetching. Runs as a warehouse build step after fuse.",
+     "data_model": "DuckDB: fact_salary_curve(role_id, country_code, kind, yoe INTEGER 0..20, fit_median, lo, hi, support VARCHAR, n_effective DOUBLE, method VARCHAR, run_id, PK(role_id, country_code, kind, yoe)). Small: ~500 roles x 7 countries x 3 lenses x <=21 years, bounded ~200k rows worst case, realistically far fewer.",
+     "product_surface": "The headline 'Experience curve' chart per role x country: line + shaded band, dashed styling where support != observed, curve ends where data ends. A year slider/scrubber reads fit_median/lo/hi at any integer year \u2014 the user's '5 years answerable everywhere' requirement.",
+     "effort": "large",
+     "value": "core",
+     "charter_check": "PASS \u2014 purely role x country x year analytics; three lenses stay side-by-side per existing never-blend doctrine; honesty preserved via support flags and the no-extrapolation rule."
+    },
+    {
+     "name": "P3 \u2014 Seniority <-> YoE concordance bridge (from LLM extraction, per role x country)",
+     "what": "Resolve the '5y Data Scientist vs Senior Data Scientist' overlap empirically instead of by fiat. For each role x country x seniority enum value, aggregate the LLM-extracted years_required/[.._max] intervals across postings into a YoE distribution: p25/p50/p75 + n. This is the market's OWN definition of what 'senior' means per role per country (senior at 5y in IN vs 8y in DE becomes visible data, not an assumption). The bridge is then the universal adapter that places level-labeled sources (levels.fyi levels, talent.com tiers, H-1B I-IV rungs, curated bridge_role_ladder steps) onto the years axis: a level maps to the concordance's year-interval, entering P2's fitter as interval observations with widened uncertainty. Fallback chain for sparse cells: role x country -> role x global -> family x global.",
+     "data_sources": "Existing LLM extraction output (19 role-only fields incl. seniority, management_scope, years_required min/max) \u2014 zero new collection; H-1B LCA levels as a US cross-check anchor.",
+     "data_model": "DuckDB: bridge_seniority_yoe(role_id, country_code, seniority VARCHAR, yoe_p25, yoe_p50, yoe_p75, n INTEGER, source_id DEFAULT 'llm_extract', run_id, PK(role_id, country_code, seniority)). Country_code '' = global fallback row.",
+     "product_surface": "Seniority band overlay on the P2 curve (shaded vertical regions: 'junior | mid | senior | staff+' with their empirical year ranges); tooltip on the year slider: 'At 5 years in India, 68% of Data Scientist postings asking 5y say Senior'. Also the machinery that lets levels.fyi data appear on the years axis at all.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 seniority is a role attribute extracted from postings; no employer dimension (levels.fyi company-level data would be pooled to country-level before entering, consistent with roles-only)."
+    },
+    {
+     "name": "P4 \u2014 Demand-side YoE distribution ('what the market asks for')",
+     "what": "A second, distinct use of years_required: not pay, but demand shape. Per role x country x year, histogram the years_required intervals across postings -> 'employers hiring this role ask for: 0-2y: 18%, 3-5y: 47%, 6-9y: 28%, 10+: 7%' plus median-asked-years. This answers a different career question than the pay curve: WHERE the openings are on the experience axis (a role can pay well at 10y but have almost no 10y openings). Cheap to compute, entirely from data already extracted, and it gives the experience axis a demand lens matching the existing salary lenses.",
+     "data_sources": "LLM extraction over CommonCrawl postings corpus (already run); recompute per future extraction run. No new collection.",
+     "data_model": "DuckDB: fact_demand_yoe(role_id, country_code, year, yoe_bucket VARCHAR (0-2|3-5|6-9|10+), share DOUBLE, postings_n INTEGER, median_asked_years DOUBLE, source_id, PK(role_id, country_code, year, yoe_bucket)). Buckets reuse dim_experience codes here since postings state ranges, not points.",
+     "product_surface": "'Who's hiring at your level' mini-bar-chart beside the pay curve; slider integration: at year N show both expected pay AND share of openings asking ~N years. Cross-role compare: 'roles friendliest to 0-2y candidates'.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "PASS \u2014 aggregated posting counts per role x country; no employer identity anywhere."
+    },
+    {
+     "name": "P5 \u2014 Progression-rate & plateau metrics (switching-premium signal)",
+     "what": "Derive decision-grade scalars from the P2 curve per role x country: (1) marginal_growth_pct per year = d(fit_median)/dyear as %; (2) early_momentum = CAGR years 1->5; (3) plateau_year = first year where marginal growth stays under a threshold (e.g. <2%/yr for 2 consecutive years) \u2014 'when does this role stop rewarding tenure'; (4) ladder_step_premium = pay jump implied by crossing each P3 seniority boundary (curve value at band-median years, next band vs current) \u2014 the switching/promotion premium; (5) pay_multiple_10v1 = curve(10)/curve(1). Computed only over support=observed|interpolated years \u2014 borrowed segments excluded from metrics so we never advertise a growth rate we inferred from another country's shape. These become sortable product metrics: 'fastest-growing-pay roles in DE', 'roles that plateau early in IN'.",
+     "data_sources": "fact_salary_curve (P2) + bridge_seniority_yoe (P3). Pure derivation, no collection.",
+     "data_model": "DuckDB: fact_progression(role_id, country_code, kind, early_momentum_pct, plateau_year, pay_multiple_10v1, run_id, PK(role_id, country_code, kind)) plus per-year marginal rates readable straight off the curve grid (no extra table needed). Ladder-step premiums land as extra columns on the mart row (JSON) rather than a new fact.",
+     "product_surface": "'Momentum' badges on role cards; a compare-mode column ('+11%/yr early-career vs +6%/yr'); plateau-year annotation on the curve; ladder view enriched with 'next step ~= +22% at ~year 6'. Feeds job_score as an optional opportunity component later.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "PASS \u2014 role-level economics only; 'switching premium' means switching LEVEL/ROLE, not employer, and is computed from role curves, not company moves."
+    },
+    {
+     "name": "P6 \u2014 mart_experience_curve + API + year-slider UI",
+     "what": "Serving layer: one SQLite mart row per role x country carrying the full curve as JSON arrays (years[], per-lens median[]/lo[]/hi[]/support[]), seniority bands JSON (from P3), demand-YoE histogram JSON (from P4), and the P5 scalars \u2014 a single-row read renders the whole experience tab. FastAPI endpoint /roles/{id}/experience?country=IN returns it; a point endpoint ?years=5 evaluates the curve server-side for programmatic use. Frontend: new Experience section on the role page \u2014 curve chart with band + lens toggle (estimate/advertised/realized), draggable year scrubber with a big 'at 5 years: \u20b918.4L (\u20b915.1\u201322.0L, medium confidence)' readout, seniority band overlay, openings-by-experience bars, momentum/plateau badges, and per-point source chips for provenance.",
+     "data_sources": "fact_salary_curve, bridge_seniority_yoe, fact_demand_yoe, fact_progression \u2014 mart build step in materialize.py, no collection.",
+     "data_model": "SQLite: mart_experience_curve(role_id, country_code, payload JSON, updated_run_id, PK(role_id, country_code)); payload documented shape versioned with a schema_version key so the frontend can evolve safely. Pydantic schema in app/schemas.py mirrors it.",
+     "product_surface": "The user-visible deliverable of this room: every role x country page answers ANY year of experience with pay + band + confidence + seniority context + demand context, with honest gaps where data ends.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "PASS \u2014 role x country x years surface; provenance chips satisfy the confidence/provenance doctrine; no employer facet anywhere in payload."
+    }
+   ],
+   "notes": "Dependency order: P1 -> (P3, P4 in parallel; P3 needs only existing LLM output so it can start immediately too) -> P2 (consumes P1 intervals + P3-anchored level sources) -> P5 -> P6. Key design commitments: (1) intervals, not bracket enums, are the storage truth \u2014 the coarse dim_experience codes become display-only, which future-proofs the schema for any new aggregator's bracket scheme without migrations; (2) level-labeled sources (levels.fyi, talent tiers, H-1B I-IV) are never assigned invented years at ingest \u2014 they are placed on the axis only through the empirical P3 concordance, keeping the years axis honest; (3) the three salary lenses stay separate through the entire pipeline \u2014 three curves, one chart, toggleable, per existing never-blend doctrine, with aggregator rows in the estimate lens per the user's kind=estimate ruling; (4) monotone isotonic + PCHIP was chosen over free splines because bracket medians from mixed sources are noisy and non-monotone wiggles would read as false insight \u2014 the plateau (equal isotonic steps) is the only permitted flatness; (5) the no-extrapolation rule (curve ends at max observed +1 year; borrowed-shape years flagged and excluded from P5 metrics) is the room's honesty backbone. Grounding files: D:\\A1- Job market\\backend\\warehouse\\schema.py (dim_experience lines 43-49, salary facts 90-123), D:\\A1- Job market\\backend\\ml\\llm_extract.py (years_required/seniority fields, lines 141-144, 186-189), D:\\A1- Job market\\backend\\ingest\\ambitionbox.py (EXPERIENCE_YEARS 1-8), D:\\A1- Job market\\backend\\ingest\\so_survey.py (YearsCodePro handling), D:\\A1- Job market\\backend\\analytics\\promotion_ladder.py (H-1B level rungs I-IV), D:\\A1- Job market\\backend\\marts\\materialize.py (currently reads only experience_code='pooled' \u2014 P6 replaces that limitation for this surface). Risk note: AmbitionBox per-year data is IN-only, so IN curves will be visibly richer than other countries; the support-flag + shrinkage design makes that asymmetry legible rather than hidden, and PayScale (7-country, 5 brackets) is the priority connector to close the gap for US/GB/CA/AU/SG/DE."
+  },
+  {
+   "room": "blue-sky",
+   "proposals": [
+    {
+     "name": "City dimension (salary + demand by city within country)",
+     "what": "Add dim_city and a city-grained salary fact so IN users can compare Bengaluru vs Pune vs NCR for the same role x YoE, and US/DE users see hub premiums. Combine with col_index already in dim_ppp for a 'real purchasing power by city' view \u2014 the single most decision-relevant cut we don't have.",
+     "data_sources": "AmbitionBox publishes per-city salary stats on the same __NEXT_DATA__ pages the built connector already parses (near-zero marginal fetches for IN); PayScale has /research/{country}/City=... pages; our own Adzuna postings and llm_extract corpus carry location strings ready to geocode-normalize; Numbeo col_index already lands in dim_ppp.",
+     "data_model": "New dim_city (city_id, country_code, name, col_index) + fact_salary_job_city (role_id, city_id, experience_code, year, median, sample_size, kind, source_id) mirroring fact_salary_job's provenance columns. Keep city out of the main fact PK \u2014 it's a drill-down grain, not the default grain.",
+     "product_surface": "A 'by city' tab on the role page: bar chart of median by city with sample-size badges, plus a COL-adjusted toggle. City filter on the country explorer.",
+     "effort": "medium",
+     "value": "core",
+     "charter_check": "Pure geography axis, no employer entity anywhere. City is exactly the kind of dimension the charter blesses ('salary-by-city fine')."
+    },
+    {
+     "name": "AI-exposure score per role",
+     "what": "Attach a published AI-automation/augmentation exposure index to every role, with an augment-vs-replace framing. In 2026 'will AI eat this role' is arguably THE question a person choosing a tech career asks; we can answer it with citable research rather than vibes.",
+     "data_sources": "Felten-Raj-Seamans AIOE scores (public, keyed to SOC), OpenAI 'GPTs are GPTs' occupation exposure ratings, Anthropic Economic Index occupation usage shares, ILO GenAI exposure gradients \u2014 all keyed to O*NET-SOC codes we already bridge roles to for trajectory/importance data. One-time static ingest, no crawling.",
+     "data_model": "fact_role_ai_exposure (role_id, exposure_index 0-100, augmentation_share, replacement_share, source_id, year, methodology_note). Multiple sources kept side-by-side like the three salary lenses \u2014 never blended into one fake number.",
+     "product_surface": "An 'AI exposure' chip on the role card with a click-through explaining which source says what; a sortable exposure column in the role catalog; pairs naturally with fact_role_outlook growth projections.",
+     "effort": "small",
+     "value": "core",
+     "charter_check": "Role-level attribute from occupation research; no employer axis. Provenance-first presentation keeps it honest \u2014 we present named indexes, not our own prediction."
+    },
+    {
+     "name": "Skill pay premium per role x level (hedonic)",
+     "what": "Which skills actually move pay for this role at this level \u2014 e.g. 'Data Engineer + Spark in IN at 3-5y: +12% vs role median'. Turns the skill bag from descriptive into prescriptive: the learn-this-next answer.",
+     "data_sources": "Two independent lenses: (a) our own corpus \u2014 llm_extract skills x salary on the same posting rows enables a hedonic regression we fully control; (b) PayScale's by-skill dimension pages (Skill=X) for the roles/countries where our sample is thin, already in the specced PayScale connector's site family.",
+     "data_model": "fact_skill_premium (role_id, skill_id, country_code, experience_code, premium_pct, sample_size, method 'hedonic'|'payscale', confidence, source_id). Suppress rows below a sample floor rather than shipping noise.",
+     "product_surface": "On the role page skill list: a green +% badge per skill, sortable; a 'highest-paying skills for this role' strip. Feeds the ladder view ('skills that get you to the next step').",
+     "effort": "medium",
+     "value": "high",
+     "charter_check": "Explicitly on the charter's blessed list ('salary-by-skill fine'). No employer entity in either source path."
+    },
+    {
+     "name": "Remote vs onsite pay gap per role",
+     "what": "For each role x country: median salary split by work_arrangement (remote/hybrid/onsite) and the % of postings offering each. Answers both 'can I get this role remote?' and 'what does remote cost me?'.",
+     "data_sources": "Entirely from data already landed: llm_extract work_arrangement + posting salary on the same rows. Zero new collection \u2014 this is an analytics pass over the existing corpus.",
+     "data_model": "fact_salary_arrangement (role_id, country_code, arrangement, experience_code, year, median, share_of_postings, sample_size, source_id). Same provenance columns as the other salary facts.",
+     "product_surface": "A three-way split bar on the role page (remote/hybrid/onsite share + median each); a 'remote-friendly' filter/sort in the catalog.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "Work-arrangement is a role/posting attribute; no employer axis. Cheapest high-value item on this list \u2014 do it first."
+    },
+    {
+     "name": "Comp composition by level (base / stock / bonus)",
+     "what": "At each ladder step, what fraction of total comp is base vs equity vs bonus \u2014 the thing that makes a 'senior' offer in the US incomparable to one in IN, and the biggest blind spot of advertised-salary lenses.",
+     "data_sources": "levels.fyi per-level TC breakdowns (connector already SPECCED in this wave \u2014 this proposal just says: capture the components, not only the total). Coverage honest-labeled: dense for US big-tech-style ladders, thin for IN services companies.",
+     "data_model": "fact_comp_mix (role_id, country_code, level_ord, base_median, stock_median, bonus_median, total_median, sample_size, kind='estimate', source_id). Joins bridge_role_ladder on (role_id, ord) so the ladder view can show mix per rung.",
+     "product_surface": "Stacked bar per ladder step in the existing ladder/promotion view; a 'how much of this is stock?' tooltip on TC figures.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "levels.fyi data arrives company-tagged \u2014 MUST be aggregated to role x level x country before landing; company names never persist past the staging layer (same rule as the existing employer dedup key). Aggregated, it is a clean role attribute."
+    },
+    {
+     "name": "Demand-supply tension index",
+     "what": "Ratio/index of employer demand (postings volume) to aspirant supply proxy (search/learner interest) per role x country x year. Flags 'everyone is learning this but hiring is flat' (crowded) vs 'hiring outpaces interest' (underrated) \u2014 a genuinely differentiating signal no aggregator shows.",
+     "data_sources": "Zero new collection: fact_demand (CommonCrawl/GHArchive postings) and fact_interest (GTrends) already share the role x country x year grain.",
+     "data_model": "Either a derived mart view or fact_tension (role_id, country_code, year, tension_index normalized 0-100, demand_component, interest_component, confidence). Must document the interest-as-supply-proxy caveat in dim_source notes.",
+     "product_surface": "A 'crowded vs underrated' quadrant scatter (demand vs interest) on the country dashboard; a tension chip on role cards; could feed opp_score in fact_job_score.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "Derived from two role-level facts we own; no new source, no employer axis. Honesty requirement: label it an index with a stated proxy, not 'competition ratio'."
+    },
+    {
+     "name": "Education & certification ROI",
+     "what": "Per role x country: share of postings requiring degree vs not, the pay delta between them, and the top named certifications with their frequency and pay delta. Answers 'do I need a Masters?' and 'is CKA/AWS-SA worth it for this role?'.",
+     "data_sources": "Already landed: llm_extract education_requirement (enum) + certifications_required (named-credential array) + salary on the same rows. Optional later enrichment from PayScale cert pages.",
+     "data_model": "fact_credential_signal (role_id, country_code, credential_type 'education'|'cert', credential_value, posting_share, median_with, median_without, sample_size, source_id). Cert names normalized through a small alias table.",
+     "product_surface": "A 'requirements reality' panel on the role page: degree-required %, top-5 certs with frequency + pay delta badges.",
+     "effort": "small",
+     "value": "high",
+     "charter_check": "Posting-derived role attributes; no employer axis. Pay deltas are correlational \u2014 surface with the same confidence-badge honesty as everything else."
+    },
+    {
+     "name": "Freelance/contract rate lens",
+     "what": "Hourly/day-rate medians per role x country as a fourth population lens (kind='freelance'), answering 'what if I contract instead of full-time?' \u2014 a real branch in tech career decisions that no current lens covers.",
+     "data_sources": "Malt's public rate barometer (FR/DE/ES day rates by role x experience \u2014 structured pages, good for DE); talent.com hourly aggregates (already a SPECCED connector \u2014 extend it to hourly pages, cheap); Upwork rate pages are bot-walled/JS-heavy, treat as probe-later not planned. Coverage will be genuinely patchy for IN/SG.",
+     "data_model": "fact_salary_freelance (role_id, country_code, experience_code, year, rate_median, rate_unit 'hour'|'day', currency_code, sample_size, kind='freelance', source_id). Fourth lens, same never-blend rule as the existing three.",
+     "product_surface": "A 'contract' toggle beside the three salary lenses on the role page, shown only where rows exist.",
+     "effort": "medium",
+     "value": "nice",
+     "charter_check": "Role x rate only, no client/company axis. Honest caveat: coverage will be EU-heavy; ship with visible gaps rather than pretend completeness."
+    },
+    {
+     "name": "Language requirements by role x country",
+     "what": "Share of postings requiring the local language vs English-only, per role x country. Small but uniquely decision-relevant for the migration use-case (DE and SG especially): 'can I work as a Data Engineer in Germany without German?'.",
+     "data_sources": "Already landed: llm_extract spoken_languages_required over the postings corpus. Zero new collection.",
+     "data_model": "Aggregate into fact_language_requirement (role_id, country_code, language, required_share, sample_size, source_id) or fold into a general posting-attributes mart alongside the remote-split rows.",
+     "product_surface": "One line on the role x country page: 'DE: 61% of postings require German' with sample size. A filter is overkill; a stated fact is the product.",
+     "effort": "small",
+     "value": "nice",
+     "charter_check": "Posting attribute at role x country grain; no employer axis. Only worth doing because the marginal cost is near zero \u2014 the field is already extracted."
+    },
+    {
+     "name": "Gender pay gap per role (published stats only)",
+     "what": "Role-level (or role-family-level) gender pay gap figures from published statistical sources, shown as context on the role page. Socially valuable but honestly a contextual stat, not a role-choice driver in our grid.",
+     "data_sources": "Official-only route: ONS ASHE gender-gap-by-occupation tables (GB, excellent), BLS median-earnings-by-sex-by-occupation (US), Eurostat/Destatis (DE, coarser). PayScale's gap report is topline-level, not reliably per-role x country \u2014 do NOT plan on it. IN/SG per-occupation data effectively unavailable; ship 2-3 countries honestly rather than fake seven.",
+     "data_model": "fact_gender_gap (role_id or family_id, country_code, year, gap_pct, basis 'median_hourly'|'median_annual', sample_size, source_id) \u2014 occupation-coded official rows mapped through the existing SOC/ISCO role bridges.",
+     "product_surface": "A small context stat with source citation on the role page for covered countries; absent (not zero) elsewhere.",
+     "effort": "medium",
+     "value": "nice",
+     "charter_check": "Occupation-level official statistics; no employer axis. Verifiability is the constraint \u2014 restrict to official sources or drop it."
+    }
+   ],
+   "notes": "Killed, with reasons: (1) Interview difficulty/process length \u2014 the only real source is Glassdoor interview reviews, which are company-anchored (employer-axis at the data grain, charter-hostile even if aggregated), bot-walled, and self-selected; unverifiable at role x country grain. Kill, don't park. (2) Layoff/job-security exposure \u2014 layoffs.fyi and WARN filings attribute to companies, not roles; role attribution would be invented. AI-exposure (#2) plus fact_role_outlook shortage flags already cover the defensible part of 'is this role safe'. (3) Work-hours/work-life-balance per role \u2014 OECD/official hours-by-occupation data is too coarse (major occupation groups) to say anything at our role grain.\n\nSequencing observation: proposals 4, 6, 7, 9 (remote gap, tension index, credential ROI, language share) are all zero-new-collection analytics passes over facts already landed \u2014 together they're roughly one 'posting-attributes mart' work item and could ship this wave without touching the connector queue. Proposal 1 (city) piggybacks on the already-built AmbitionBox connector's existing page payloads, so its marginal crawl cost for IN is near zero \u2014 the effort is schema + normalization, not collection. Proposal 5 (comp mix) is a spec amendment to the not-yet-built levels.fyi connector \u2014 cheapest if decided before that connector is written, which is why it's flagged now.\n\nGrounding: schema at D:\\A1- Job market\\backend\\warehouse\\schema.py (dim_ppp already carries col_index per country-year \u2014 city COL extends this, doesn't invent a new mechanism; fact_demand and fact_interest already share the grain the tension index needs). Extraction fields confirmed present in D:\\A1- Job market\\backend\\ml\\llm_extract.py: work_arrangement, education_requirement, certifications_required, spoken_languages_required, management_scope, seniority."
+  }
+ ],
+ "synthesis": "# STRATA MASTER PLAN \u2014 Grid Completion: role \u00d7 country \u00d7 YoE \u00d7 ladder\n\nSynthesized from all six rooms. Grounded against `backend/warehouse/schema.py`, `backend/warehouse/taxonomy.py`, `backend/marts/models.py` (MartRolePayLadder, mart_role_ladder), `backend/analytics/promotion_ladder.py`, `backend/marts/materialize.py`.\n\n---\n\n## 1. NEW SOURCES \u2014 the definitive connector build order\n\nOne list, merging both hunter rooms with the three already-specced connectors. AmbitionBox (built) is extended, not rebuilt. Connectors always land staging-first (fetch-once cache), so collection can begin before the schema wave in section 3 fuses them.\n\n**Weak-country verdicts (decisive):** CA = Canada Job Bank CSVs (primary, official) + Robert Half CA (secondary). AU = SEEK career-advice pages. SG = JobStreet SG (free rider on the SEEK connector) + MyCareersFuture API (backstop). DE = Gehalt.de (primary \u2014 only probed source with explicit DE YoE brackets) + kununu /gehalt/ (cross-check).\n\n| # | Connector | Grid cells filled | Why this rank |\n|---|---|---|---|\n| 1 | **Canada Job Bank (open.canada.ca CSVs)** | CA \u00d7 all NOC roles \u00d7 low/median/high \u00d7 13 annual vintages, kind=official | Zero scraping \u2014 ~14 CSV downloads. Fills thinnest official gap AND patches the known gov_projections/official-baseline hole. Hours of work. |\n| 2 | **ITJobsWatch** | GB \u00d7 extreme role AND skill long-tail \u00d7 percentiles (10/25/75/90 = junior/senior proxy) + trends + contractor day rates + skill co-occurrence | Confirmed open static HTML, no bot wall, thousands of pages. Best effort-to-value in the entire hunt. |\n| 3 | **SEEK AU + JobStreet SG (one domain-generic connector)** | AU \u00d7 role \u00d7 state salary; SG \u00d7 role \u00d7 area salary; growth projections; how-to-become ladder text | Confirmed `window.__APOLLO_STATE__` JSON in static HTML. Two thinnest countries, one parser. Employer-disclosed advertised-kind, complements Adzuna. |\n| 4 | **Gehalt.de** | DE \u00d7 role \u00d7 explicit YoE brackets (<3 / 3-6 / 7-9 / >9) \u00d7 region | The only probed DE YoE axis. Slug discovery via sitemap (wrong slugs soft-redirect to JS page); parse JSON-LD + HTML, keep headless fallback. |\n| 5 | **AmbitionBox extension (built connector)** \u2014 sitemap harvest + senior/lead/principal/staff/manager slug variants | IN \u00d7 15,941-designation universe (tech-filtered) \u00d7 per-year YoE 1-8 \u00d7 rungs above L3 | One 2.5 MB sitemap fetch enumerates the whole IN designation universe; ~160 extra cached fetches give IN the most complete empirical ladder of any country. Ignore company-salary sitemaps (charter). |\n| 6 | **PayScale (specced)** | US/GB/CA/AU/SG/DE/IN \u00d7 role \u00d7 5 YoE brackets, kind=estimate | The cross-country YoE backbone \u2014 closes the \"IN-only per-year curve\" asymmetry for the other six markets. |\n| 7 | **Robert Half (US + CA)** | US/CA \u00d7 ~100 curated roles incl. emerging AI titles \u00d7 Low/Mid/High experience tiers | Confirmed open static tables; half-day connector; cheapest credible CA salary supplement. |\n| 8 | **levels.fyi (specced \u2014 amend spec NOW to capture base/stock/bonus components, not just TC)** | 7 countries \u00d7 level-ladder roles \u00d7 rung \u00d7 comp mix | The level-ladder source; levels get placed on the years axis only via the seniority concordance (sec. 3). Company tags pooled to role\u00d7level\u00d7country at staging \u2014 never persist. |\n| 9 | **talent.com (specced)** | Query-driven long-tail across markets | Long-tail breadth; tiers enter as level labels, no invented years. |\n| 10 | **MyCareersFuture API (SG govt)** | SG postings \u00d7 mandatory salary \u00d7 min-YoE \u00d7 position level | Public JSON API, feeds the existing postings/LLM-extract machinery unchanged. Build if/when SG still looks thin after #3. |\n| 11 | **ONE local browser-probe session** deciding three wave-2 builds: **Zippia** (US long-tail + YoE splits + true career-path graphs \u2014 highest prize, Cloudflare-gated), **SalaryExpert** (only single-scheme all-7-countries \u00d7 any-role \u00d7 entry/senior source, 403 likely UA-filterable), **StepStone.de** (DE YoE, 403) | Build whichever pass the local residential-IP probe | All three failed only from datacenter IPs \u2014 worst-case results. One session, three verdicts. |\n| 12 | **kununu /gehalt/ role pages only** | DE cross-check (two independent self-report sources make DE cells defensible) | Charter caution: never company pages. |\n| 13 | **NodeFlair (browser automation)** | SG \u00d7 role \u00d7 seniority-level pay, payslip-verified | Only if #3 + #10 leave SG thin; Cloudflare wall makes it a Playwright job. |\n| Later | Malt + Upwork (freelance-rate lens), Wellfound (equity axis), ZipRecruiter (only if Zippia fails), Michael Page / Hays (only if an open XHR is found) | New employment-type/equity dimensions | After the core grid fills. |\n\n**Permanently skipped (do not re-litigate):** Comparably, Blind (company-axis charter violation), LinkedIn Career Explorer (dead), Hired (dead), SalaryExplorer (junk), Naukri/India cluster (redundant with AmbitionBox), Indeed (bot-wall), progression.fyi (directory of company-branded ladders \u2014 use offline once as reference for the canonical rung vocabulary), CareerOneStop/Dice/Reed/BuiltIn (redundant with existing lenses or wave-1 winners), Glassdoor interview data, layoffs.fyi, OECD work-hours (blue-sky kills).\n\n---\n\n## 2. ROLE CATALOG \u2014 chosen design\n\n**Target size (planning commitment):** 300\u2013600 canonical base roles, 1,000\u20132,500 specializations, 30,000\u201360,000 alias surfaces. \"Almost every tech role\" is delivered at the **surface layer** \u2014 every title resolves via the resolver \u2014 not by minting a node per title. Axes (dim_seniority, dim_specialization) stay orthogonal; that is what keeps the catalog from exploding into near-dupes.\n\n**Data model v2 (additive, no breaking migration):** `dim_role` gains `role_kind` (base|specialization), `parent_role_id`, `status` (canonical|emerging|estimate-only|extinct). `dim_role_alias` is superseded by `dim_role_surface(surface, norm, role_id, source, source_key, lang, weight, first_seen)` \u2014 `source_key` holds connector-native ids (AmbitionBox slug, ESCO conceptUri, O*NET SOC, levels.fyi family id) so every connector joins by key, never re-matches titles. `dim_role_birth` stays the append-only audit ledger.\n\n**Enumeration feeds (in order of cost):** (1) O*NET alternate titles \u2014 the zip is already on disk, `load_onet_alternate_titles()` already parses it: zero-fetch. (2) AmbitionBox sitemap \u2014 verified single fetch, 15,941 designation slugs, gated through the existing `tech_filter.py`. (3) ESCO ICT subset (~150\u2013200 occupations + multilingual altLabels; extend `load_esco()` to emit unmapped ICT occupations as base-node candidates instead of discarding). (4) levels.fyi taxonomy when that connector lands. (5) Zippia only as wave-2 alias enrichment.\n\n**Admission ladder (one deterministic pipeline):** normalize + exact alias hit \u2192 alias; word-bounded containment \u2192 alias (lower weight); MiniLM cosine vs node centroids: \u22650.85 \u2192 alias, 0.70\u20130.85 with shared skill core \u2192 specialization of nearest node, else \u2192 base-node candidate under the emerging criteria. Every admission writes `dim_role_birth`.\n\n**Emerging intake (4 signals + lifecycle):** derived_roles clusters (exists), AmbitionBox sitemap diffs, levels.fyi taxonomy diffs, emerging-skill clusters attached to unresolved titles. Lifecycle: candidate \u2192 emerging (servable behind badge) \u2192 canonical after 2 quarters above volume floor \u2192 or extinct (ledger keeps it). This is how \"AI Agent Engineer\" gets in without a human.\n\n**Sparse-coverage rendering (prerequisite for all of the above):** materialize `mart_role_coverage(role_id, country, lens, yoe_bucket, n_datapoints, n_sources, last_updated)`; API payloads always include every resolvable role with per-cell coverage stamps; **remove the silent role-drop at `src/app/explore.jsx` lines 66 and 78 (`if (!cd) return null`)** and render neutral \"no data yet\" cells (distinct from zero), coverage strips on role pages, estimate-only roles with kind=estimate badges. Without this, growing the catalog blanks the UI \u2014 the exact regression ec41ca7 papered over.\n\n---\n\n## 3. LADDER + EXPERIENCE \u2014 one unified data model\n\nThe two rooms' proposals are merged into a single five-layer stack. Existing tables are untouched or migrated additively: `fact_salary_job` / `fact_salary_person` / `fact_salary_official` remain the three lens facts; `bridge_role_ladder` (role_id, ord, title, mult) migrates into the new rung spine as curated seed rows (mult kept as fallback); `promotion_ladder.py`'s H-1B I\u2013IV output and `MartRolePayLadder` keep working and become one source feeding the crosswalk; `materialize.py`'s `experience_code='pooled'` limitation is superseded for this surface.\n\n**Layer 1 \u2014 Observations (ingest truth).** `fact_salary_yoe_obs(role_id, country_code, yoe_min, yoe_max, level_label, year, median, p25, p75, currency_code, sample_size, kind, confidence, source_id, retrieved_at)`. Interval-native: AmbitionBox `?experience=N` \u2192 [N,N]; PayScale brackets \u2192 [0,1)\u2026[20,30]; SO YearsCodePro \u2192 per-year where n\u22658; Robert Half tiers \u2192 declared intervals. **Level-labeled sources (levels.fyi, talent tiers, H-1B I\u2013IV) enter with `level_label` and NULL years \u2014 never invented years.** Each connector declares one SOURCE_YOE_MAP dict. `dim_experience` becomes display-only.\n\n**Layer 2 \u2014 Rung spine.** `dim_ladder_rung(role_id, rung_code, ord, title, track ic|mgmt, yoe_min, yoe_max, yoe_confidence, fork_from, confidence, source_id)` with canonical vocabulary L1_entry\u2026L6_distinguished / M1_lead\u2026M4_director_plus. `bridge_rung_crosswalk(source_id, native_level, role_family, rung_code, weight)` (~50 hand-curated rows) maps every source's native levels onto canonical rungs \u2014 crosswalk maps LEVELS only, salaries stay per-source. `fact_rung_salary(role_id, rung_code, country_code, year, median, p25, p75, currency, sample_size, kind, source_id)` is materialized from Layer 1 through the crosswalk. IC/mgmt fork is data: `track` + `fork_from` within-role; cross-role forks (swe \u2192 eng-mgr) are `bridge_role_adjacency` edges with new `edge_type='promotion_fork'`.\n\n**Layer 3 \u2014 Concordance (the adapter between the two axes).** `bridge_seniority_yoe(role_id, country_code, seniority, yoe_p25, yoe_p50, yoe_p75, n)` aggregated from the LLM-extracted `seniority \u00d7 years_required` fields we already have \u2014 the market's own per-country definition of \"senior.\" This is the ONLY mechanism that places level-labeled observations onto the years axis (as widened intervals feeding Layer 4), and it fills `dim_ladder_rung` yoe bounds cross-validated against H-1B level overlaps and AmbitionBox curve inflections; disagreement >2 years \u2192 confidence=low.\n\n**Layer 4 \u2014 Fitted curves + derived metrics.** `fact_salary_curve(role_id, country_code, kind, yoe 0..20, fit_median, lo, hi, support, n_effective, method)`: weighted isotonic regression (monotone, plateau-tolerant) + PCHIP smoothing, per lens, **never blended across kinds**; hierarchical shape-borrowing (role\u00d7country \u2192 family\u00d7country \u2192 global rescaled) with shrinkage; support flags observed|interpolated|borrowed; **hard rule: no extrapolation beyond max observed YoE + 1 \u2014 the curve ends**. `fact_demand_yoe` (share of postings asking each YoE bucket \u2014 the demand lens on the experience axis). `fact_progression` (early_momentum CAGR 1\u21925y, plateau_year, pay_multiple_10v1, per-rung step premiums) computed only over observed|interpolated years.\n\n**Layer 5 \u2014 Marts + API + UI.** `mart_experience_curve(role_id, country_code, payload JSON)` \u2014 one row renders the whole experience tab: per-lens curve arrays + bands, seniority-band overlay, demand histogram, momentum/plateau badges, per-point source chips. `mart_role_ladder` v2: rungs ordered with per-lens salaries, steps (abs + pct deltas, promotion_ladder.py math reused), fork card `{at, options[]}`. Endpoints: `/roles/{id}/experience?country=&years=` and `/roles/{id}/ladder?country=`. Lateral transitions (\"Career Explorer\"): query-time composition of `bridge_role_adjacency` (O*NET/ESCO/Wikidata edges, already loaded) + same-rung `fact_rung_salary` deltas + `bridge_role_skill_importance` skill-gap chips; optional `mart_next_moves` cache.\n\nFor IN, the AmbitionBox per-year series draws a continuous line inside the rung bands; other countries show stepped rung medians honestly until PayScale/wave-2 fills them.\n\n---\n\n## 4. EXTRA DIMENSIONS \u2014 what makes the cut (core/high only)\n\n1. **Remote vs onsite pay gap** \u2014 zero new collection (llm_extract `work_arrangement` \u00d7 salary); cheapest high-value item in the whole plan, do first.\n2. **Demand\u2013supply tension index** \u2014 fact_demand \u00d7 fact_interest already share the grain; \"crowded vs underrated\" quadrant, labeled as an index with stated proxy.\n3. **Education & certification ROI** \u2014 zero new collection (`education_requirement`, `certifications_required` \u00d7 salary); \"do I need a Masters / is CKA worth it\" panel.\n4. **Skill pay premium (hedonic)** \u2014 skills \u00d7 salary on our own posting rows + PayScale by-skill pages; green +% badges per skill, feeds \"learn this next.\"\n5. **AI-exposure score per role** \u2014 one-time static ingest (Felten-Raj-Seamans, OpenAI, Anthropic Economic Index, ILO) keyed to SOC codes we already bridge; sources side-by-side, never blended.\n6. **City dimension** \u2014 dim_city + fact_salary_job_city; AmbitionBox pages already carry per-city stats (near-zero marginal crawl for IN); COL-adjusted toggle via existing col_index.\n7. **Comp composition (base/stock/bonus)** \u2014 decided NOW as a levels.fyi spec amendment (capture components, not just TC); stacked bars per ladder rung.\n\nFreebie: **language requirements** ships inside the same posting-attributes mart pass as items 1 and 3 (field already extracted, marginal cost ~zero). **Cut/parked:** freelance-rate lens (EU-heavy coverage \u2014 parked to \"later\" with Malt/Upwork), gender pay gap (official-source-only, 2\u20133 countries \u2014 parked), interview difficulty / layoff exposure / work-hours (killed, charter or data-quality grounds).\n\n---\n\n## 5. BUILD ORDER \u2014 single sequenced plan, each step ships independently\n\n**Step 0 \u2014 Honest sparse rendering (2\u20133 days). Ships: no more silent role drops.**\n`mart_role_coverage` + per-cell \"no data yet\" rendering; delete the `if (!cd) return null` drops in explore.jsx. Prerequisite for everything that grows the catalog or adds sparse sources.\n\n**Step 1 \u2014 Zero-collection analytics wave (~1 week). Ships: 5 new product surfaces from data already on disk.**\n(a) Rung empirics from LLM extraction (seniority \u00d7 management_scope \u00d7 years_required \u2192 rung YoE bounds + advertised rung salaries); (b) `bridge_seniority_yoe` concordance; (c) `fact_demand_yoe`; (d) posting-attributes mart: remote gap + credential ROI + language share; (e) tension index; (f) AI-exposure static ingest. All pure derivation.\n\n**Step 2 \u2014 Cheap connector wave for the four weakest countries (~1\u20131.5 weeks). Ships: CA/GB/AU/SG/DE grid cells.**\nJob Bank CA CSVs \u2192 ITJobsWatch GB \u2192 SEEK AU/JobStreet SG (domain-generic) \u2192 Gehalt.de DE. Staging-first; Job Bank fuses immediately into fact_salary_official (also fixes the gov_projections gap).\n\n**Step 3 \u2014 Schema v2 landing (~1 week). Ships: the unified ladder+experience substrate, IN ladder complete.**\n`fact_salary_yoe_obs` + `dim_ladder_rung` + `bridge_rung_crosswalk` + `fact_rung_salary`; catalog data model v2 (`dim_role` kind/parent/status + `dim_role_surface`); migrate bridge_role_ladder seed and promotion_ladder H-1B rungs through the crosswalk; AmbitionBox sitemap harvest + senior-slug extension (~160 cached fetches); O*NET alternate-titles load (zero fetch).\n\n**Step 4 \u2014 Specced aggregator wave (~2 weeks). Ships: cross-country YoE brackets + level ladders + comp mix.**\nPayScale (7-country YoE backbone) \u2192 Robert Half US/CA \u2192 levels.fyi (with comp-mix amendment) \u2192 talent.com \u2192 MyCareersFuture if SG still thin. All write fact_salary_yoe_obs directly, kind=estimate.\n\n**Step 5 \u2014 Curve fitting + progression metrics (~1 week). Ships: \"what at 5 years?\" answerable everywhere data exists.**\nIsotonic+PCHIP fitter \u2192 `fact_salary_curve`; `fact_progression`; `mart_experience_curve` + `/experience` endpoint.\n\n**Step 6 \u2014 UI wave (~1.5 weeks). Ships: the goal-grid product surfaces.**\nExperience tab (curve + band + lens toggle + year scrubber + seniority overlay + demand bars); role-page Progression section (rung bands, IN per-year line, Fork card); catalog browser (family\u2192base\u2192specialization tree with coverage chips) + Emerging-roles rail; Career Explorer (next rung / fork / lateral moves with pay deltas + skill gaps).\n\n**Step 7 \u2014 Probe-gated wave 2 (1 probe session + builds as unlocked).**\nOne local browser session probes Zippia, SalaryExpert, StepStone; build the winners (Zippia's career-path graphs enrich lateral edges; SalaryExpert fills any remaining all-7 holes as kind=estimate); kununu /gehalt/ DE cross-check; admission-ladder pipeline + emerging auto-intake (needs the enlarged surface flow from steps 3\u20134); NodeFlair only if SG still thin.\n\n**Step 8 \u2014 Dimension mop-up.**\nSkill pay premium (hedonic), city dimension (schema + AmbitionBox city payloads), then parked items (freelance lens, equity axis) only after the core grid is dense.\n\nTotal to a fully-shipped goal grid: roughly 9\u201310 weeks of sequenced work, with user-visible value landing at every step from Step 0 onward."
+}
