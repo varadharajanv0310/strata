@@ -3,7 +3,15 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "description": "strata — tech job-market intelligence (desktop + mobile)",
+  "description": "An honest, roles-only explorer of the global tech job market — salaries, demand, skills, ladders and experience curves across 7 countries.",
+  "keywords": ["job-market", "salary", "data-pipeline", "duckdb", "fastapi", "react", "career", "roles-only"],
+  "author": "V Varadharajan",
+  "license": "MIT",
+  "homepage": "https://github.com/varadharajanv0310/strata#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/varadharajanv0310/strata.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
