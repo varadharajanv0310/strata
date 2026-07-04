@@ -1041,6 +1041,23 @@ def build_warehouse_from_staging() -> None:
                     n_derived += 1
 
             con.execute("COMMIT")
+
+            # v2 ladder/experience substrate (GRID_PLAN §3): estimate observations,
+            # seniority↔YoE concordance, posting attributes, demand-by-YoE, fitted
+            # curves. Runs in its OWN transaction AFTER the core fuse is committed, so a
+            # v2 error (e.g. a constraint) can never poison / roll back the core lenses.
+            try:
+                con.execute("BEGIN TRANSACTION")
+                from backend.warehouse.ladder_build import build_ladder_v2
+                v2 = build_ladder_v2(con)
+                con.execute("COMMIT")
+                log.info("ladder_build v2: %s", v2)
+            except Exception as e:  # noqa: BLE001 — v2 must never sink the core fuse
+                try:
+                    con.execute("ROLLBACK")
+                except Exception:  # noqa: BLE001
+                    pass
+                log.warning("ladder_build v2 skipped (%s)", e)
         except Exception:
             con.execute("ROLLBACK")
             raise
