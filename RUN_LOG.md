@@ -93,3 +93,77 @@ Two git tracks. **Track A** = older data-pipeline work, fixed + PUSHED to origin
 - `02:22` — ✅ **DuckDB-WASM /data console + exporter** (`f4f96f1`, fix `ab4c740`). `export_parquet` compiles marts→Parquet (mart_role_country range-partitioned by country) read-only; `public/data.html` runs DuckDB-WASM in-tab over the Parquet. **Browser-verified end-to-end: boots ("ready · 7 tables"), default + ad-hoc GROUP BY queries return real rows, zero console errors, screenshot captured.** Generated .parquet gitignored.
 - `02:30` — ✅ **full suite green**: fixed a test-ordering side-effect (publish test now restores the seed after rebuilding the temp warehouse) → **23 passed** (`3c4623d`). Persistent warehouse never touched (temp isolation throughout).
 - `🏁 BUILD PASS DONE` — all 9 build items shipped (resolver, taxonomy, publish+provenance, hedonic, ladder, polite-fleet, stubs, DuckDB-WASM). Track B is **local only on `build-pass`, unpushed**. See BUILD_PASS.md.
+- `15:48` — 🚀 **collect_all** started (28 stages)
+- `15:48` — ▶ **so_survey** start (budget 15m)
+- `15:48` — ✅ **so_survey** 9s — **1886 cells**
+- `15:48` — ▶ **h1b** start (budget 45m)
+- `15:52` — ✅ **h1b** 236s — **210 US wage cells**
+- `15:52` — ▶ **gh_archive** start (budget 120m)
+- `15:52` — ✅ **gh_archive** 0s — **60 demand records**
+- `15:52` — ▶ **google_trends** start (budget 50m)
+- `15:52` — ✅ **google_trends** 0s — **112 interest rows**
+- `15:52` — ▶ **baselines** start (budget 20m)
+- `15:52` — ✅ **baselines** 0s — **73 anchors**
+- `15:52` — ▶ **ilostat** start (budget 20m)
+- `15:52` — ✅ **ilostat** 9s — **324 earnings rows, 4 countries**
+- `15:52` — ▶ **gov_projections** start (budget 40m)
+- `15:56` — ✅ **gov_projections** 266s — **0 rows landed**
+- `15:56` — ▶ **stack_exchange** start (budget 360m)
+- `16:50` — 🚀 **collect_all** started (28 stages)
+- `16:50` — ▶ **so_survey** start (budget 15m)
+- `16:50` — ✅ **so_survey** 9s — **1886 cells**
+- `16:50` — ▶ **h1b** start (budget 45m)
+- `16:54` — ✅ **h1b** 234s — **210 US wage cells**
+- `16:54` — ▶ **gh_archive** start (budget 120m)
+- `16:54` — ✅ **gh_archive** 0s — **60 demand records**
+- `16:54` — ▶ **google_trends** start (budget 50m)
+- `16:54` — ✅ **google_trends** 0s — **112 interest rows**
+- `16:54` — ▶ **baselines** start (budget 20m)
+- `16:54` — ✅ **baselines** 0s — **73 anchors**
+- `16:54` — ▶ **ilostat** start (budget 20m)
+- `16:54` — ✅ **ilostat** 0s — **324 earnings rows, 4 countries**
+- `16:54` — ▶ **gov_projections** start (budget 40m)
+- `16:58` — ✅ **gov_projections** 259s — **0 rows landed**
+- `16:58` — ▶ **stack_exchange** start (budget 360m)
+- `17:23` — ✅ **stack_exchange** 1461s — **0 rows landed**
+- `17:23` — ▶ **package_registries** start (budget 40m)
+- `17:25` — ✅ **package_registries** 134s — **38 rows landed**
+- `17:25` — ▶ **arxiv** start (budget 90m)
+- `17:26` — ✅ **arxiv** 90s — **0 rows landed**
+- `17:26` — ▶ **huggingface** start (budget 40m)
+- `17:31` — ✅ **huggingface** 261s — **22350 rows landed**
+- `17:31` — ▶ **wikipedia_pageviews** start (budget 40m)
+- `17:32` — ✅ **wikipedia_pageviews** 53s — **2112 rows landed**
+- `17:32` — ▶ **eures** start (budget 40m)
+- `17:32` — ✅ **eures** 2s — **0 rows landed**
+- `17:32` — ▶ **bundesagentur** start (budget 40m)
+- `17:32` — ✅ **bundesagentur** 20s — **10 rows landed**
+- `17:32` — ▶ **mycareersfuture** start (budget 40m)
+- `17:33` — ✅ **mycareersfuture** 66s — **10000 rows landed**
+- `17:33` — ▶ **usajobs** start (budget 40m)
+- `17:34` — ✅ **usajobs** 19s — **2394 rows landed**
+- `17:34` — ▶ **cedefop_ovate** start (budget 30m)
+- `17:34` — ✅ **cedefop_ovate** 4s — **0 rows landed**
+- `17:34` — ▶ **hn_hiring** start (budget 90m)
+- `17:42` — ✅ **hn_hiring** 512s — **74447 rows landed**
+- `17:42` — ▶ **remoteok** start (budget 10m)
+- `17:42` — ✅ **remoteok** 2s — **100 rows landed**
+- `17:42` — ▶ **wikidata_occupations** start (budget 40m)
+- `17:43` — ✅ **wikidata_occupations** 69s — **1538 rows landed**
+- `17:43` — ▶ **common_crawl** start (budget 180m)
+- `19:27` — ✅ **common_crawl** 6210s — **1128 postings, disclosure 0.2128**
+- `19:27` — ▶ **llm_extract** start (budget 1680m)
+- `21:07` — ✅ **llm_extract** 6037s — **count-error: 'str' object has no attribute 'get'**
+- `21:07` — ▶ **extract_validate** start (budget 120m)
+- `21:07` — ⚠️ **extract_validate** 0s — **validated (report present)** | err: ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+- `21:07` — ▶ **gpu_normalize** start (budget 90m)
+- `21:08` — ✅ **gpu_normalize** 27s — **derived_roles:1, employers:86, posting_dedup:1128, posting_skills:1027**
+- `21:08` — ▶ **onet_trajectory** start (budget 5m)
+- `21:08` — ✅ **onet_trajectory** 1s — **87 adjacency edges, 1316 skill-importance rows**
+- `21:08` — ▶ **role_ladders** start (budget 15m)
+- `21:11` — ✅ **role_ladders** 186s — **14 role pay ladders**
+- `21:11` — ▶ **hedonic** start (budget 15m)
+- `21:11` — ✅ **hedonic** 13s — **60 skill premiums**
+- `21:11` — ▶ **fuse** start (budget 20m)
+- `21:31` — ⚠️ **fuse** 1200s — **salary_person 0, demand 1008, interest 112, salary_job 1008, dim_role 16** | hit 20m budget — checkpointed partial
+- `21:31` — 🏁 **collect_all complete** (stopped at warehouse; marts/site untouched)
