@@ -472,11 +472,30 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str],
         from backend.warehouse.taxonomy import GOV_CROSSWALK
         # The harmonized indicator carries its frequency in the id (…_4MTH_… = monthly).
         indicator_monthly = "MTH" in (getattr(_ilo, "INDICATOR", "") or "").upper()
-        isco_to_role = {str(code): rid for rid, sysd in GOV_CROSSWALK.items()
-                        for sysn, (code, _l) in sysd.items() if "isco" in sysn.lower()}
+        # Several fine-grained roles intentionally share one official code (swe/backend/
+        # mobile all = ISCO 2512). Invert first-writer-wins so the CANONICAL (first-listed,
+        # most-generic) role owns the shared code — a dict comprehension is last-writer-wins
+        # and would silently hand swe's ISCO-2512 wages to a later role (qa/ml-eng).
+        isco_to_role: dict[str, str] = {}
+        for _rid, _sysd in GOV_CROSSWALK.items():
+            for _sysn, (_code, _l) in _sysd.items():
+                if "isco" in _sysn.lower():
+                    isco_to_role.setdefault(str(_code), _rid)
+        # ILOSTAT publishes earnings at whatever ISCO depth the country reports — often
+        # 1-digit major groups ("2" = ALL Professionals: doctors, teachers, engineers) or
+        # 2-digit sub-majors ("25" = all ICT roles pooled). Our crosswalk anchors are
+        # 4-digit unit groups; assigning a broader group's pooled wage to one specific
+        # role would be fabrication, so those rows are DROPPED — explicitly counted and
+        # logged here, never silently. (This is the known official/ISCO coverage hole:
+        # it closes only if ILOSTAT publishes 4-digit rows, not by loosening the match.)
+        dropped_by_depth: dict[int, int] = {}
         for r in load_earnings():
-            rid = isco_to_role.get(str(r.get("isco08")))
+            isco = str(r.get("isco08"))
+            rid = isco_to_role.get(isco)
             code, earn = r.get("country"), r.get("earnings")
+            if rid is None:
+                dropped_by_depth[len(isco)] = dropped_by_depth.get(len(isco), 0) + 1
+                continue
             if rid not in known_roles or code not in known_countries or not earn:
                 continue
             # honor a per-record period/freq if the connector ever emits one; else fall
@@ -496,6 +515,13 @@ def _official_salary_rows(known_roles: set[str], known_countries: set[str],
                 continue
             rows.append((rid, code, int(r.get("year") or (max(_YEARS) if _YEARS else 2025)), annual,
                          r.get("currency") or "", 0, "med", "official", "ilostat", False))
+        if dropped_by_depth:
+            log.warning(
+                "ILOSTAT: dropped %d group-level earnings rows with no 4-digit role "
+                "anchor (by code length: %s) — pooled occupation-GROUP wages are never "
+                "assigned to a single role (no-fabrication charter)",
+                sum(dropped_by_depth.values()),
+                {f"{k}-digit": v for k, v in sorted(dropped_by_depth.items())})
     except Exception as e:  # noqa: BLE001
         log.info("official salary: ILOSTAT unavailable (%s)", e)
     return rows
@@ -678,20 +704,40 @@ def _role_outlook_rows(known_roles: set[str], known_countries: set[str]) -> list
         return []
     from backend.ingest.h1b import _soc_to_role
     from backend.warehouse.taxonomy import GOV_CROSSWALK
+    # first-writer-wins per code: when several roles share an official code, the
+    # canonical (first-listed) role owns it — so a shared ANZSCO/ISCO code resolves to
+    # swe, not to a later role that merely reuses the same generic occupation.
     sys_maps: dict[str, dict[str, str]] = {}
     for rid, sysd in GOV_CROSSWALK.items():
         for sysn, (code, _l) in sysd.items():
-            sys_maps.setdefault(sysn.lower(), {})[str(code)] = rid
+            sys_maps.setdefault(sysn.lower(), {}).setdefault(str(code), rid)
+
+    # Connector system labels (SOC/NOC/ANZSCO/ISCO) → the crosswalk's own key names.
+    # Codes across systems are all numeric and COLLIDE (an ANZSCO 261313 is also a
+    # plausible ISCO/SOC string), so we MUST resolve within the row's declared system
+    # only — a blind scan of every map assigns outlooks to the wrong role.
+    _SYS_ALIAS = {
+        "noc": "noc2021", "noc2021": "noc2021",
+        "anzsco": "anzsco", "isco": "isco08", "isco08": "isco08",
+        "ssoc": "ssoc", "kldb": "kldb",
+        "uk_soc": "uk_soc2020", "uk_soc2020": "uk_soc2020", "onet_soc": "onet_soc",
+    }
 
     def to_role(system: str, code: str) -> str | None:
-        s, c = (system or "").lower(), str(code or "")
-        if "soc" in s:
-            return _soc_to_role(c.split(".")[0])
-        for m in sys_maps.values():                       # try any crosswalk by code/prefix
-            if c in m:
-                return m[c]
-            if c[:4] in m:
-                return m[c[:4]]
+        s, c = (system or "").lower().replace("-", "_"), str(code or "")
+        if "soc" in s and "uk" not in s and "onet" not in s:
+            return _soc_to_role(c.split(".")[0])        # US BLS SOC → H-1B SOC map
+        canon = _SYS_ALIAS.get(s)
+        if canon and canon in sys_maps:                 # resolve WITHIN the declared system
+            m = sys_maps[canon]
+            return m.get(c) or m.get(c[:4])             # exact then 4-digit prefix; else None
+        # No blind cross-system fallback — EVER. Numeric codes collide across systems
+        # (SSOC "25124"[:4] == ISCO "2512"), so scanning every map assigns the outlook to
+        # a wrong-but-plausible role. A row whose system we don't recognize (or that has
+        # none) is unresolvable: return None and let the caller drop it, honestly.
+        if s and not canon:
+            log.warning("gov_projections fuse: unrecognized occupation system %r — "
+                        "row dropped (add it to _SYS_ALIAS if it is real)", system)
         return None
 
     rows = []
