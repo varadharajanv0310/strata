@@ -298,6 +298,21 @@ def test_a4_derived_roles_in_assemble_dataset_no_keyerror():
     assert by_id["derived-demand"]["countries"]["GB"]["median"] is None
 
 
+def test_a4_jobscore_board_survives_null_median_cell():
+    """jobscore_board iterates EVERY mart_role_country row for the country — including
+    the demand-only cell whose median is NULL. A bare ``int(rc.median)`` here 500s both
+    /api/jobscore and /api/countries/{code} the moment one demand-only role exists
+    (regression: the guard existed in _role_country_payload but this call site missed it;
+    the dense seed masks it because every seeded cell has a real median)."""
+    from backend.app import services
+
+    with session_scope() as db:
+        board = services.jobscore_board(db, "GB")      # must not raise
+    by_id = {r["id"]: r for r in board}
+    assert "derived-demand" in by_id, "demand-only role missing from the board"
+    assert by_id["derived-demand"]["median"] is None, "null median must stay null, not fake"
+
+
 # ---------------------------------------------------------------------------
 # Provenance stays honest on the thin cells (kept cell → lineage; absent → 404).
 # ---------------------------------------------------------------------------

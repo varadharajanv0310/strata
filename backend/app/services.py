@@ -357,7 +357,10 @@ def jobscore_board(db: Session, country: str, limit: int | None = None) -> list[
         out.append({
             "id": rc.role_id, "name": r.name if r else rc.role_id,
             "family": {"id": r.family_id, "name": r.family_name, "hue": r.family_hue} if r else None,
-            "median": int(rc.median), "demand": rc.demand, "interest": rc.interest,
+            # median is nullable on the union spine (demand-only/derived roles carry no
+            # salary) — same guard as _role_country_payload, else int(None) 500s the board.
+            "median": int(rc.median) if rc.median is not None else None,
+            "demand": rc.demand, "interest": rc.interest,
             "score": _score(rc),
         })
     return out[:limit] if limit else out
