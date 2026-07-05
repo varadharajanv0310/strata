@@ -165,6 +165,36 @@ def _outlook_map(db: Session, role_id: str | None = None) -> dict:
     return out
 
 
+def _experience_curve_by_role(db: Session, role_id: str | None = None) -> dict:
+    """role_id → {country → {kind → {points:[{yoe,median,lo,hi}], nEffective, method, currency}}}.
+
+    The pay-vs-experience curve (isotonic+PCHIP, no extrapolation). Lenses (kind) are
+    kept separate — never blended — so the UI can show 'estimate' and 'official' apart."""
+    q = select(M.MartExperienceCurve)
+    if role_id:
+        q = q.where(M.MartExperienceCurve.role_id == role_id)
+    out: dict[str, dict] = defaultdict(lambda: defaultdict(dict))
+    for c in db.scalars(q):
+        out[c.role_id][c.country_code][c.kind] = {
+            "points": c.points, "nEffective": c.n_effective,
+            "method": c.method, "currency": c.currency_code}
+    return {r: {cc: dict(ks) for cc, ks in cd.items()} for r, cd in out.items()}
+
+
+def _coverage_by_role(db: Session, role_id: str | None = None) -> dict:
+    """(role_id) → {country → {nObs, nSources, kinds, sources, totalSample}} — the
+    honest 'how well is this cell backed' signal (source count + lenses present)."""
+    q = select(M.MartRoleCoverage)
+    if role_id:
+        q = q.where(M.MartRoleCoverage.role_id == role_id)
+    out: dict[str, dict] = defaultdict(dict)
+    for c in db.scalars(q):
+        out[c.role_id][c.country_code] = {
+            "nObs": c.n_obs, "nSources": c.n_sources, "kinds": c.kinds,
+            "sources": c.sources, "totalSample": c.total_sample}
+    return out
+
+
 def _adoption_map(db: Session) -> dict:
     """skill_id → best/most-recent adoption summary (momentum = rising/fading signal)."""
     out: dict[str, dict] = {}
@@ -194,6 +224,8 @@ def assemble_dataset(db: Session) -> dict:
     imp_by_role = _importance_by_role(db)
     pay_ladder = _pay_ladder_by_role(db)
     outlook_m = _outlook_map(db)
+    curve_by_role = _experience_curve_by_role(db)
+    coverage_by_role = _coverage_by_role(db)
 
     rc_by_role: dict[str, dict] = defaultdict(dict)
     for rc in db.scalars(select(M.MartRoleCountry)):
@@ -201,6 +233,9 @@ def assemble_dataset(db: Session) -> dict:
         ol = outlook_m.get((rc.role_id, rc.country_code))
         if ol:
             pay["outlook"] = ol
+        cov = coverage_by_role.get(rc.role_id, {}).get(rc.country_code)
+        if cov:
+            pay["coverage"] = cov
         rc_by_role[rc.role_id][rc.country_code] = pay
 
     roles_payload = []
@@ -215,6 +250,7 @@ def assemble_dataset(db: Session) -> dict:
             "payLadder": pay_ladder.get(r.id, []),
             "trajectory": traj_by_role.get(r.id, []),
             "importance": imp_by_role.get(r.id, []),
+            "experienceCurve": curve_by_role.get(r.id, {}),
             "countries": rc_by_role.get(r.id, {}),
         })
 

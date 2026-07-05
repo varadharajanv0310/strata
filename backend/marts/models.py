@@ -261,6 +261,42 @@ class MartRolePayLadder(Base):
     step_pct: Mapped[float | None] = mapped_column(Float, nullable=True)
 
 
+class MartExperienceCurve(Base):
+    """Served pay-vs-EXPERIENCE curve per role×country×kind (isotonic+PCHIP monotone
+    fit, no extrapolation beyond the last observation). Points stored as a JSON series
+    ``[{yoe, median, lo, hi}]``. ``kind`` carries the lens (estimate / advertised /
+    official) and is NEVER blended across lenses. Roles-only — a seniority question."""
+
+    __tablename__ = "mart_experience_curve"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    role_id: Mapped[str] = mapped_column(String(120), index=True)
+    country_code: Mapped[str] = mapped_column(String(2), index=True)
+    kind: Mapped[str] = mapped_column(String(16))
+    points: Mapped[list] = mapped_column(JSON)        # [{"yoe":int,"median":int,"lo":int,"hi":int}]
+    n_effective: Mapped[int] = mapped_column(Integer)
+    method: Mapped[str] = mapped_column(String(24))
+    currency_code: Mapped[str | None] = mapped_column(String(3), nullable=True)
+
+
+class MartRoleCoverage(Base):
+    """Served source-COVERAGE per role×country: how many salary-by-experience
+    observations back the cell, how many distinct sources, which lenses (kinds) are
+    present, and the total published sample. Powers an honest "how well covered is
+    this?" badge instead of implying every cell is equally solid. Roles-only."""
+
+    __tablename__ = "mart_role_coverage"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    role_id: Mapped[str] = mapped_column(String(120), index=True)
+    country_code: Mapped[str] = mapped_column(String(2), index=True)
+    n_obs: Mapped[int] = mapped_column(Integer)
+    n_sources: Mapped[int] = mapped_column(Integer)
+    kinds: Mapped[list] = mapped_column(JSON)          # ["estimate","official",...]
+    sources: Mapped[list] = mapped_column(JSON)        # ["canada_jobbank",...]
+    total_sample: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class MartSkillPremium(Base):
     """Served hedonic skill PREMIUM — the within-market marginal % a skill adds to pay
     (role×seniority×country×year fixed effects, so it isn't a role/geography artifact)."""

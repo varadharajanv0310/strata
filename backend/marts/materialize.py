@@ -100,6 +100,16 @@ def materialize_from_warehouse() -> None:
             adoption = _q("SELECT skill_id,year,period,metric,value,ecosystem FROM fact_skill_adoption "
                           "ORDER BY skill_id,metric,ecosystem,period")
             skill_names = dict(_q("SELECT skill_id,name FROM dim_skill"))
+            # v2 experience substrate: fitted pay-vs-YoE curves + the raw observations
+            # behind them (for the coverage badge). Both optional (empty until fused).
+            # currency_code comes off the CURVE row itself (currency is part of the fit
+            # key upstream) — never re-derived from the observations, which may contain
+            # other-currency rows the fit excluded.
+            curve = _q("SELECT role_id,country_code,kind,yoe,fit_median,lo,hi,n_effective,"
+                       "method,currency_code "
+                       "FROM fact_salary_curve ORDER BY role_id,country_code,kind,yoe")
+            yoe_obs = _q("SELECT role_id,country_code,kind,sample_size,source_id,currency_code "
+                         "FROM fact_salary_yoe_obs")
         meta_years = sorted({r[2] for r in salary})
         meta_fyears = sorted({r[2] for r in forecast})
         is_seed_overall = bool(roles and roles[0][7])
@@ -140,6 +150,37 @@ def materialize_from_warehouse() -> None:
             adoption_marts.append(M.MartSkillAdoption(
                 skill_id=sid, skill_name=skill_names.get(sid, sid), metric=metric,
                 ecosystem=eco, latest_period=lp, latest_value=lv, momentum_pct=mom))
+
+        # ---- v2 pay-vs-experience curves + per-cell source coverage ----------------
+        # Coverage is per (role,country): how many obs, distinct sources, lenses.
+        _cov: dict[tuple, dict] = {}
+        for (rid, code, kind, n, src, cur) in yoe_obs:
+            cv = _cov.setdefault((rid, code), {"n": 0, "srcs": set(), "kinds": set(), "sample": 0})
+            cv["n"] += 1
+            if src:
+                cv["srcs"].add(src)
+            if kind:
+                cv["kinds"].add(kind)
+            cv["sample"] += int(n or 0)
+
+        curve_pts: dict[tuple, list] = defaultdict(list)
+        curve_meta: dict[tuple, tuple] = {}
+        for (rid, code, kind, yoe, med, lo, hi, ne, method, cur) in curve:
+            if med is None:
+                continue
+            curve_pts[(rid, code, kind)].append({
+                "yoe": int(yoe), "median": int(round(med)),
+                "lo": (int(round(lo)) if lo is not None else None),
+                "hi": (int(round(hi)) if hi is not None else None)})
+            curve_meta[(rid, code, kind)] = (int(ne or 0), method or "", cur or None)
+        curve_marts = [M.MartExperienceCurve(
+            role_id=k[0], country_code=k[1], kind=k[2], points=pts,
+            n_effective=curve_meta[k][0], method=curve_meta[k][1],
+            currency_code=curve_meta[k][2]) for k, pts in curve_pts.items()]
+        coverage_marts = [M.MartRoleCoverage(
+            role_id=k[0], country_code=k[1], n_obs=v["n"], n_sources=len(v["srcs"]),
+            kinds=sorted(v["kinds"]), sources=sorted(v["srcs"]), total_sample=v["sample"])
+            for k, v in _cov.items()]
 
         # ---- assemble per role×country — from the UNION of all signals, NOT just the
         #      salary fact, so DERIVED / demand-only roles still surface (A4). Missing
@@ -244,6 +285,7 @@ def materialize_from_warehouse() -> None:
             for model in (M.MartMarketPulse, M.MartRoleCountry, M.MartRoleLadder,
                           M.MartRoleSkill, M.MartRoleAdjacency, M.MartRoleSkillImportance,
                           M.MartRoleOutlook, M.MartSkillAdoption, M.MartRolePayLadder,
+                          M.MartExperienceCurve, M.MartRoleCoverage,
                           M.MartSkillPremium, M.MartRole, M.MartFamily, M.MartCountry, M.MartMeta):
                 db.execute(delete(model))
 
@@ -291,6 +333,8 @@ def materialize_from_warehouse() -> None:
                 skill_id=p["skill_id"], skill_name=p["skill_name"],
                 premium_pct=float(p["premium_pct"]), n=int(p["n"]), r2=float(p["r2"]))
                 for p in load_premiums()])
+            db.add_all(curve_marts)
+            db.add_all(coverage_marts)
             db.add_all(rc_rows)
             db.add_all(pulse_rows)
             db.add(M.MartMeta(key="dataset", value={
