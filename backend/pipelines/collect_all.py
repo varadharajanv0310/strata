@@ -71,6 +71,15 @@ STAGES: dict[str, tuple[str, int]] = {
     "cedefop_ovate": ("from backend.ingest.cedefop_ovate import run; print(run())", 1800),
     # aggregator salary ESTIMATES (role × experience-year, India-deep) → estimate lens
     "ambitionbox": ("from backend.ingest.ambitionbox import run; print(run())", 2700),
+    # estimate/official salary-by-role fleet → staging/<src>/estimates.json (estimate lens)
+    "itjobswatch": ("from backend.ingest.itjobswatch import run; print(run())", 2400),
+    "seek_jobstreet": ("from backend.ingest.seek_jobstreet import run; print(run())", 2400),
+    "talent": ("from backend.ingest.talent import run; print(run())", 2400),
+    "payscale": ("from backend.ingest.payscale import run; print(run())", 2400),
+    "levelsfyi": ("from backend.ingest.levelsfyi import run; print(run())", 2400),
+    "gehalt_de": ("from backend.ingest.gehalt_de import run; print(run())", 2400),
+    "canada_jobbank": ("from backend.ingest.canada_jobbank import run; print(run())", 2400),
+    "roberthalf": ("from backend.ingest.roberthalf import run; print(run())", 2400),
     "hn_hiring": ("from backend.ingest.hn_hiring import run; print(run())", 5400),
     "remoteok": ("from backend.ingest.remoteok import run; print(run())", 600),
     # roles-only occupation graph (employer-stripped) → bridge_role_adjacency
@@ -98,7 +107,9 @@ STAGES: dict[str, tuple[str, int]] = {
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
          "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
          "wikipedia_pageviews", "eures", "bundesagentur", "mycareersfuture", "usajobs",
-         "cedefop_ovate", "ambitionbox", "hn_hiring", "remoteok", "wikidata_occupations",
+         "cedefop_ovate", "ambitionbox", "itjobswatch", "seek_jobstreet", "talent",
+         "payscale", "levelsfyi", "gehalt_de", "canada_jobbank", "roberthalf",
+         "hn_hiring", "remoteok", "wikidata_occupations",
          "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
          "onet_trajectory", "role_ladders", "hedonic", "posting_attributes", "fuse"]
 
@@ -200,7 +211,9 @@ def count_stage(name: str) -> str:
         if name in {"gov_projections", "stack_exchange", "package_registries", "arxiv",
                     "huggingface", "wikipedia_pageviews", "eures", "bundesagentur",
                     "mycareersfuture", "usajobs", "cedefop_ovate", "hn_hiring", "remoteok",
-                    "wikidata_occupations", "ambitionbox"}:
+                    "wikidata_occupations", "ambitionbox", "itjobswatch", "seek_jobstreet",
+                    "talent", "payscale", "levelsfyi", "gehalt_de", "canada_jobbank",
+                    "roberthalf"}:
             # E4: a few connectors land to a shorter dir than their stage name.
             _DIR = {"cedefop_ovate": "cedefop", "wikipedia_pageviews": "wikipedia",
                     "wikidata_occupations": "wikidata"}

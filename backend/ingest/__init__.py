@@ -49,6 +49,15 @@ _REAL_SPECS: dict[str, str] = {
     "huggingface": "backend.ingest.huggingface:run",
     "wikipedia_pageviews": "backend.ingest.wikipedia_pageviews:run",
     "ambitionbox": "backend.ingest.ambitionbox:run",
+    # estimate/official salary-by-role connectors (council fleet, staging/<src>/estimates.json)
+    "itjobswatch": "backend.ingest.itjobswatch:run",
+    "seek_jobstreet": "backend.ingest.seek_jobstreet:run",
+    "talent": "backend.ingest.talent:run",
+    "payscale": "backend.ingest.payscale:run",
+    "levelsfyi": "backend.ingest.levelsfyi:run",
+    "gehalt_de": "backend.ingest.gehalt_de:run",
+    "canada_jobbank": "backend.ingest.canada_jobbank:run",
+    "roberthalf": "backend.ingest.roberthalf:run",
 }
 
 
