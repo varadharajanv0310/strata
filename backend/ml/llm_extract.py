@@ -87,18 +87,26 @@ OUT_DIR_REL = "extracted"
 CONSOLIDATED = "postings_extracted.parquet"
 RAW_JSONL = "raw_outputs.jsonl"
 CHECKPOINT = "_checkpoint.json"
+CORPUS_MANIFEST = "corpus_manifest.json"   # binds posting_id → corpus row across builds
 
 HEARTBEAT_EVERY = 200       # log a heartbeat every N postings within a shard
 MAX_DESC_CHARS = 6000       # truncate very long descriptions to keep prompts bounded
 
-# input posting parquets (common_crawl is canonical; others accepted if present)
-POSTING_PARQUETS = [
+# Full-text posting feeds the extractor reads. common_crawl is the canonical
+# corpus (real posting BODIES). The rest are landed structured/aggregate feeds
+# (title + salary + skills, no free-text body) — listed so the loader picks them
+# up automatically IF a future refresh carries descriptions, but they are
+# description-gated at load time so a body-less feed contributes zero rows rather
+# than polluting the abstain rate with title-only "postings". Extensions are real
+# (.parquet vs .json) and dispatched on in _load_postings.
+POSTING_FEEDS = [
     "common_crawl/postings.parquet",
-    "eures/postings.parquet",
-    "bundesagentur/postings.parquet",
-    "mycareersfuture/postings.parquet",
-    "usajobs/postings.parquet",
-    "remoteok/postings.parquet",
+    "mycareersfuture/postings.json",
+    "usajobs/postings.json",
+    "remoteok/postings.json",
+    "hn_hiring/postings.json",
+    "bundesagentur/vacancies.json",
+    "eures/vacancies.json",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -350,35 +358,59 @@ def _save_checkpoint(state: dict[str, Any]) -> None:
 # --------------------------------------------------------------------------- #
 #  input loading                                                               #
 # --------------------------------------------------------------------------- #
-def _load_postings(max_postings: int | None):
-    """Concatenate every available posting parquet into one frame with a stable id.
+def _read_feed(p):
+    """Read one posting feed (parquet or json list) into a DataFrame, or None."""
+    import pandas as pd
 
-    ``posting_id`` is the 0-based row index over the concatenated corpus (the parquets
+    try:
+        if p.suffix == ".parquet":
+            return pd.read_parquet(p, columns=None)
+        if p.suffix == ".json":
+            data = json.loads(p.read_text(encoding="utf-8"))
+            rows = data if isinstance(data, list) else (
+                data.get("postings") or data.get("vacancies")
+                or data.get("results") or data.get("data") or [])
+            return pd.DataFrame(rows)
+    except Exception as e:  # noqa: BLE001
+        log.warning("llm_extract: could not read %s (%s) — skipping", p, e)
+    return None
+
+
+def _load_postings(max_postings: int | None):
+    """Concatenate every available FULL-TEXT posting feed into one id-stamped frame.
+
+    ``posting_id`` is the 0-based row index over the concatenated corpus (the feeds
     carry no natural key). ``employer`` (if present) is NOT carried into extraction — it
-    stays the internal dedup field only. Returns a pandas DataFrame with
-    posting_id / title / description, or ``None`` if nothing is on disk.
+    stays the internal dedup field only. Each feed is DESCRIPTION-GATED: rows without a
+    non-empty free-text body are dropped, so a structured/aggregate feed (title+salary,
+    no body — e.g. usajobs, mycareersfuture) contributes zero rows and never inflates the
+    abstain rate. Returns a DataFrame with posting_id / title / description, or ``None``.
     """
     import pandas as pd
 
     frames = []
-    for rel in POSTING_PARQUETS:
+    for rel in POSTING_FEEDS:
         p = settings.staging_dir / rel
         if not p.exists():
             continue
-        try:
-            df = pd.read_parquet(p, columns=None)
-        except Exception as e:  # noqa: BLE001
-            log.warning("llm_extract: could not read %s (%s) — skipping", p, e)
+        df = _read_feed(p)
+        if df is None or df.empty:
             continue
-        if df.empty:
+        desc = df.get("description")
+        if desc is None:
+            log.info("llm_extract: %s has no description column — 0 extractable rows", rel)
             continue
         keep = pd.DataFrame({
             "title": df.get("title", "").fillna("").astype(str),
-            "description": df.get("description", "").fillna("").astype(str),
+            "description": desc.fillna("").astype(str),
             "_source": rel,
         })
+        keep = keep[keep["description"].str.strip() != ""]
+        if keep.empty:
+            log.info("llm_extract: %s has no non-empty descriptions — skipping", rel)
+            continue
         frames.append(keep)
-        log.info("llm_extract: loaded %d postings from %s", len(keep), rel)
+        log.info("llm_extract: loaded %d full-text postings from %s", len(keep), rel)
 
     if not frames:
         return None
@@ -387,6 +419,36 @@ def _load_postings(max_postings: int | None):
     if max_postings is not None:
         corpus = corpus.iloc[:max_postings].copy()
     return corpus
+
+
+def corpus_fingerprint(corpus) -> dict:
+    """Order-sensitive fingerprint of the corpus ``posting_id`` indexes into.
+
+    ``posting_id`` is purely positional (the row index over the concatenated feeds), so
+    any consumer that rebuilds the corpus later (extract_validate's source-text join)
+    MUST verify it rebuilt the *same* corpus before joining by id — otherwise every
+    title/description lands on the wrong posting. Hash = sha256 over the first 80 chars
+    of every title, in order; plus per-feed row counts for a readable diff on mismatch.
+    """
+    import hashlib
+
+    h = hashlib.sha256()
+    for t in corpus["title"].astype(str):
+        h.update(t[:80].encode("utf-8", "replace"))
+        h.update(b"\x00")
+    per_feed = ({str(k): int(v) for k, v in corpus["_source"].value_counts().items()}
+                if "_source" in corpus.columns else {})
+    return {"n_rows": int(len(corpus)), "title_sha256": h.hexdigest(), "per_feed": per_feed}
+
+
+def _write_corpus_manifest(corpus) -> None:
+    """Persist the extraction-time corpus fingerprint next to the extraction output."""
+    try:
+        p = _out_dir() / CORPUS_MANIFEST
+        p.write_text(json.dumps(corpus_fingerprint(corpus), indent=2), encoding="utf-8")
+        log.info("llm_extract: corpus manifest written (%d rows)", len(corpus))
+    except Exception as e:  # noqa: BLE001 — the manifest must never sink the run
+        log.warning("llm_extract: could not write corpus manifest (%s)", e)
 
 
 def _iter_shards(corpus, shard_size: int) -> Iterable[tuple[int, Any]]:
@@ -796,6 +858,8 @@ def run(
                         settings.staging_dir)
             return {"mode": "skipped", "reason": "no_postings", "postings": 0,
                     "written": False}
+        # bind posting_id → corpus row for later consumers (validation source-join)
+        _write_corpus_manifest(corpus)
 
         n = len(corpus)
         shards_total = (n + shard_size - 1) // shard_size
