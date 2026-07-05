@@ -99,16 +99,25 @@ def fit_one(obs_rows: list[dict], method: str = "isotonic-pchip") -> list[dict]:
 
 
 def fit_curves(obs_rows: list[dict]) -> list[dict]:
-    """Fit every (role_id, country_code, kind) group in ``obs_rows`` → fact_salary_curve rows."""
+    """Fit every (role_id, country_code, kind, currency) group → fact_salary_curve rows.
+
+    CURRENCY is part of the group key: two sources reporting the same role×country in
+    different currencies must NEVER be blended into one curve (mismatched units make the
+    fit numerically meaningless). Each output row carries its ``currency_code``; the
+    caller decides what to do when one (role, country, kind) yields curves in more than
+    one currency (ladder_build keeps the best-supported one and logs the drop)."""
     groups: dict[tuple, list[dict]] = {}
     for r in obs_rows:
         if r.get("yoe_min") is None or r.get("median") is None:
             continue                                # level-only rows don't fit here
-        groups.setdefault((r["role_id"], r["country_code"], r.get("kind", "estimate")), []).append(r)
+        key = (r["role_id"], r["country_code"], r.get("kind", "estimate"),
+               r.get("currency_code") or "")
+        groups.setdefault(key, []).append(r)
     rows = []
-    for (role_id, country, kind), grp in groups.items():
+    for (role_id, country, kind, currency), grp in groups.items():
         for pt in fit_one(grp):
-            rows.append({"role_id": role_id, "country_code": country, "kind": kind, **pt})
+            rows.append({"role_id": role_id, "country_code": country, "kind": kind,
+                         "currency_code": currency, **pt})
     return rows
 
 

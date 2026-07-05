@@ -32,11 +32,20 @@ def _staging_json(rel: str):
 
 
 def _reset(con, *tables):
+    """Drop + recreate each v2 table from its schema DDL.
+
+    The v2 tables are fully derived (cleared and reloaded every fuse), so dropping is
+    lossless — and unlike DELETE it also migrates an old warehouse whose table predates
+    a column addition (CREATE TABLE IF NOT EXISTS alone never alters an existing table).
+    """
+    from backend.warehouse.schema import LADDER_V2
     for t in tables:
         try:
-            con.execute(f"DELETE FROM {t}")
-        except Exception:  # noqa: BLE001 — table may not exist on an old warehouse
-            pass
+            con.execute(f"DROP TABLE IF EXISTS {t}")
+            if t in LADDER_V2:
+                con.execute(LADDER_V2[t])
+        except Exception as e:  # noqa: BLE001
+            log.warning("ladder_build: could not recreate %s (%s)", t, e)
 
 
 def build_ladder_v2(con) -> dict:
@@ -76,40 +85,120 @@ def build_ladder_v2(con) -> dict:
              r["postings"], r["share"], r["source_id"]))
     counts["demand_yoe"] = len(dy)
 
-    # ---- 2) aggregator estimate observations (AmbitionBox: IN, per-year) -------
+    # ---- 2) aggregator / official salary-by-experience observations ------------
+    # Every estimate connector emits the SAME row shape into staging/<src>/estimates.json:
+    # {source, kind, role_id, country, currency, basis, yoe(int|null), level_label(str|null),
+    #  median, p25, p75, n, retrieved}. yoe → yoe_min/max for year-based sources (AmbitionBox);
+    # level_label carries native tiers (PayScale brackets, levels.fyi levels, Robert Half tiers)
+    # with yoe NULL — years are never invented from a level.
+    ESTIMATE_SOURCES = ["ambitionbox", "itjobswatch", "seek_jobstreet", "talent",
+                        "payscale", "levelsfyi", "gehalt_de", "canada_jobbank", "roberthalf"]
+    # Second-pass role recovery for rows a connector's own title dict left role_id=null.
+    # EXACT only: resolve on the native occupation code the source carries (NOC/ANZSCO/
+    # ISCO/SOC/…) via the curated GOV_CROSSWALK — never fuzzy-guess a role from a label.
+    # Rows with no code and no crosswalk hit stay dropped (roles-only 16-role charter).
+    _recovered = 0
+    _code_maps: dict[str, dict[str, str]] = {}
+    try:
+        from backend.warehouse.taxonomy import GOV_CROSSWALK
+        for _rid, _sysd in GOV_CROSSWALK.items():
+            for _sysn, (_code, _l) in _sysd.items():
+                _code_maps.setdefault(_sysn.lower(), {}).setdefault(str(_code), _rid)
+    except Exception as e:  # noqa: BLE001
+        log.warning("ladder_build: GOV_CROSSWALK unavailable for recovery (%s)", e)
+    # row code-field name → crosswalk system key
+    _CODE_FIELDS = {"noc_code": "noc2021", "noc": "noc2021", "anzsco_code": "anzsco",
+                    "anzsco": "anzsco", "isco_code": "isco08", "isco08": "isco08",
+                    "ssoc_code": "ssoc", "ssoc": "ssoc", "kldb_code": "kldb", "kldb": "kldb"}
+
+    def _recover_role(r: dict) -> str | None:
+        extra = r.get("extra") if isinstance(r.get("extra"), dict) else {}
+        for fld, sysn in _CODE_FIELDS.items():
+            code = r.get(fld) or extra.get(fld)
+            if not code:
+                continue
+            # EXACT lookup only — no prefix fallback. A sub-classification code (e.g.
+            # 5-digit ISCO "25120") must NOT inherit its 4-digit parent's role: the
+            # parent groups several of our roles, so a prefix hit is a guess, not a match.
+            hit = _code_maps.get(sysn, {}).get(str(code).strip())
+            if hit:
+                return hit
+        # US SOC via the H-1B SOC map (onet_soc keys carry the .00 suffix, so map directly)
+        soc = r.get("soc_code") or r.get("soc")
+        if soc:
+            try:
+                from backend.ingest.h1b import _soc_to_role
+                return _soc_to_role(str(soc).split(".")[0])
+            except Exception:  # noqa: BLE001
+                return None
+        return None
+
     obs_rows: list[dict] = []
-    ab = _staging_json("ambitionbox/estimates.json") or []
-    for r in ab:
-        if not r.get("role_id"):            # unknown-role estimates wait for the catalog
-            continue
-        yoe = r.get("yoe")
-        rec = {"role_id": r["role_id"], "country_code": r.get("country", "IN"),
-               "yoe_min": yoe, "yoe_max": yoe, "level_label": None, "year": 2026,
-               "median": r.get("median"), "p25": r.get("p25"), "p75": r.get("p75"),
-               "currency_code": r.get("currency", "INR"), "basis": r.get("basis", "ctc-annual"),
-               "sample_size": int(r.get("n") or 0), "kind": "estimate",
-               "confidence": "high" if (r.get("n") or 0) >= 100 else "med",
-               "source_id": "ambitionbox", "retrieved_at": r.get("retrieved", "")}
-        obs_rows.append(rec)
-        con.execute(
-            "INSERT INTO fact_salary_yoe_obs VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (rec["role_id"], rec["country_code"], rec["yoe_min"], rec["yoe_max"],
-             rec["level_label"], rec["year"], rec["median"], rec["p25"], rec["p75"],
-             rec["currency_code"], rec["basis"], rec["sample_size"], rec["kind"],
-             rec["confidence"], rec["source_id"], rec["retrieved_at"]))
+    for src in ESTIMATE_SOURCES:
+        for r in (_staging_json(f"{src}/estimates.json") or []):
+            if not r.get("role_id"):
+                rid = _recover_role(r)
+                if rid:
+                    r = {**r, "role_id": rid}
+                    _recovered += 1
+            if not r.get("role_id") or r.get("median") in (None, 0):
+                continue                     # still-unknown rows: outside the 16-role charter
+            yoe = r.get("yoe")
+            yoe = int(yoe) if isinstance(yoe, (int, float)) and 0 <= yoe <= 60 else None
+            n = int(r.get("n") or 0)
+            rec = {"role_id": r["role_id"], "country_code": r.get("country", ""),
+                   "yoe_min": yoe, "yoe_max": yoe, "level_label": r.get("level_label"),
+                   "year": 2026, "median": r.get("median"), "p25": r.get("p25"),
+                   "p75": r.get("p75"), "currency_code": r.get("currency", ""),
+                   "basis": r.get("basis", "base-annual"), "sample_size": n,
+                   "kind": r.get("kind", "estimate"),
+                   "confidence": "high" if n >= 100 else ("med" if n else "low"),
+                   "source_id": r.get("source", src), "retrieved_at": r.get("retrieved", "")}
+            obs_rows.append(rec)
+            con.execute(
+                "INSERT INTO fact_salary_yoe_obs VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (rec["role_id"], rec["country_code"], rec["yoe_min"], rec["yoe_max"],
+                 rec["level_label"], rec["year"], rec["median"], rec["p25"], rec["p75"],
+                 rec["currency_code"], rec["basis"], rec["sample_size"], rec["kind"],
+                 rec["confidence"], rec["source_id"], rec["retrieved_at"]))
     counts["yoe_obs"] = len(obs_rows)
+    counts["recovered"] = _recovered
+    if _recovered:
+        log.info("ladder_build: recovered %d role_id=null estimate rows via occupation code", _recovered)
 
     # ---- 3) fit pay-vs-experience curves from the observations -----------------
     if obs_rows:
         try:
             from backend.ml.salary_curve import fit_curves
-            for c in fit_curves(obs_rows):
+            fitted = fit_curves(obs_rows)   # grouped by (role,country,kind,CURRENCY)
+            # One (role,country,kind) can yield curves in >1 currency (two sources,
+            # different units). The serving key has no currency axis, so keep ONLY the
+            # best-supported currency's curve and log the drop — never interleave units.
+            support: dict[tuple, dict[str, float]] = {}
+            for c in fitted:
+                key = (c["role_id"], c["country_code"], c["kind"])
+                cur = c.get("currency_code") or ""
+                support.setdefault(key, {})[cur] = (
+                    support.get(key, {}).get(cur, 0.0) + float(c.get("n_effective") or 0))
+            keep: dict[tuple, str] = {}
+            for key, by_cur in support.items():
+                best = max(by_cur, key=lambda cu: by_cur[cu])
+                keep[key] = best
+                if len(by_cur) > 1:
+                    dropped = {cu: round(w, 1) for cu, w in by_cur.items() if cu != best}
+                    log.warning("ladder_build: %s has curves in %d currencies — keeping "
+                                "%s (support %.1f), dropping %s (units are never blended)",
+                                key, len(by_cur), best or "?", by_cur[best], dropped)
+            for c in fitted:
+                key = (c["role_id"], c["country_code"], c["kind"])
+                if (c.get("currency_code") or "") != keep[key]:
+                    continue
                 con.execute(
-                    "INSERT INTO fact_salary_curve VALUES (?,?,?,?,?,?,?,?,?,?) "
+                    "INSERT INTO fact_salary_curve VALUES (?,?,?,?,?,?,?,?,?,?,?) "
                     "ON CONFLICT (role_id, country_code, kind, yoe) DO NOTHING",
                     (c["role_id"], c["country_code"], c["kind"], c["yoe"],
                      c["fit_median"], c["lo"], c["hi"], c["support"],
-                     c["n_effective"], c["method"]))
+                     c["n_effective"], c["method"], c.get("currency_code") or None))
                 counts["curves"] += 1
         except Exception as e:  # noqa: BLE001 — sklearn/scipy absent → skip curves
             log.warning("ladder_build: curve fit skipped (%s)", e)

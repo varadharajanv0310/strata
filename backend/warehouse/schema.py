@@ -385,6 +385,8 @@ LADDER_V2 = {
             support      VARCHAR,                  -- observed | interpolated | borrowed
             n_effective  DOUBLE,
             method       VARCHAR,
+            currency_code VARCHAR,                 -- the fit group's unit (currency is
+                                                   -- part of the fit key; never blended)
             PRIMARY KEY (role_id, country_code, kind, yoe)
         )""",
     # Demand on the experience axis: share of postings asking each YoE bucket.
