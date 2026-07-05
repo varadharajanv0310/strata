@@ -100,15 +100,113 @@ LOW_CONFIDENCE_AGREEMENT = 0.50      # below this on a posting → abstain flag
 # --------------------------------------------------------------------------- #
 #  Loading the extraction (lazy dep on the not-yet-built llm_extract module)    #
 # --------------------------------------------------------------------------- #
+def _source_text_by_id() -> dict[int, dict]:
+    """Recover each posting's title + description by rebuilding the extractor's corpus.
+
+    The roles-only extractor keys its output by ``posting_id`` = the 0-based row index
+    over the (description-gated) ``POSTING_FEEDS`` corpus, then DROPS the body from its
+    output. Without the body the judge + title-based role checks are hollow. We rebuild
+    that exact corpus and key it by the same index so the join is 1:1.
+
+    ALIGNMENT GUARD: posting_id is purely positional, so before joining we verify the
+    rebuilt corpus against the extraction-time ``corpus_manifest.json`` fingerprint
+    (order-sensitive title hash). Any divergence (a feed re-landed / reordered / grown
+    in the extracted prefix) → REFUSE the join and run text-free, because a mis-join
+    would silently score every posting against someone else's text and launder the
+    wrong numbers into the "ground-truth" tier. Missing manifest (extraction predates
+    manifests) → join with a loud warning. Also returns ``{}`` (logged) if the corpus
+    can't be rebuilt at all.
+    """
+    try:
+        from backend.ml import llm_extract  # noqa: WPS433 (lazy: heavy/optional)
+        corpus = llm_extract._load_postings(None)
+    except Exception as e:  # noqa: BLE001
+        log.info("source-text join unavailable (%s) — validation runs text-free", e)
+        return {}
+    if corpus is None or not hasattr(corpus, "iterrows"):
+        return {}
+
+    manifest_p = settings.staging_dir / "extracted" / "corpus_manifest.json"
+    if manifest_p.exists():
+        try:
+            manifest = json.loads(manifest_p.read_text(encoding="utf-8"))
+            n = int(manifest.get("n_rows", len(corpus)))
+            # extraction may have run on a max_postings PREFIX of the full corpus; the
+            # ids it produced only assert alignment over that prefix, so compare there.
+            fp = llm_extract.corpus_fingerprint(corpus.iloc[:n])
+            if fp["title_sha256"] != manifest.get("title_sha256"):
+                log.error(
+                    "source-text join REFUSED: rebuilt corpus diverges from the "
+                    "extraction-time corpus (manifest %d rows %s… vs rebuilt %s…; "
+                    "per-feed then=%s now=%s). Validation runs text-free rather than "
+                    "mis-joining text onto the wrong postings.",
+                    n, str(manifest.get("title_sha256"))[:12], fp["title_sha256"][:12],
+                    manifest.get("per_feed"), fp.get("per_feed"))
+                return {}
+        except Exception as e:  # noqa: BLE001
+            log.warning("corpus manifest unreadable (%s) — refusing source-text join", e)
+            return {}
+    else:
+        log.warning("no corpus manifest (extraction predates manifests) — posting_id "
+                    "alignment ASSUMED; feeds must be unchanged since extraction")
+
+    out: dict[int, dict] = {}
+    for _, row in corpus.iterrows():
+        try:
+            pid = int(row["posting_id"])
+        except Exception:  # noqa: BLE001
+            continue
+        out[pid] = {"title": str(row.get("title", "") or ""),
+                    "description": str(row.get("description", "") or "")}
+    return out
+
+
+def _join_source_text(recs: list[dict]) -> list[dict]:
+    """If the extracted records carry no body text, join it back in by ``posting_id``.
+
+    Only fills fields that are absent (never overwrites a real extracted value), and
+    only when the source corpus round-trips (see ``_source_text_by_id``). Turns the
+    hollow judge / role-agreement checks into real ones.
+    """
+    if not recs:
+        return recs
+    has_text = any(_g(r, "description", "posting_text", "body") for r in recs)
+    has_title = any(_g(r, "title", "job_title") for r in recs)
+    if has_text and has_title:
+        return recs
+    src = _source_text_by_id()
+    if not src:
+        return recs
+    joined = 0
+    for r in recs:
+        try:
+            pid = int(r.get("posting_id"))
+        except Exception:  # noqa: BLE001
+            continue
+        s = src.get(pid)
+        if not s:
+            continue
+        if not r.get("title"):
+            r["title"] = s["title"]
+        if not r.get("description"):
+            r["description"] = s["description"]
+        joined += 1
+    log.info("source-text join: recovered title/description for %d/%d postings",
+             joined, len(recs))
+    return recs
+
+
 def _load_extracted() -> list[dict]:
-    """Load the LLM-extracted postings.
+    """Load the LLM-extracted postings, then rejoin the source title/description.
 
     Prefers ``backend.ml.llm_extract.load_extracted`` (the canonical reader the
     extractor ships). That module is a separate build step and pulls in vLLM, so
     we import it lazily and fall back to reading the parquet directly. Returns a
     list of plain dicts (one per posting) so the rest of the harness is
-    dependency-light.
+    dependency-light. The roles-only extractor drops the posting body from its
+    output, so we ``_join_source_text`` it back on ``posting_id`` before validating.
     """
+    recs: list[dict] = []
     # 1) canonical reader, if the extractor module is present
     try:
         from backend.ml import llm_extract  # noqa: WPS433 (lazy: heavy/optional)
@@ -119,25 +217,26 @@ def _load_extracted() -> list[dict]:
             recs = _to_records(rows)
             if recs:
                 log.info("loaded %d extracted postings via llm_extract.load_extracted", len(recs))
-                return recs
     except Exception as e:  # noqa: BLE001 — module absent or heavy import failed; fall through
         log.info("llm_extract.load_extracted unavailable (%s) — reading parquet directly", e)
 
-    # 2) direct parquet read
-    if not EXTRACTED_PARQUET.exists():
-        log.warning("extracted parquet absent (%s) — nothing to validate "
-                    "[run backend.ml.llm_extract first]", EXTRACTED_PARQUET)
-        return []
-    try:
-        import pandas as pd  # local: pandas is a normal dep but keep import lazy/clear
+    # 2) direct parquet read (fallback)
+    if not recs:
+        if not EXTRACTED_PARQUET.exists():
+            log.warning("extracted parquet absent (%s) — nothing to validate "
+                        "[run backend.ml.llm_extract first]", EXTRACTED_PARQUET)
+            return []
+        try:
+            import pandas as pd  # local: normal dep, kept lazy/clear
 
-        df = pd.read_parquet(EXTRACTED_PARQUET)
-        recs = df.to_dict("records")
-        log.info("loaded %d extracted postings from %s", len(recs), EXTRACTED_PARQUET)
-        return _to_records(recs)
-    except Exception as e:  # noqa: BLE001 — a bad/missing parquet must not crash the harness
-        log.error("failed to read extracted parquet: %s", e)
-        return []
+            df = pd.read_parquet(EXTRACTED_PARQUET)
+            recs = _to_records(df.to_dict("records"))
+            log.info("loaded %d extracted postings from %s", len(recs), EXTRACTED_PARQUET)
+        except Exception as e:  # noqa: BLE001 — a bad/missing parquet must not crash the harness
+            log.error("failed to read extracted parquet: %s", e)
+            return []
+
+    return _join_source_text(recs)
 
 
 def _to_records(rows: Any) -> list[dict]:
@@ -425,19 +524,23 @@ def validate_ground_truth(records: list[dict]) -> dict[str, Any]:
     by_role_role_agree: dict[str, list[int]] = defaultdict(list)
 
     for rec in records:
-        ex_role = _g(rec, "role", "role_id")
+        ex_role = _g(rec, "role", "role_id", "disambiguated_role")
         title = _g(rec, "title", "job_title")
+        # The extractor's ``disambiguated_role`` is a free-text label ("Senior Mobile
+        # Engineer"), not a canonical id — resolve BOTH sides through the same title
+        # resolver so role agreement is a fair id-vs-id comparison, not string equality.
+        ex_role_id = match_title_to_role(str(ex_role)) if ex_role else None
         # --- role agreement: trust the title-resolver as the structured truth ---
         truth_role = match_title_to_role(title) if title else None
         if truth_role:
             role_resolvable += 1
             role_total += 1
-            hit = 1 if (ex_role and str(ex_role) == truth_role) else 0
+            hit = 1 if (ex_role_id and ex_role_id == truth_role) else 0
             role_agree += hit
             by_role_role_agree[truth_role].append(hit)
 
         # --- skills agreement vs O*NET/ESCO for the (resolved) role ---
-        ref_role = (str(ex_role) if ex_role else None) or truth_role
+        ref_role = ex_role_id or truth_role
         ref: set[str] = set()
         if ref_role:
             ref |= onet_skills.get(ref_role, set())
@@ -456,7 +559,7 @@ def validate_ground_truth(records: list[dict]) -> dict[str, Any]:
             xling_total += 1
             n = normalize_surface(title)
             truth_xl = esco_labels[lang].get(n)
-            if truth_xl and ex_role and str(ex_role) == truth_xl:
+            if truth_xl and ex_role_id and ex_role_id == truth_xl:
                 xling_agree += 1
 
     role_acc = (role_agree / role_total) if role_total else None
