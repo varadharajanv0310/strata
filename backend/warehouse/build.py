@@ -723,6 +723,25 @@ def _role_outlook_rows(known_roles: set[str], known_countries: set[str]) -> list
         "uk_soc": "uk_soc2020", "uk_soc2020": "uk_soc2020", "onet_soc": "onet_soc",
     }
 
+    # Canada's open 3-Year Outlook file is NOC-2016 (4-digit) while the GOV_CROSSWALK
+    # noc column is NOC-2021 (5-digit TEER) — different vintages, no digit overlap, so
+    # the 2016 codes never hit the 2021 map. This is a small, HIGH-CONFIDENCE NOC-2016
+    # tech map for our roles (still WITHIN the NOC system — no cross-system collision).
+    # Ambiguous 2016 codes (devops/ml-eng/mobile/security/ux/pm have no clean distinct
+    # 2016 occupation) are deliberately left out — dropped honestly, never guessed.
+    _NOC2016 = {
+        "2173": "swe",        # Software engineers and designers
+        "2174": "backend",    # Computer programmers and interactive media developers
+        "2175": "frontend",   # Web designers and developers
+        "2172": "data-eng",   # Database analysts and data administrators
+        "2161": "data-sci",   # Mathematicians, statisticians and actuaries
+        "2171": "data-analyst",  # Information systems analysts and consultants
+        "2147": "cloud-arch", # Computer engineers (except software engineers/designers)
+        "2281": "sre",        # Computer network technicians
+        "2283": "qa",         # Information systems testing technicians
+        "0213": "eng-mgr",    # Computer and information systems managers
+    }
+
     def to_role(system: str, code: str) -> str | None:
         s, c = (system or "").lower().replace("-", "_"), str(code or "")
         if "soc" in s and "uk" not in s and "onet" not in s:
@@ -730,7 +749,10 @@ def _role_outlook_rows(known_roles: set[str], known_countries: set[str]) -> list
         canon = _SYS_ALIAS.get(s)
         if canon and canon in sys_maps:                 # resolve WITHIN the declared system
             m = sys_maps[canon]
-            return m.get(c) or m.get(c[:4])             # exact then 4-digit prefix; else None
+            hit = m.get(c) or m.get(c[:4])              # exact then 4-digit prefix
+            if hit is None and canon == "noc2021":      # NOC-2016 (4-digit) fallback
+                hit = _NOC2016.get(c) or _NOC2016.get(c[:4])
+            return hit
         # No blind cross-system fallback — EVER. Numeric codes collide across systems
         # (SSOC "25124"[:4] == ISCO "2512"), so scanning every map assigns the outlook to
         # a wrong-but-plausible role. A row whose system we don't recognize (or that has

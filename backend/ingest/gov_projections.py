@@ -275,63 +275,111 @@ def _first_key(rec: dict, *cands: str) -> str | None:
 
 
 def fetch_ca_jobbank(force: bool = False, timeout: int = 60) -> list[dict]:
-    """Canada — Job Bank 3-yr Outlooks (NOC star rating) + COPS (10-yr projection)."""
+    """Canada — Job Bank 3-Year Employment Outlooks → NOC + star outlook.
+
+    The CKAN ``datastore_search`` API 404s for this dataset — its resources are direct
+    CSV/XLSX *file downloads*, not datastore-active tables — so we resolve the dataset
+    with CKAN ``package_show`` and download the resource FILE directly, then parse it.
+
+    Resource pick: the most recent *English* true ``.csv`` (the ``format`` field
+    mislabels several XLSX files as "CSV", so we key off the URL's ``.csv`` extension,
+    not that tag; vintage is read from the resource name/filename year). Today that is
+    the 2018-2020 EN outlooks (``2018-en-20190501.csv``); newer releases are XLSX-only.
+
+    Aggregation: the file is national at the (NOC × economic-region) grain, so we
+    collapse to ONE national row per NOC by taking the **modal (most common) assigned
+    outlook across regions**. Job Bank's own "Undetermined" label is its sentinel for
+    "no outlook assigned in this region due to low employment" (a missing-data marker,
+    not a grade), so it is excluded from the mode — UNLESS a NOC carries no assigned
+    rating in any region, in which case it honestly stays "Undetermined". Mode ties
+    break toward the higher star. No rating is ever invented (brief: no fabrication).
+
+    COPS (10-yr) is intentionally NOT landed here: its open-data files are wide-format
+    (one column per year), bilingual and one-metric-per-file with ambiguous stock/flow
+    semantics — not cleanly mappable to growth_pct/openings without guessing, which the
+    no-fabrication charter forbids. Roles-only: NOC code + outlook text; no employer data.
+    """
     cache = _staging_dir() / "ca_jobbank.json"
     if cache.exists() and not force:
         return json.loads(cache.read_text(encoding="utf-8"))
 
+    # The module's HEADERS uses a bot UA; the open.canada.ca file CDN can 403 that, so
+    # download with a browser UA. (package_show tolerates either; we use one UA for both.)
+    ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0 Safari/537.36"
+
+    def _fetch(url: str) -> bytes:
+        req = urllib.request.Request(url, headers={"User-Agent": ua})
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return r.read()
+
     rows: list[dict] = []
-
-    # -- Job Bank 3-Year Employment Outlooks → NOC + star outlook --------------
     try:
-        for rid in _ckan_resource_ids(CA_JOBBANK_3YR_DATASET, timeout=timeout):
-            recs = _ckan_records(rid, timeout=timeout)
-            if not recs:
-                continue
-            sample = recs[0]
-            noc_k = _first_key(sample, "noc", "noc_code", "noccode", "code")
-            out_k = _first_key(sample, "outlook", "potential", "employment_potential", "rating")
-            if not noc_k:
-                continue
-            for rec in recs:
-                noc = str(rec.get(noc_k, "")).strip()
-                if not noc:
-                    continue
-                label = str(rec.get(out_k, "")).strip() if out_k else ""
-                star = CA_STAR.get(label.lower()) if label else None
-                rows.append(_row("CA", "NOC", noc, "3yr",
-                                 outlook_rating=label or None,
-                                 shortage_flag=(star is not None and star >= 4) or None))
-            log.info("Job Bank 3-yr: %d NOC outlook rows from resource %s", len(recs), rid)
-            break  # first usable resource is the national outlook table
-    except Exception as e:  # noqa: BLE001
-        log.warning("gov_projections: Job Bank 3-yr fetch failed (%s) — skip", e)
+        # 1) resolve the dataset's resource list (package_show works; datastore 404s).
+        meta = json.loads(
+            _fetch(f"{CKAN_BASE}package_show?id={CA_JOBBANK_3YR_DATASET}").decode("utf-8", "replace"))
+        resources = (meta.get("result", {}) or {}).get("resources", []) or []
 
-    # -- COPS 10-yr projections → NOC growth / openings ------------------------
-    try:
-        for rid in _ckan_resource_ids(CA_COPS_DATASET, timeout=timeout):
-            recs = _ckan_records(rid, timeout=timeout)
-            if not recs:
+        # 2) keep true English .csv files (URL extension — the format tag is unreliable);
+        #    rank by the data-vintage year parsed from the resource name/filename, newest first.
+        cands: list[tuple[int, str, str, str]] = []
+        for res in resources:
+            url = res.get("url") or ""
+            path = url.split("?", 1)[0]
+            if not path.lower().endswith(".csv"):
                 continue
-            sample = recs[0]
-            noc_k = _first_key(sample, "noc", "noc_code", "noccode", "code")
-            grow_k = _first_key(sample, "growth", "growth_rate", "annual_growth",
-                                "employment_growth", "cagr")
-            open_k = _first_key(sample, "openings", "job_openings", "annual_openings",
-                                "total_openings")
-            if not noc_k or not (grow_k or open_k):
+            fname = path.rsplit("/", 1)[-1]
+            if re.search(r"(?i)(^|[-_])fr([-_.]|\d)", fname):   # skip the French twin file
                 continue
-            for rec in recs:
-                noc = str(rec.get(noc_k, "")).strip()
-                if not noc:
-                    continue
-                rows.append(_row("CA", "NOC", noc, "10yr",
-                                 growth_pct=_num(rec.get(grow_k)) if grow_k else None,
-                                 openings_per_year=_num(rec.get(open_k)) if open_k else None))
-            log.info("COPS 10-yr: %d NOC projection rows from resource %s", len(recs), rid)
-            break
-    except Exception as e:  # noqa: BLE001
-        log.warning("gov_projections: COPS fetch failed (%s) — skip", e)
+            ym = re.search(r"(?:19|20)\d\d", f"{res.get('name') or ''} {fname}")
+            cands.append((int(ym.group(0)) if ym else 0, res.get("last_modified") or "", url, fname))
+        if not cands:
+            raise RuntimeError("no downloadable English CSV resource on the 3-yr dataset")
+        cands.sort(reverse=True)             # newest vintage, then latest last_modified
+        _, _, url, fname = cands[0]
+
+        # 3) download the file directly; cache the raw CSV so non-force re-runs don't re-fetch.
+        raw_path = _staging_dir() / fname
+        if raw_path.exists() and not force:
+            blob = raw_path.read_bytes()
+        else:
+            blob = _fetch(url)
+            raw_path.write_bytes(blob)
+
+        # 4) parse — collect every regional outlook label per NOC (strip the 'NOC_' prefix).
+        reader = csv.DictReader(io.StringIO(blob.decode("utf-8-sig", "replace")))
+        probe = {f: "" for f in (reader.fieldnames or [])}
+        noc_k = _first_key(probe, "noc_code", "noc", "noccode", "code")
+        out_k = _first_key(probe, "outlook", "potential", "employment_potential", "rating")
+        if not noc_k:
+            raise RuntimeError(f"no NOC column in {fname} (cols={reader.fieldnames})")
+        by_noc: dict[str, list[str]] = {}
+        for rec in reader:
+            code = re.sub(r"(?i)^noc[\s_-]*", "", str(rec.get(noc_k, "")).strip()).strip()
+            if not code:
+                continue
+            by_noc.setdefault(code, []).append(str(rec.get(out_k, "")).strip() if out_k else "")
+
+        # 5) collapse to ONE national row per NOC via the modal assigned outlook.
+        for code in sorted(by_noc):
+            labels = by_noc[code]
+            assigned = [x for x in labels if x and x.lower() != "undetermined"]
+            pool = assigned or [x for x in labels if x]      # only-Undetermined → keep it
+            if not pool:
+                continue
+            counts: dict[str, int] = {}
+            for x in pool:
+                counts[x] = counts.get(x, 0) + 1
+            # mode; tie-break toward the higher star rating (documented, non-fabricating).
+            modal = max(counts, key=lambda x: (counts[x], CA_STAR.get(x.lower(), -1)))
+            star = CA_STAR.get(modal.lower())
+            rows.append(_row("CA", "NOC", code, "3yr",
+                             outlook_rating=modal or None,
+                             shortage_flag=True if (star is not None and star >= 4) else None))
+        log.info("Job Bank 3-yr: %d NOC national outlook rows from %s (%d regional rows)",
+                 len(rows), fname, sum(len(v) for v in by_noc.values()))
+    except Exception as e:  # noqa: BLE001 — network/layout drift: land what we have, never raise
+        log.warning("gov_projections: Job Bank 3-yr direct-download failed (%s) — landing %d CA rows",
+                    e, len(rows))
 
     if rows:
         cache.write_text(json.dumps(rows), encoding="utf-8")
