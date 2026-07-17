@@ -270,9 +270,27 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--stage", help="run a single stage")
     ap.add_argument("--from", dest="from_stage", help="run from this stage onward")
+    ap.add_argument("--only", help="run ONLY this comma-separated subset of stages, in "
+                                   "ORDER sequence (skips everything else — e.g. the "
+                                   "multi-hour common_crawl/llm_extract when re-running "
+                                   "just the estimate fleet + judge + fuse)")
     args = ap.parse_args()
     if args.stage:
         run_stage(args.stage)
+        return
+    if args.only:
+        want = {s.strip() for s in args.only.split(",") if s.strip()}
+        unknown = want - set(STAGES)
+        if unknown:
+            raise SystemExit(f"--only: unknown stage(s) {sorted(unknown)}; "
+                             f"valid: {', '.join(ORDER)}")
+        subset = [s for s in ORDER if s in want]      # keep ORDER's dependency sequence
+        log(f"- `{_ts()}` — 🚀 **collect_all --only** ({len(subset)} stages: "
+            f"{', '.join(subset)})")
+        for name in subset:
+            run_stage(name)
+        log(f"- `{_ts()}` — 🏁 **collect_all --only complete** ({len(subset)} stages)")
+        set_state(status="complete")
         return
     start = ORDER.index(args.from_stage) if args.from_stage in ORDER else 0
     log(f"- `{_ts()}` — 🚀 **collect_all** started ({len(ORDER) - start} stages)")
