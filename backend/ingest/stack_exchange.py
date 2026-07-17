@@ -31,10 +31,11 @@ run; not executed in this pass.
 """
 from __future__ import annotations
 
+import html
 import json
+import re
 import time
 import urllib.request
-import xml.sax
 from collections import defaultdict
 from itertools import combinations
 
@@ -124,43 +125,64 @@ def _download_file(name: str, fname: str, force: bool, time_cap_s: float,
         return str(dest)
     url = f"{IA_BASE}/{fname}"
     tmp = dest.with_suffix(dest.suffix + ".part")
-    t0 = time.time()
-    got = 0
-    next_beat = 256 << 20  # heartbeat every ~256 MiB
-    try:
-        req = urllib.request.Request(url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=120) as r, open(tmp, "wb") as fh:
-            total = r.headers.get("Content-Length")
-            total = int(total) if total and total.isdigit() else None
-            print(f"[stack_exchange] downloading {fname} "
-                  f"({'%.1fGB' % (total / 1e9) if total else 'unknown size'})", flush=True)
-            while True:
-                if time.time() - t0 > time_cap_s:
-                    log.warning("stack_exchange: time cap %ss hit downloading %s — "
-                                "partial left as .part (resume not supported, will "
-                                "re-fetch)", time_cap_s, fname)
-                    return None
-                buf = r.read(chunk)
-                if not buf:
-                    break
-                fh.write(buf)
-                got += len(buf)
-                if got >= next_beat:
-                    pct = f" ({100 * got / total:.0f}%)" if total else ""
-                    print(f"[stack_exchange] {fname}: {got / 1e9:.1f}GB{pct} "
-                          f"in {time.time() - t0:.0f}s", flush=True)
-                    next_beat += 256 << 20
-        tmp.replace(dest)
-        log.info("stack_exchange: downloaded %s (%d bytes in %.0fs)",
-                 fname, got, time.time() - t0)
-        return str(dest)
-    except Exception as e:  # noqa: BLE001 — one member must not sink the run
-        log.warning("stack_exchange: download of %s failed (%s) — skip", fname, e)
+    # RESUMABLE: a 20GB archive.org pull over a home line WILL be interrupted. Keep the
+    # .part across attempts and resume with an HTTP Range from where it stopped, so a
+    # capped/failed run makes cumulative progress instead of re-fetching 20GB each time.
+    resume_at = tmp.stat().st_size if (tmp.exists() and not force) else 0
+    if force and tmp.exists():
         try:
-            if tmp.exists():
-                tmp.unlink()
+            tmp.unlink()
         except OSError:
             pass
+        resume_at = 0
+    t0 = time.time()
+    got = resume_at
+    next_beat = ((resume_at // (256 << 20)) + 1) * (256 << 20)  # next ~256MiB boundary
+    try:
+        headers = dict(HEADERS)
+        if resume_at:
+            headers["Range"] = f"bytes={resume_at}-"
+            log.info("stack_exchange: resuming %s from %.1fGB", fname, resume_at / 1e9)
+        req = urllib.request.Request(url, headers=headers)
+        with urllib.request.urlopen(req, timeout=120) as r:
+            status = getattr(r, "status", 200)
+            # 206 = server honored the Range (append); 200 = full body (restart the file)
+            append = resume_at and status == 206
+            if resume_at and not append:
+                log.warning("stack_exchange: server ignored Range (status %s) — "
+                            "restarting %s from 0", status, fname)
+                got = 0
+                next_beat = 256 << 20
+            clen = r.headers.get("Content-Length")
+            clen = int(clen) if clen and clen.isdigit() else None
+            total = (resume_at + clen) if (append and clen) else clen
+            print(f"[stack_exchange] downloading {fname} "
+                  f"({'%.1fGB' % (total / 1e9) if total else 'unknown size'}"
+                  f"{', resume' if append else ''})", flush=True)
+            with open(tmp, "ab" if append else "wb") as fh:
+                while True:
+                    if time.time() - t0 > time_cap_s:
+                        log.warning("stack_exchange: time cap %ss hit downloading %s at "
+                                    "%.1fGB — .part kept, resumes next run", time_cap_s,
+                                    fname, got / 1e9)
+                        return None
+                    buf = r.read(chunk)
+                    if not buf:
+                        break
+                    fh.write(buf)
+                    got += len(buf)
+                    if got >= next_beat:
+                        pct = f" ({100 * got / total:.0f}%)" if total else ""
+                        print(f"[stack_exchange] {fname}: {got / 1e9:.1f}GB{pct} "
+                              f"in {time.time() - t0:.0f}s", flush=True)
+                        next_beat += 256 << 20
+        tmp.replace(dest)
+        log.info("stack_exchange: downloaded %s (%d bytes total in %.0fs this run)",
+                 fname, got, time.time() - t0)
+        return str(dest)
+    except Exception as e:  # noqa: BLE001 — one member must not sink the run; .part is KEPT
+        log.warning("stack_exchange: download of %s interrupted (%s) — .part kept at "
+                    "%.1fGB, resumes next run", fname, e, got / 1e9)
         return None
 
 
@@ -187,61 +209,6 @@ def land_raw(force: bool = False, time_cap_s: float = STAGE_TIME_CAP_S,
 # ---------------------------------------------------------------------------
 # build_staging — parse Posts.xml -> monthly tag volume + tag co-occurrence
 # ---------------------------------------------------------------------------
-class _PostsHandler(xml.sax.ContentHandler):
-    """SAX handler over Posts.xml. Each <row> is a post; PostTypeId=1 are questions.
-
-    We accumulate, in memory:
-      * volume[(tag, 'YYYY-MM')] -> question count
-      * adjacency[(tag_a, tag_b)] -> co-occurrence count (sorted pair, tag_a < tag_b)
-
-    SAX (event streaming) — never builds a DOM — so a 100GB+ XML is processed in
-    constant memory aside from the aggregate dicts (bounded by #tags × #months and
-    #tag-pairs, both modest after the volume floor prune in build_staging).
-    """
-
-    def __init__(self, max_rows: int | None = None,
-                 heartbeat_every: int = 2_000_000):
-        super().__init__()
-        self.volume: dict[tuple[str, str], int] = defaultdict(int)
-        self.adjacency: dict[tuple[str, str], int] = defaultdict(int)
-        self.questions = 0
-        self.rows = 0
-        self.max_rows = max_rows
-        self.heartbeat_every = heartbeat_every
-        self._t0 = time.time()
-        self._stop = False
-
-    def startElement(self, name, attrs):  # noqa: N802 — SAX API name
-        if name != "row":
-            return
-        self.rows += 1
-        if self.heartbeat_every and self.rows % self.heartbeat_every == 0:
-            print(f"[stack_exchange] parsed {self.rows:,} rows "
-                  f"({self.questions:,} questions) in {time.time() - self._t0:.0f}s",
-                  flush=True)
-        if self.max_rows and self.rows >= self.max_rows:
-            self._stop = True
-            raise StopIteration  # caught by the driver to end the parse early
-        # questions only
-        if attrs.get("PostTypeId") != "1":
-            return
-        raw_tags = attrs.get("Tags")
-        created = attrs.get("CreationDate")  # e.g. '2010-08-23T19:24:53.000'
-        if not raw_tags or not created or len(created) < 7:
-            return
-        period = created[:7]  # 'YYYY-MM'
-        tags = _parse_tags(raw_tags)
-        if not tags:
-            return
-        self.questions += 1
-        for t in tags:
-            self.volume[(t, period)] += 1
-        # adjacency only for sanely-tagged questions (skip grab-bags)
-        if 2 <= len(tags) <= _MAX_TAGS_FOR_ADJ:
-            for a, b in combinations(sorted(set(tags)), 2):
-                self.adjacency[(a, b)] += 1
-
-
 def _parse_tags(raw: str) -> list[str]:
     """'<python><pandas><numpy>' (or '|python|pandas|') -> ['python','pandas','numpy'].
 
@@ -263,13 +230,17 @@ def _parse_tags(raw: str) -> list[str]:
     return out
 
 
-def _open_posts_xml(archive_path: str):
-    """Yield a binary file object for Posts.xml streamed out of the .7z (lazy py7zr).
+def _extract_posts_xml(archive_path: str):
+    """Extract Posts.xml from the .7z to a temp file on disk and return its Path.
 
-    py7zr can extract a single member to a file-like object without inflating the whole
-    archive to disk. If py7zr is missing we raise a clear, catchable error (the caller
-    flags it) rather than crashing the whole collect_all.
+    The member is ~104GB uncompressed — FAR too big for an in-memory BytesIO — so we
+    stream it to disk with py7zr's ``extract()`` (bounded memory) and the caller
+    SAX-parses the file. py7zr 1.x exposes ``extract``/``extractall`` (to the
+    filesystem), NOT a ``read`` that returns a file object, and even if it did a 104GB
+    member could not be held in RAM. An already-extracted file is reused. Raises
+    RuntimeError (caught by the caller) if py7zr is absent or the member is missing.
     """
+    from pathlib import Path
     try:
         import py7zr  # lazy: heavy/optional dep, only needed at parse time
     except ImportError as e:  # pragma: no cover - environment dependent
@@ -277,26 +248,35 @@ def _open_posts_xml(archive_path: str):
             "py7zr not installed — needed to read the Stack Exchange .7z dump. "
             "`pip install py7zr` then re-run build_staging."
         ) from e
+    out_dir = _raw_dir() / "_extracted"
+    out_dir.mkdir(parents=True, exist_ok=True)
     with py7zr.SevenZipFile(archive_path, mode="r") as z:
-        names = z.getnames()
-        member = next((n for n in names if n.lower().endswith("posts.xml")), None)
+        member = next((n for n in z.getnames() if n.lower().endswith("posts.xml")), None)
         if member is None:
-            raise RuntimeError(f"Posts.xml not found inside {archive_path} (has {names})")
-        # read() returns {name: BytesIO} for the requested members
-        data = z.read(targets=[member])
-        bio = data[member]
-        bio.seek(0)
-        return bio
+            raise RuntimeError(f"Posts.xml not found inside {archive_path} "
+                               f"(has {z.getnames()})")
+        target = out_dir / member
+        if target.exists() and target.stat().st_size > 1_000_000:
+            log.info("stack_exchange: reusing extracted %s (%.0fGB on disk)",
+                     member, target.stat().st_size / 1e9)
+            return Path(target)
+        log.info("stack_exchange: extracting %s (~104GB) from the .7z to disk — "
+                 "this takes a while (bounded memory)…", member)
+        z.extract(path=str(out_dir), targets=[member])
+    return Path(out_dir / member)
 
 
-def build_staging(max_rows: int | None = None, min_volume: int = 50) -> dict:
-    """Parse the landed Posts.7z → tag_volume.json + tag_adjacency.json.
+def build_staging(max_rows: int | None = None, min_volume: int = 50,
+                  build_adjacency: bool = True) -> dict:
+    """Parse the landed Posts.7z → tag_volume.json (+ tag_adjacency.json if enabled).
 
     Args:
         max_rows: cap on <row> elements parsed (for a bounded probe run); None = all.
         min_volume: prune any tag whose TOTAL question volume is below this, and any
             adjacency pair below this — strips one-off/typo tags so the staging files
             stay tractable and the signal is real.
+        build_adjacency: accumulate the tag co-occurrence graph too. Memory-heavy over
+            full history; off → only the (fuse-consumed) volume signal is built.
 
     Returns a summary dict. Graceful: if the archive isn't landed or py7zr is absent,
     logs + returns an empty summary (never crashes collect_all).
@@ -306,42 +286,74 @@ def build_staging(max_rows: int | None = None, min_volume: int = 50) -> dict:
         log.warning("stack_exchange: %s not landed — run land_raw() first", archive.name)
         return {"questions": 0, "volume_rows": 0, "adjacency_rows": 0, "reason": "no-archive"}
 
-    handler = _PostsHandler(max_rows=max_rows)
     try:
-        bio = _open_posts_xml(str(archive))
+        xml_path = _extract_posts_xml(str(archive))
     except RuntimeError as e:
         log.warning("stack_exchange: cannot open Posts.xml (%s) — skip", e)
         return {"questions": 0, "volume_rows": 0, "adjacency_rows": 0, "reason": str(e)}
 
-    parser = xml.sax.make_parser()
-    parser.setFeature(xml.sax.handler.feature_namespaces, False)
-    parser.setContentHandler(handler)
+    # FAST line-based parse. The SO dump is exactly one <row .../> per line, so we skip
+    # xml.sax entirely (its per-element Python callbacks capped throughput at ~1.7k
+    # rows/s → 11h over 70M rows). A binary substring reject of answer-rows before any
+    # regex lifts this to tens of thousands of rows/s. Body's own quotes are escaped
+    # (&quot;), so Tags="([^"]*)" can't accidentally match inside a Body value.
+    re_tags = re.compile(rb' Tags="([^"]*)"')
+    re_date = re.compile(rb' CreationDate="(\d{4}-\d{2})')
+    volume: dict[tuple[str, str], int] = defaultdict(int)
+    adjacency: dict[tuple[str, str], int] = defaultdict(int)
+    questions = rows = 0
+    t0 = time.time()
     try:
-        # feed the stream in chunks so we control memory + can stop early
-        while True:
-            buf = bio.read(1 << 20)
-            if not buf:
-                break
-            try:
-                parser.feed(buf)
-            except StopIteration:
-                log.info("stack_exchange: max_rows=%s reached — ending parse early", max_rows)
-                break
-        try:
-            parser.close()
-        except Exception:  # noqa: BLE001 — close after an early stop can complain
-            pass
+        with open(xml_path, "rb") as fh:
+            for line in fh:
+                rows += 1
+                if max_rows and rows >= max_rows:
+                    log.info("stack_exchange: max_rows=%s reached — ending early", max_rows)
+                    break
+                if rows % 5_000_000 == 0:
+                    print(f"[stack_exchange] {rows:,} rows ({questions:,} questions) "
+                          f"in {time.time() - t0:.0f}s", flush=True)
+                if b'PostTypeId="1"' not in line:      # fast reject: answers/meta/etc.
+                    continue
+                mt = re_tags.search(line)
+                md = re_date.search(line)
+                if not mt or not md:
+                    continue
+                # the raw attribute is XML-escaped ('&lt;python&gt;&lt;pandas&gt;') —
+                # SAX used to unescape it for us; the regex path must do it explicitly
+                # before _parse_tags, else the whole '<...>' blob is taken as one tag.
+                tags = _parse_tags(html.unescape(mt.group(1).decode("utf-8", "replace")))
+                if not tags:
+                    continue
+                period = md.group(1).decode("ascii", "replace")
+                questions += 1
+                for t in tags:
+                    volume[(t, period)] += 1
+                if build_adjacency and 2 <= len(tags) <= _MAX_TAGS_FOR_ADJ:
+                    for a, b in combinations(sorted(set(tags)), 2):
+                        adjacency[(a, b)] += 1
     except Exception as e:  # noqa: BLE001 — a malformed tail must not lose the aggregate
         log.warning("stack_exchange: parse ended on error (%s) — landing partial", e)
+    finally:
+        # reclaim the ~104GB extracted XML after a FULL parse (the .7z stays as the
+        # durable cache). Keep it after a capped probe so a re-probe needn't re-extract.
+        if max_rows is None:
+            try:
+                xml_path.unlink()
+                log.info("stack_exchange: removed extracted Posts.xml (reclaimed ~104GB)")
+            except OSError:
+                pass
+    log.info("stack_exchange: parsed %d rows / %d questions in %.0fs",
+             rows, questions, time.time() - t0)
 
     # --- volume rows (pruned to tags clearing the volume floor across all time) ---
     tag_total: dict[str, int] = defaultdict(int)
-    for (tag, _period), n in handler.volume.items():
+    for (tag, _period), n in volume.items():
         tag_total[tag] += n
     keep_tags = {t for t, n in tag_total.items() if n >= min_volume}
     volume_rows = [
         {"skill": tag, "period": period, "n": n, "country": ""}
-        for (tag, period), n in handler.volume.items()
+        for (tag, period), n in volume.items()
         if tag in keep_tags
     ]
     volume_rows.sort(key=lambda r: (r["skill"], r["period"]))
@@ -349,7 +361,7 @@ def build_staging(max_rows: int | None = None, min_volume: int = 50) -> dict:
     # --- adjacency rows (both endpoints kept tags + pair clears the floor) ---
     adjacency_rows = [
         {"tag_a": a, "tag_b": b, "n": n}
-        for (a, b), n in handler.adjacency.items()
+        for (a, b), n in adjacency.items()
         if n >= min_volume and a in keep_tags and b in keep_tags
     ]
     adjacency_rows.sort(key=lambda r: r["n"], reverse=True)
@@ -360,8 +372,8 @@ def build_staging(max_rows: int | None = None, min_volume: int = 50) -> dict:
     _adjacency_file().write_text(json.dumps(adjacency_rows), encoding="utf-8")
 
     summary = {
-        "questions": handler.questions,
-        "rows_parsed": handler.rows,
+        "questions": questions,
+        "rows_parsed": rows,
         "kept_tags": len(keep_tags),
         "volume_rows": len(volume_rows),
         "adjacency_rows": len(adjacency_rows),
@@ -389,8 +401,8 @@ def load_adjacency() -> list[dict]:
 # ---------------------------------------------------------------------------
 def run(force: bool = False, time_cap_s: float = STAGE_TIME_CAP_S,
         max_rows: int | None = None, min_volume: int = 50,
-        skip_download: bool = False, **kw) -> dict:
-    """Land the dump (unless skipped) then parse it into the two staging files.
+        skip_download: bool = False, build_adjacency: bool = True, **kw) -> dict:
+    """Land the dump (unless skipped) then parse it into the staging file(s).
 
     Args:
         force: re-download even if the archive is already cached.
@@ -398,12 +410,15 @@ def run(force: bool = False, time_cap_s: float = STAGE_TIME_CAP_S,
         max_rows: cap rows parsed — for a bounded probe; None = full history.
         min_volume: tag/pair volume floor for pruning noise.
         skip_download: parse an already-landed archive without touching the network.
+        build_adjacency: also build the co-occurrence graph (memory-heavy; the fuse
+            reads only tag_volume.json, so it is safe to skip on a RAM-tight box).
 
     Returns a summary dict (rows = volume + adjacency rows). collect_all calls this.
     """
     if not skip_download:
         land_raw(force=force, time_cap_s=time_cap_s, which=("posts",))
-    summary = build_staging(max_rows=max_rows, min_volume=min_volume)
+    summary = build_staging(max_rows=max_rows, min_volume=min_volume,
+                            build_adjacency=build_adjacency)
     summary["rows"] = summary.get("volume_rows", 0) + summary.get("adjacency_rows", 0)
     return summary
 
