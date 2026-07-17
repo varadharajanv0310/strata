@@ -680,11 +680,28 @@ def _load_judge_llm():
 
     conc = max(1, int(settings.ollama_concurrency))
 
+    # Reasoning judges (gpt-oss:*) emit into a thinking channel and return EMPTY under
+    # Ollama's grammar `format` constraint — verified live: gpt-oss:20b gives "" with fmt
+    # but clean {"score":..,"reason":..} without it. Probe once and disable fmt for a
+    # model that chokes; the prompt already demands JSON and _parse_judge_score
+    # brace-extracts it. Non-reasoning judges keep the stricter constrained decode.
+    use_fmt = True
+    try:
+        probe = ollama_chat([{"role": "user",
+                              "content": 'Respond with ONLY {"score": 5, "reason": "ok"}'}],
+                            model=model_id, host=host, fmt=_JUDGE_FMT,
+                            num_ctx=settings.ollama_num_ctx)
+        use_fmt = bool((probe or "").strip())
+    except Exception:  # noqa: BLE001 — probe failure → assume constrained decode works
+        pass
+    log.info("judge LLM ready (Ollama): %s (fmt-constrained=%s)", model_id, use_fmt)
+    fmt = _JUDGE_FMT if use_fmt else None
+
     def generate(prompts: list[str]) -> list[str]:
         def _one(p: str) -> str:
             try:
                 return ollama_chat([{"role": "user", "content": p}], model=model_id,
-                                   host=host, fmt=_JUDGE_FMT, num_ctx=settings.ollama_num_ctx)
+                                   host=host, fmt=fmt, num_ctx=settings.ollama_num_ctx)
             except Exception as e:  # noqa: BLE001 — failed call → unparseable → dropped score
                 log.warning("judge ollama call failed (%s)", e)
                 return ""
@@ -694,7 +711,6 @@ def _load_judge_llm():
         with ThreadPoolExecutor(max_workers=conc) as ex:
             return list(ex.map(_one, prompts))
 
-    log.info("judge LLM ready (Ollama): %s", model_id)
     return generate
 
 
