@@ -167,3 +167,27 @@ Two git tracks. **Track A** = older data-pipeline work, fixed + PUSHED to origin
 - `21:11` — ▶ **fuse** start (budget 20m)
 - `21:31` — ⚠️ **fuse** 1200s — **salary_person 0, demand 1008, interest 112, salary_job 1008, dim_role 16** | hit 20m budget — checkpointed partial
 - `21:31` — 🏁 **collect_all complete** (stopped at warehouse; marts/site untouched)
+- `22:27` — ▶ **gov_projections** start (budget 40m)
+- `22:32` — ✅ **gov_projections** 316s — **0 rows landed**
+- `22:32` — ▶ **arxiv** start (budget 90m)
+- `22:42` — ✅ **arxiv** 606s — **48468 rows landed**
+- `22:42` — ▶ **itjobswatch** start (budget 40m)
+- `22:43` — ✅ **itjobswatch** 63s — **18 rows landed**
+- `22:43` — ▶ **seek_jobstreet** start (budget 40m)
+- `22:45` — ✅ **seek_jobstreet** 115s — **25 rows landed**
+- `22:45` — ▶ **talent** start (budget 40m)
+- `22:50` — ✅ **talent** 308s — **13 rows landed**
+- `22:50` — ▶ **payscale** start (budget 40m)
+- `22:53` — ✅ **payscale** 159s — **194 rows landed**
+- `22:53` — ▶ **levelsfyi** start (budget 40m)
+- `22:59` — ✅ **levelsfyi** 363s — **190 rows landed**
+- `22:59` — ▶ **gehalt_de** start (budget 40m)
+- `23:00` — ✅ **gehalt_de** 57s — **25 rows landed**
+- `23:00` — ▶ **canada_jobbank** start (budget 40m)
+- `23:00` — ✅ **canada_jobbank** 0s — **15 rows landed**
+- `23:00` — ▶ **roberthalf** start (budget 40m)
+- `23:00` — ✅ **roberthalf** 7s — **459 rows landed**
+- `23:00` — ▶ **extract_validate** start (budget 120m)
+- `23:00` — ✅ **extract_validate** 2s — **validated (report present)**
+- `23:00` — ▶ **fuse** start (budget 90m)
+- `23:01` — ✅ **fuse** 41s — **salary_person 2034, demand 1009, interest 224, salary_job 1008, dim_role 17**
