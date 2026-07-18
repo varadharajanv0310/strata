@@ -410,9 +410,15 @@ def _load_postings(max_postings: int | None):
         if desc is None:
             log.info("llm_extract: %s has no description column — 0 extractable rows", rel)
             continue
+        # carry country where the feed has it (HF/common_crawl do) so the representative
+        # sampler can stratify to include the German/multilingual case; "" when absent.
+        cc = df.get("country_code")
+        if cc is None:
+            cc = df.get("country")
         keep = pd.DataFrame({
             "title": df.get("title", "").fillna("").astype(str),
             "description": desc.fillna("").astype(str),
+            "country": (cc.fillna("").astype(str) if cc is not None else ""),
             "_source": rel,
         })
         keep = keep[keep["description"].str.strip() != ""]
@@ -429,6 +435,37 @@ def _load_postings(max_postings: int | None):
     if max_postings is not None:
         corpus = corpus.iloc[:max_postings].copy()
     return corpus
+
+
+def select_representative_sample(corpus, n: int, *, seed: int = 1234):
+    """Draw a REPRESENTATIVE stratified sample of ``n`` postings for sample-scale extraction.
+
+    Per the sparse-LLM decision (reports/SPARSE_LLM_PLAN.md), the local LLM extraction runs on
+    a representative sample — NOT the whole ~870K corpus — purely to produce the quotable
+    validated numbers (role agreement, faithfulness). The sample is stratified by
+    ``(_source, country)`` so it spans every feed AND deliberately includes the German /
+    multilingual case (HF-DE, Personio) — the cross-lingual validation depends on that. Each
+    stratum gets a share proportional to its size (min 1 per non-empty stratum), sampled with a
+    fixed seed for reproducibility. Returns a corpus frame of ~n rows (fewer if the corpus is
+    smaller), with ``posting_id`` preserved so downstream joins/manifests still align.
+    """
+    if corpus is None or len(corpus) <= n:
+        return corpus
+    strat = "_source"
+    keys = [c for c in ("_source", "country") if c in corpus.columns]
+    groups = list(corpus.groupby(keys, dropna=False)) if keys else [(None, corpus)]
+    total = len(corpus)
+    picks = []
+    for _key, g in groups:
+        share = max(1, round(n * len(g) / total))
+        picks.append(g.sample(n=min(share, len(g)), random_state=seed))
+    import pandas as pd
+    out = pd.concat(picks, ignore_index=False)
+    if len(out) > n:                     # trim any rounding overshoot, keep the seed stable
+        out = out.sample(n=n, random_state=seed)
+    log.info("llm_extract: representative sample %d of %d postings across %d strata",
+             len(out), total, len(groups))
+    return out.sort_values("posting_id").reset_index(drop=True)
 
 
 def corpus_fingerprint(corpus) -> dict:
@@ -844,13 +881,21 @@ def run(
     model: str = DEFAULT_MODEL,
     *,
     max_postings: int | None = None,
+    sample_size: int | None = "__cfg__",
     shard_size: int = 2000,
     temperature: float = 0.0,
     time_cap_s: float | None = None,
     batch_size: int = 64,
     distill_student: str | None = None,  # reserved for the optional distill hook
 ) -> dict[str, Any]:
-    """Run LLM corpus extraction over the posting corpus → staging/extracted/.
+    """Run LLM extraction over a REPRESENTATIVE SAMPLE of the posting corpus → staging/extracted/.
+
+    Per the sparse-LLM decision (reports/SPARSE_LLM_PLAN.md), extraction runs on a stratified
+    sample (default ``settings.extraction_sample_size``, ~3000, including the German case),
+    NOT the whole ~870K corpus — enough to produce the quotable validated numbers in hours,
+    not days. Pass ``sample_size=None`` to extract EVERYTHING (the old full-corpus behaviour,
+    deliberately opt-in), or an int to override. ``max_postings`` still caps the loaded corpus
+    before sampling.
 
     Resumable per shard (skips shards already in the checkpoint), graceful if the GPU
     stack is missing (returns ``mode="skipped"``), respects ``time_cap_s`` by stopping
@@ -868,8 +913,15 @@ def run(
                         settings.staging_dir)
             return {"mode": "skipped", "reason": "no_postings", "postings": 0,
                     "written": False}
-        # bind posting_id → corpus row for later consumers (validation source-join)
+        # Manifest is fingerprinted over the FULL corpus (BEFORE sampling) so the validation
+        # source-join — which rebuilds the full corpus and joins on posting_id — still matches
+        # and can look up the sample's (subset of) posting_ids in the full corpus.
         _write_corpus_manifest(corpus)
+        # sample-scale by default; the sentinel means "read the configured default".
+        if sample_size == "__cfg__":
+            sample_size = getattr(settings, "extraction_sample_size", 3000)
+        if sample_size is not None and len(corpus) > sample_size:
+            corpus = select_representative_sample(corpus, sample_size)
 
         n = len(corpus)
         shards_total = (n + shard_size - 1) // shard_size

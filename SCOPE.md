@@ -63,3 +63,32 @@ but **role-level**, with employers pooled away and never named.)
 - **Internalized** the employer dedup — dropped the persisted `employers.parquet` registry; dedup block key kept in memory only.
 - **Kept** `department`/`team` as an internal role-clustering signal (never surfaced).
 - Verified: the served layer (warehouse build, marts, API, frontend) is **company-free**.
+
+---
+
+## Scope decision (2026-07-18) — sparse LLM extraction + generated descriptive layer
+
+The per-posting local LLM extraction was interrogated and **cut from full-corpus to
+sample-scale** (reasoning + code audit in `reports/SPARSE_LLM_PLAN.md`). The descriptive
+layer is **generated** per role; extraction survives on a **representative validated sample**
+only. **Dropped as product features — do not surface, do not re-add:**
+
+1. **Skill-frequency-by-country** ("Stack is 65% more demanded in Germany") — manufactured
+   urgency; erodes credibility. A clean static (generated) skill list is more honest.
+2. **Exact seniority years** ("4.56 years") — false precision. Seniority ships only as
+   **bands** (generated `dim_ladder_rung.yoe_min/max`, curated ladder rungs, H-1B levels).
+3. **Per-country skill differences** — same friction/noise; not what a path-decider wants.
+4. **Full-corpus per-posting LLM extraction** — ~5–45 days for outputs that are either
+   generatable (the descriptive layer) or the noise above. Extraction runs on a stratified
+   sample (~3000, incl. the German case; `settings.extraction_sample_size`) purely to produce
+   the quotable validated numbers (role agreement / faithfulness).
+5. **LLM emerging-role detection over the corpus** — the large corpus is 2021-vintage (cannot
+   surface 2026 roles); novel-title detection is cheaper via clustering (titles that don't map
+   to the taxonomy), which `role_derivation` already does.
+
+Verified against code (no served field breaks): breadth (the role catalog) derives from
+**raw-posting clustering** (`role_derivation`, LLM-free); salary/demand are structured-source
+only; the extraction-derived tables (`bridge_seniority_yoe`, `fact_role_attributes`,
+`fact_demand_yoe`) are computed-but-**never-served** and map 1:1 onto the drops above. The
+generated descriptive layer is provenance-labeled (`source='llm-generated'`, `kind='generated'`)
+and **must never be presented as measured-from-postings** data.

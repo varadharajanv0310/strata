@@ -95,6 +95,11 @@ class Settings(BaseSettings):
     # with real VRAM headroom beyond model+KV (a bigger card, or the vLLM backend).
     ollama_concurrency: int = 1          # parallel /api/chat requests per batch
     ollama_num_ctx: int = 8192           # context window passed to Ollama
+    # Sparse-LLM decision (reports/SPARSE_LLM_PLAN.md): extraction runs on a REPRESENTATIVE
+    # stratified sample (incl. the German case), not the whole ~870K corpus — enough to
+    # produce the quotable validated numbers in hours. Set to None (via run(sample_size=None))
+    # only for a deliberate full-corpus pass.
+    extraction_sample_size: int = 3000
     # LLM-as-judge (extract_validate): a STRONGER/different model than the extractor.
     judge_model: str = "Qwen/Qwen2.5-14B-Instruct"   # vLLM judge id
     ollama_judge_model: str = "gpt-oss:20b"          # native-Windows judge (strongest local)

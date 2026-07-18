@@ -53,6 +53,43 @@ def _staging():
     return settings.staging_dir / POSTINGS
 
 
+def _load_raw_corpus():
+    """Concatenate EVERY raw posting feed (title/description/country + dept/salary where the
+    feed has them) so the role catalog's breadth derives from the WHOLE corpus (HF ~870k +
+    ATS + Common Crawl), not just common_crawl's ~1k. This is pure raw-posting clustering —
+    it never reads the LLM extraction output — so per the sparse-LLM decision breadth scales
+    with the corpus at NO LLM cost. Returns a DataFrame or None; callers fall back to the
+    single common_crawl parquet when nothing is present."""
+    import pandas as pd
+    try:
+        from backend.ml.llm_extract import POSTING_FEEDS, _read_feed
+    except Exception:  # noqa: BLE001
+        return None
+    frames = []
+    for rel in POSTING_FEEDS:
+        p = settings.staging_dir / rel
+        if not p.exists():
+            continue
+        df = _read_feed(p)
+        if df is None or df.empty or df.get("description") is None:
+            continue
+        cc = df.get("country_code")
+        cc = cc if cc is not None else df.get("country")
+        keep = pd.DataFrame({
+            "title": df.get("title", "").fillna("").astype(str),
+            "description": df["description"].fillna("").astype(str),
+            "country": (cc.fillna("").astype(str) if cc is not None else ""),
+            "department": (df["department"].fillna("").astype(str)
+                           if "department" in df.columns else ""),
+        })
+        keep = keep[keep["title"].str.strip() != ""]
+        if not keep.empty:
+            frames.append(keep)
+    if not frames:
+        return None
+    return pd.concat(frames, ignore_index=True)
+
+
 def _out():
     p = settings.staging_dir / OUT_REL
     p.parent.mkdir(parents=True, exist_ok=True)
@@ -144,14 +181,17 @@ def run() -> dict:
     with stage_timer(log, "ml.role_derivation"):
         from backend.warehouse.build import slug
 
-        path = _staging()
-        if not path.exists():
-            log.warning("role_derivation: no postings at %s — nothing to cluster", path)
-            return {"postings": 0, "derived": 0, "written": False, "mode": "skipped"}
-
         import pandas as pd
 
-        posts = pd.read_parquet(path)
+        # cluster the WHOLE raw corpus for breadth (HF + ATS + CC); fall back to the single
+        # common_crawl parquet if the multi-feed loader finds nothing. LLM-free either way.
+        posts = _load_raw_corpus()
+        if posts is None:
+            path = _staging()
+            if not path.exists():
+                log.warning("role_derivation: no postings at %s — nothing to cluster", path)
+                return {"postings": 0, "derived": 0, "written": False, "mode": "skipped"}
+            posts = pd.read_parquet(path)
         if "country" not in posts.columns:
             posts["country"] = posts.get("country_code")
         if posts.empty:
