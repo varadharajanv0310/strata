@@ -1,0 +1,104 @@
+{
+  "sample_n": 121,
+  "extracted_ok": 92,
+  "errors": 29,
+  "throughput": {
+    "wall_s": 2683.8,
+    "concurrency": 4,
+    "mean_s_per_posting_single_stream": 37.68,
+    "effective_s_per_posting_at_conc": 29.17,
+    "postings_per_hour_at_conc": 123
+  },
+  "abstain_rate": 0.076,
+  "role_agreement": {
+    "english_title_resolver": {
+      "acc": 0.867,
+      "n": 15,
+      "note": "EN baseline vs match_title_to_role"
+    },
+    "german_multilingual_adjudicator": {
+      "acc": 0.906,
+      "n": 53,
+      "note": "the trustworthy German number (gpt-oss:20b)"
+    },
+    "english_adjudicator_calibration": {
+      "acc": 0.8,
+      "n": 20,
+      "note": "adjudicator sanity-check vs the EN resolver"
+    }
+  },
+  "sample_roles": [
+    [
+      "DE",
+      "AWS Application Security Engineer,",
+      "Application Security Engineer",
+      "en"
+    ],
+    [
+      "DE",
+      "Senior Product Designer",
+      "Senior Product Designer",
+      "en"
+    ],
+    [
+      "DE",
+      "Webdeveloper / Frontend-Entwickler",
+      "frontend developer",
+      "de"
+    ],
+    [
+      "DE",
+      "PHP Developer / Backend-Entwickler",
+      "PHP Developer",
+      "de"
+    ],
+    [
+      "DE",
+      "Senior Developer Java",
+      "Senior Developer Java",
+      "de"
+    ],
+    [
+      "DE",
+      "Principal Statistical SDTM Program",
+      "Principal Statistical SDTM Programmer",
+      "en"
+    ],
+    [
+      "DE",
+      "VERMITTLUNG* Developer / Frontend-",
+      "Frontend Developer",
+      "de"
+    ],
+    [
+      "DE",
+      "Ausbildungsberuf Kraftfahrzeugmech",
+      "unknown",
+      "de"
+    ],
+    [
+      "DE",
+      "Product Industrialization Engineer",
+      "Product Industrialization Engineer",
+      "de"
+    ],
+    [
+      "DE",
+      "Engagement Architect im Bereich Au",
+      "Engagement Architect",
+      "de"
+    ],
+    [
+      "DE",
+      "(Senior / Lead) Technical Business",
+      "unknown",
+      "de"
+    ],
+    [
+      "DE",
+      "Chief Scrum Master Automotive IT-P",
+      "unknown",
+      "de"
+    ]
+  ]
+}

@@ -90,7 +90,14 @@ CHECKPOINT = "_checkpoint.json"
 CORPUS_MANIFEST = "corpus_manifest.json"   # binds posting_id → corpus row across builds
 
 HEARTBEAT_EVERY = 200       # log a heartbeat every N postings within a shard
-MAX_DESC_CHARS = 6000       # truncate very long descriptions to keep prompts bounded
+# Cap the description so the total prompt (system ~835 tok + skill vocab ~266 tok + title
+# + description) stays UNDER the qwen3:8b/Ollama prefill cliff. Measured on the RTX 5080:
+# a ~1800-token prompt extracts in ~5s, but ~2150 tokens falls off a hard cliff to >90s
+# (a ~17x jump for ~350 more tokens — robust to num_ctx, flash-attention and KV-cache
+# quantization, so it's a prefill wall, not a memory setting). 2000 desc chars ≈ 500 tok
+# → ~1600-token prompt, comfortably in the fast zone. The role/skills/seniority/years all
+# live in the front of a posting; the truncated tail is benefits/EEO/culture boilerplate.
+MAX_DESC_CHARS = 2000
 
 # Full-text posting feeds the extractor reads. common_crawl is the canonical
 # corpus (real posting BODIES). The rest are landed structured/aggregate feeds

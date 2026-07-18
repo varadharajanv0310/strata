@@ -88,7 +88,12 @@ class Settings(BaseSettings):
     llm_backend: str = "auto"
     ollama_host: str = "http://localhost:11434"
     ollama_model: str = "qwen3:8b"
-    ollama_concurrency: int = 4          # parallel /api/chat requests per batch
+    # 1, NOT >1, on a VRAM-constrained card (e.g. the 16GB RTX 5080). Measured: 4
+    # concurrent qwen3 /api/chat requests batch into a combined prefill that re-crosses
+    # the ~2000-token cliff — OK postings ran 37s (vs 4.5s single-stream) with 24%
+    # timing out. Single-stream is clean at ~4.5s/posting (~800/hr). Raise this only
+    # with real VRAM headroom beyond model+KV (a bigger card, or the vLLM backend).
+    ollama_concurrency: int = 1          # parallel /api/chat requests per batch
     ollama_num_ctx: int = 8192           # context window passed to Ollama
     # LLM-as-judge (extract_validate): a STRONGER/different model than the extractor.
     judge_model: str = "Qwen/Qwen2.5-14B-Instruct"   # vLLM judge id
