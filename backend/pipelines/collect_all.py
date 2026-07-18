@@ -52,6 +52,8 @@ STAGES: dict[str, tuple[str, int]] = {
     "gh_archive": ("from backend.ingest.gh_archive import run; print(run(years=[2022,2023,2024,2025]))", 7200),
     "google_trends": ("from backend.ingest.google_trends import run; print(run(max_units=None))", 3000),
     "baselines": ("from backend.ingest.baselines import run; print(run())", 1200),
+    # Adzuna 7-country salary + demand + transparency per role×country (keys in hand)
+    "adzuna": ("from backend.ingest.adzuna_salaries import fetch_all; print(fetch_all())", 2400),
     # ILOSTAT cross-country wage spine → official salary lens (council source #1)
     "ilostat": ("from backend.ingest.ilostat import run; print(run())", 1200),
     # ---- council round-2 connectors (built, credential/network-graceful; run later) ----
@@ -94,13 +96,13 @@ STAGES: dict[str, tuple[str, int]] = {
     "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
     # LLM corpus extraction (the GPU differentiator) → staging/extracted; then validate it.
     # Long GPU budget (~15-28 GPU-hours for the full corpus). Build-only this pass; run later.
-    "llm_extract": ("from backend.ml.llm_extract import run; print(run(shard_size=2000))", 100800),
+    "llm_extract": ("from backend.ml.llm_extract import run; print(run(shard_size=2000, time_cap_s=18000))", 21600),
     "extract_validate": ("from backend.ml.extract_validate import run; print(run())", 7200),
     "gpu_normalize": (
         "from backend.ml.skill_norm import run as s; from backend.ml.entity_resolution import run as e; "
         "from backend.ml.role_derivation import run as r; "
         "print('skill_norm', s()); print('entity_resolution', e()); print('role_derivation', r())",
-        5400),
+        10800),   # 3h — embeds/clusters the FULL raw corpus (~870k) now, not just 1,128
     # parse the cached O*NET zip → role adjacency + skill importance staging (pure
     # compute, no network). Runs before fuse so build_warehouse can read it.
     "onet_trajectory": ("from backend.warehouse.onet_trajectory import run; print(run())", 300),
@@ -109,7 +111,12 @@ STAGES: dict[str, tuple[str, int]] = {
     "hedonic": ("from backend.ml.hedonic import run; print(run())", 900),
     # zero-collection analytics over the LLM extraction (no network/GPU) → v2 tables
     "posting_attributes": ("from backend.analytics.posting_attributes import run; print(run())", 600),
+    # GENERATED descriptive layer (skills/description/seniority bands) — labelled generated,
+    # never measured. One LLM generation per role; GPU (qwen3). Runs before fuse.
+    "role_layer": ("from backend.ml.role_layer import run; print(run())", 1800),
     "fuse": ("from backend.warehouse.build import build_warehouse_from_staging as f; f(); print('fused')", 5400),
+    # POPULATE: materialize the serving marts from the fused warehouse (no site cutover).
+    "materialize": ("from backend.marts.materialize import materialize_from_warehouse as m; m(); print('materialized')", 1200),
 }
 ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilostat",
          "gov_projections", "stack_exchange", "package_registries", "arxiv", "huggingface",
@@ -221,15 +228,38 @@ def count_stage(name: str) -> str:
             ab = int(df["abstain"].sum()) if n and "abstain" in df.columns else 0
             return f"{n} postings extracted, {ab} abstained"
         if name == "extract_validate":
-            import os
             p = sd / "extracted" / "validation_report.json"
-            return "validated (report present)" if p.exists() else "no validation report yet"
+            if not p.exists():
+                return "no validation report yet"
+            try:
+                rep = json.loads(p.read_text(encoding="utf-8"))
+                role = (rep.get("fields", {}) or {}).get("role", {})
+                acc = (role.get("ground_truth", {}) or {}).get("accuracy")
+                jud = ((rep.get("fields", {}) or {}).get("responsibilities_summary", {})
+                       .get("judge", {}) or {})
+                return (f"role_agreement={acc}, faithfulness={jud.get('mean_faithfulness')} "
+                        f"(n_scored={jud.get('n_scored')})")
+            except Exception as ex:  # noqa: BLE001
+                return f"validated (report present; parse {ex})"
+        if name == "role_layer":
+            from backend.ml.role_layer import load_role_layer
+            rl = load_role_layer()
+            return f"{len(rl)} roles generated (labelled generated)"
+        if name == "materialize":
+            try:
+                from backend.core.db import get_db
+                from backend.marts import models as M
+                db = next(get_db())
+                n = db.query(M.MartRole).count()
+                return f"{n} roles materialized to app.db"
+            except Exception as ex:  # noqa: BLE001
+                return f"materialized ({ex})"
         if name in {"gov_projections", "stack_exchange", "package_registries", "arxiv",
                     "huggingface", "wikipedia_pageviews", "eures", "bundesagentur",
                     "mycareersfuture", "usajobs", "cedefop_ovate", "hn_hiring", "remoteok",
                     "wikidata_occupations", "ambitionbox", "itjobswatch", "seek_jobstreet",
                     "talent", "payscale", "levelsfyi", "gehalt_de", "canada_jobbank",
-                    "roberthalf"}:
+                    "roberthalf", "adzuna"}:
             # E4: a few connectors land to a shorter dir than their stage name.
             _DIR = {"cedefop_ovate": "cedefop", "wikipedia_pageviews": "wikipedia",
                     "wikidata_occupations": "wikidata"}
