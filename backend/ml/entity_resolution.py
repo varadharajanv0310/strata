@@ -29,6 +29,8 @@ log = get_logger("ml.entity_resolution")
 POSTINGS = "common_crawl/postings.parquet"
 DEDUP_OUT = "normalized/posting_dedup.parquet"
 SIM_THRESHOLD = 0.86  # cosine on title embeddings ⇒ same posting
+MAX_EMBED_BLOCK = 4000  # above this, embed dedup's n×n emb@emb.T + double loop degenerates
+                        # (a giant null-employer block would OOM/hang) → fall back to O(n) lexical
 
 
 def _have_embeddings() -> bool:
@@ -152,8 +154,19 @@ def run() -> dict:
                 posts.loc[block.index, "dup_group"] = gid_offset
                 gid_offset += 1
                 continue
+            # O(n^2) GUARD: _dedup_block_embed builds an n×n emb@emb.T + a double loop, so a
+            # huge block would OOM/hang. The unknown-employer block ('emp:unknown', all the
+            # empty-companyName HF rows) is exactly that — and embed-deduping it is ALSO wrong
+            # (those aren't one company's reposts), so route unknown-employer OR any oversized
+            # block to the O(n) lexical (exact-normalized-title) path. Real per-company blocks
+            # stay small and keep the embedding dedup.
+            use_embed = (mode == "embed" and eid != "emp:unknown"
+                         and len(titles) <= MAX_EMBED_BLOCK)
+            if mode == "embed" and not use_embed and len(titles) > MAX_EMBED_BLOCK:
+                log.info("entity_resolution: block (%s,%s) has %d titles > cap %d — lexical dedup",
+                         eid, country, len(titles), MAX_EMBED_BLOCK)
             try:
-                labels = (_dedup_block_embed(titles) if mode == "embed"
+                labels = (_dedup_block_embed(titles) if use_embed
                           else _dedup_block_lexical(titles))
             except Exception as e:  # noqa: BLE001
                 log.warning("entity_resolution: embed dedup failed (%s) — lexical", e)

@@ -12,6 +12,19 @@ on them; they raise a clear message if run without the extras or real data.
 """
 from __future__ import annotations
 
+# Force the transformers/sentence-transformers stack onto the torch-only path BEFORE any
+# submodule lazily imports it. Without this, `import sentence_transformers` pulls in the
+# TF/Keras-3 integration and fails ("Failed to import transformers.integrations…"), so
+# _have_embeddings() returns False and entity_resolution/role_derivation silently fall back
+# to non-embedding lexical grouping (lower-quality clustering). This __init__ runs before
+# any `backend.ml.<submodule>` import, so the guard is always in place — no reliance on the
+# caller (collect_all) setting it in the subprocess env.
+import os as _os
+
+for _k, _v in (("USE_TF", "0"), ("USE_FLAX", "0"), ("TRANSFORMERS_NO_ADVISORY_WARNINGS", "1"),
+               ("TOKENIZERS_PARALLELISM", "false")):
+    _os.environ.setdefault(_k, _v)
+
 from backend.core.logging import get_logger
 
 log = get_logger("ml")
