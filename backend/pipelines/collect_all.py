@@ -87,6 +87,10 @@ STAGES: dict[str, tuple[str, int]] = {
     # pre-extracted HF posting corpus (~870k tech postings across all 7 countries, full
     # bodies) → staging/hf_jobposting/postings.parquet, an llm_extract POSTING_FEEDS input.
     "hf_jobposting": ("from backend.ingest.hf_jobposting import run; print(run())", 7200),
+    # enterprise ATS board API (DE+IN-heavy, full bodies) → staging/smartrecruiters/postings.parquet
+    "smartrecruiters": ("from backend.ingest.smartrecruiters import run; print(run(max_postings=500, time_cap_s=2400))", 2700),
+    # German-SME ATS XML feeds (DE full bodies) → staging/personio/postings.parquet
+    "personio": ("from backend.ingest.personio import run; print(run(time_cap_s=2400))", 2700),
     "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
     # LLM corpus extraction (the GPU differentiator) → staging/extracted; then validate it.
     # Long GPU budget (~15-28 GPU-hours for the full corpus). Build-only this pass; run later.
@@ -113,7 +117,8 @@ ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilosta
          "cedefop_ovate", "ambitionbox", "itjobswatch", "seek_jobstreet", "talent",
          "payscale", "levelsfyi", "gehalt_de", "canada_jobbank", "roberthalf",
          "hn_hiring", "remoteok", "wikidata_occupations",
-         "hf_jobposting", "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
+         "hf_jobposting", "smartrecruiters", "personio", "common_crawl", "llm_extract",
+         "extract_validate", "gpu_normalize",
          "onet_trajectory", "role_ladders", "hedonic", "posting_attributes", "fuse"]
 
 

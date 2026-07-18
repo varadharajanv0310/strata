@@ -60,6 +60,10 @@ _REAL_SPECS: dict[str, str] = {
     "roberthalf": "backend.ingest.roberthalf:run",
     # pre-extracted posting corpus (HF Techmap aggregation) → extraction corpus feed
     "hf_jobposting": "backend.ingest.hf_jobposting:run",
+    # enterprise ATS board API (DE+IN-heavy, full bodies + seniority) → extraction corpus
+    "smartrecruiters": "backend.ingest.smartrecruiters:run",
+    # German-SME ATS public XML feeds (DE full bodies + seniority) → extraction corpus
+    "personio": "backend.ingest.personio:run",
 }
 
 

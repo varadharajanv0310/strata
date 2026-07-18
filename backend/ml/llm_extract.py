@@ -102,6 +102,8 @@ MAX_DESC_CHARS = 6000       # truncate very long descriptions to keep prompts bo
 POSTING_FEEDS = [
     "common_crawl/postings.parquet",
     "hf_jobposting/postings.parquet",   # pre-extracted HF corpus (~870k tech postings, all 7 countries, full bodies)
+    "smartrecruiters/postings.parquet", # enterprise ATS, DE+IN-heavy, full bodies + seniority
+    "personio/postings.parquet",        # German-SME ATS, DE full bodies + seniority
     "mycareersfuture/postings.json",
     "usajobs/postings.json",
     "remoteok/postings.json",
