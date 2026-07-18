@@ -58,6 +58,8 @@ _REAL_SPECS: dict[str, str] = {
     "gehalt_de": "backend.ingest.gehalt_de:run",
     "canada_jobbank": "backend.ingest.canada_jobbank:run",
     "roberthalf": "backend.ingest.roberthalf:run",
+    # pre-extracted posting corpus (HF Techmap aggregation) → extraction corpus feed
+    "hf_jobposting": "backend.ingest.hf_jobposting:run",
 }
 
 

@@ -101,6 +101,7 @@ MAX_DESC_CHARS = 6000       # truncate very long descriptions to keep prompts bo
 # (.parquet vs .json) and dispatched on in _load_postings.
 POSTING_FEEDS = [
     "common_crawl/postings.parquet",
+    "hf_jobposting/postings.parquet",   # pre-extracted HF corpus (~870k tech postings, all 7 countries, full bodies)
     "mycareersfuture/postings.json",
     "usajobs/postings.json",
     "remoteok/postings.json",

@@ -84,6 +84,9 @@ STAGES: dict[str, tuple[str, int]] = {
     "remoteok": ("from backend.ingest.remoteok import run; print(run())", 600),
     # roles-only occupation graph (employer-stripped) → bridge_role_adjacency
     "wikidata_occupations": ("from backend.ingest.wikidata_occupations import run; print(run())", 2400),
+    # pre-extracted HF posting corpus (~870k tech postings across all 7 countries, full
+    # bodies) → staging/hf_jobposting/postings.parquet, an llm_extract POSTING_FEEDS input.
+    "hf_jobposting": ("from backend.ingest.hf_jobposting import run; print(run())", 7200),
     "common_crawl": ("from backend.ingest.common_crawl import run; print(run(target_per_country=2000, time_cap_s=10500))", 10800),
     # LLM corpus extraction (the GPU differentiator) → staging/extracted; then validate it.
     # Long GPU budget (~15-28 GPU-hours for the full corpus). Build-only this pass; run later.
@@ -110,7 +113,7 @@ ORDER = ["so_survey", "h1b", "gh_archive", "google_trends", "baselines", "ilosta
          "cedefop_ovate", "ambitionbox", "itjobswatch", "seek_jobstreet", "talent",
          "payscale", "levelsfyi", "gehalt_de", "canada_jobbank", "roberthalf",
          "hn_hiring", "remoteok", "wikidata_occupations",
-         "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
+         "hf_jobposting", "common_crawl", "llm_extract", "extract_validate", "gpu_normalize",
          "onet_trajectory", "role_ladders", "hedonic", "posting_attributes", "fuse"]
 
 
@@ -154,6 +157,14 @@ def count_stage(name: str) -> str:
         if name == "baselines":
             from backend.ingest.baselines import load_all
             return f"{len(load_all())} anchors"
+        if name == "hf_jobposting":
+            import duckdb
+            p = sd / "hf_jobposting" / "postings.parquet"
+            if not p.exists():
+                return "no staging yet"
+            pq = str(p).replace("\\", "/")
+            n = duckdb.connect().execute(f"select count(*) from read_parquet('{pq}')").fetchone()[0]
+            return f"{n} tech postings (historical corpus)"
         if name == "common_crawl":
             import duckdb
             p = sd / "common_crawl" / "postings.parquet"
