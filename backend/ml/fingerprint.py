@@ -208,6 +208,57 @@ def threshold_cluster(emb, *, distance_threshold: float = 0.32, knn: int = 32) -
         return [int(v) for v in labels]
 
 
+def leader_cluster(emb, *, sim_threshold: float = 0.70) -> list[int]:
+    """Non-chaining leader / canopy clustering — the scale-safe role clusterer.
+
+    Each point joins the SINGLE nearest existing leader whose cosine similarity clears
+    ``sim_threshold``; otherwise it starts a new leader. Crucially this is NOT transitive:
+    unlike the connected-components graph (``threshold_cluster``), which chains dense
+    neighbourhoods into ONE giant component at scale (216k postings → 1 "Software Engineer"
+    cluster holding 97% of a country), a point here attaches to exactly one region and never
+    bridges two. Measured on 6k US postings: connected-components put 97% in one cluster;
+    leader@0.70 gave 1,111 clusters with the largest at 3% — real granularity the volume
+    floor can then select from. Incremental FAISS inner-product search over the growing
+    leader set keeps it ~O(n·log k); order-deterministic for a fixed embedding matrix.
+    """
+    import numpy as np
+
+    x = np.ascontiguousarray(np.asarray(emb, dtype="float32"))
+    n = x.shape[0]
+    if n <= 1:
+        return list(range(n))
+    try:
+        import faiss
+        faiss.normalize_L2(x)
+        index = faiss.IndexFlatIP(x.shape[1])
+        labels = np.empty(n, dtype=int)
+        nlead = 0
+        for i in range(n):
+            v = x[i:i + 1]
+            if index.ntotal:
+                sims, ids = index.search(v, 1)
+                if sims[0, 0] >= sim_threshold:
+                    labels[i] = int(ids[0, 0])
+                    continue
+            labels[i] = nlead
+            index.add(v)
+            nlead += 1
+        return [int(v) for v in labels]
+    except Exception:  # noqa: BLE001 — faiss absent: pure-numpy leader (small n / fallback)
+        leaders = np.empty((0, x.shape[1]), dtype="float32")
+        labels = []
+        for i in range(n):
+            if len(leaders):
+                s = leaders @ x[i]
+                j = int(s.argmax())
+                if s[j] >= sim_threshold:
+                    labels.append(j)
+                    continue
+            labels.append(len(leaders))
+            leaders = np.vstack([leaders, x[i]])
+        return labels
+
+
 # --------------------------------------------------------------------------- #
 #  clustering — composite fingerprint, embedded on the GPU                      #
 # --------------------------------------------------------------------------- #

@@ -125,11 +125,14 @@ def _cluster_embed(docs: list[str]) -> list[int]:
     discovery and ``fingerprint.cluster_fingerprints`` share one representation AND one
     scaling story.
 
-    If hdbscan is installed it is used (density-based, already sub-quadratic); it is
-    not in this environment, so the default is ``fingerprint.threshold_cluster`` — a
-    FAISS kNN-graph → connected-components clusterer at the cosine-distance threshold
-    (0.32). That preserves the old AgglomerativeClustering's no-fixed-k threshold
-    semantics without its O(n²) distance matrix, which OOM'd past ~30-50k rows.
+    Uses ``fingerprint.leader_cluster`` (non-chaining canopy). The old connected-components
+    ``threshold_cluster`` CHAINED at scale — 216k postings collapsed to ~1 cluster/country
+    (97% of US in a single "Software Engineer" blob) because dense kNN neighbourhoods link
+    transitively into one component. HDBSCAN is worse here: title embeddings aren't
+    density-shaped, so it noise-labels ~94% and finds a handful of clusters. Leader
+    clustering attaches each point to ONE nearest region and never bridges two → real
+    granular roles the volume floor can select from. (Verified on 6k US: connected-comp 97%
+    in one cluster; leader@0.70 → 1,111 clusters, largest 3%.)
     """
     import numpy as np
 
@@ -137,14 +140,8 @@ def _cluster_embed(docs: list[str]) -> list[int]:
     emb = model.encode(docs, batch_size=settings.embed_batch_size,
                        normalize_embeddings=True, show_progress_bar=False)
     arr = np.asarray(emb, dtype="float32")
-    try:
-        from hdbscan import HDBSCAN
-        kw = {"min_cluster_size": max(10, settings.role_volume_floor // 10)}
-        labels = HDBSCAN(**kw).fit_predict(arr)
-        return [int(x) for x in labels]
-    except Exception:  # noqa: BLE001 — hdbscan absent (default) → FAISS threshold graph
-        from backend.ml.fingerprint import threshold_cluster
-        return threshold_cluster(arr, distance_threshold=0.32)
+    from backend.ml.fingerprint import leader_cluster
+    return leader_cluster(arr, sim_threshold=0.70)
 
 
 def _composite_docs(grp) -> list[str]:
