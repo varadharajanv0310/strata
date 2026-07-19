@@ -35,6 +35,71 @@ _CATALOG = {
 }
 
 
+_STAGED = {
+    "roles": [
+        {"id": "swe", "name": "Software Engineer", "family": "eng",
+         "blurb": "Builds software.", "skills": [{"name": "Python", "importance": "A"}],
+         "demand": 88, "demandDelta": 12, "interest": 90, "growth": 0.3,
+         "stages": [
+             {"title": "Software Engineer I", "yoe_min": 0, "yoe_max": 2,
+              "salary": {"IN": 800000, "US": 115000, "GB": 48000, "CA": 85000,
+                         "AU": 85000, "SG": 65000, "DE": 55000}},
+             {"title": "Senior Software Engineer", "yoe_min": 5, "yoe_max": 9,
+              "salary": {"IN": 3200000, "US": 200000, "GB": 95000, "CA": 155000,
+                         "AU": 165000, "SG": 150000, "DE": 95000}},
+             {"title": "Staff Engineer", "yoe_min": 9, "yoe_max": 40,
+              "salary": {"IN": 5500000, "US": 270000, "GB": 130000, "CA": 210000,
+                         "AU": 220000, "SG": 210000, "DE": 120000}},
+         ],
+         "leads_to": ["Staff Engineer", "Engineering Manager", "Cloud Architect"]},
+    ],
+}
+
+
+def test_headline_is_the_early_career_stage():
+    ds = build_generated_dataset(_STAGED)
+    swe = ds["roles"][0]
+    # headline median == the FIRST (entry) stage salary, NOT a mid/senior figure
+    assert swe["countries"]["IN"]["median"] == 800000
+    assert swe["countries"]["US"]["median"] == 115000
+    # the entry headline is well below the senior stage (no mid-career blend in the headline)
+    assert swe["countries"]["IN"]["median"] < 3_000_000
+    # ladder derived from stages, Senior anchored to mult 1.0
+    titles = [t for t, _m in swe["ladder"]]
+    assert "Software Engineer I" in titles and "Senior Software Engineer" in titles
+
+
+def test_progression_fills_experience_substrate():
+    from backend.core.db import duckdb_connect
+    from backend.warehouse.generated_build import fuse_generated_progression
+
+    con = duckdb_connect()
+    try:
+        counts = fuse_generated_progression(con, _STAGED)
+        assert counts["rungs"] >= 3 and counts["yoe_obs"] >= 3 * 7 and counts["curve"] >= 3 * 7
+        # a generated pay-vs-experience curve exists per country, monotonic in salary
+        curve = con.execute(
+            "SELECT yoe, fit_median FROM fact_salary_curve "
+            "WHERE kind='generated' AND role_id='swe' AND country_code='IN' ORDER BY yoe"
+        ).fetchall()
+        assert len(curve) >= 3
+        meds = [c[1] for c in curve]
+        assert meds == sorted(meds)                       # early < senior < staff
+        # trajectory edges (where it leads) were written
+        assert counts["edges"] >= 1
+    finally:
+        # clean up generated rows so later tests see the seed substrate unchanged
+        for t, w in (("fact_salary_yoe_obs", "source_id='generated-model-knowledge'"),
+                     ("fact_salary_curve", "kind='generated'"),
+                     ("dim_ladder_rung", "source_id='generated-model-knowledge'"),
+                     ("bridge_role_adjacency", "source_id='generated-model-knowledge'")):
+            try:
+                con.execute(f"DELETE FROM {t} WHERE {w}")
+            except Exception:
+                pass
+        con.close()
+
+
 def test_expands_to_full_pipeline_shape():
     ds = build_generated_dataset(_CATALOG)
     assert {"countries", "families", "roles", "years", "fyears", "marketPulse", "sources"} <= ds.keys()
@@ -80,25 +145,29 @@ def test_skill_durability_from_vocab_with_graceful_default():
     assert all(s["dura"] > 0 for s in bc["skills"])
 
 
-def test_measured_upgrades_generated_via_real_build(monkeypatch):
-    """build_real_dataset bases on the generated spine; where Adzuna has a fact it upgrades
-    the cell (measured source wins), and where it doesn't the cell stays generated."""
+def test_headline_stays_early_career_measured_upgrades_demand(monkeypatch):
+    """build_real_dataset bases on the generated spine. Adzuna's pooled mean is a mid-career
+    BLEND, so it must NOT overwrite the early-career headline — the headline stays generated;
+    Adzuna instead upgrades DEMAND. Cells with no Adzuna stay fully generated."""
     from backend.warehouse import real_build
 
     monkeypatch.setattr(real_build, "has_generated_catalog", lambda: True)
     monkeypatch.setattr(real_build, "build_generated_dataset", lambda: build_generated_dataset(_CATALOG))
-    # one real Adzuna cell for swe/US; nothing for blockchain-eng
     monkeypatch.setattr(real_build, "load_cache",
                         lambda: {("US", "swe"): {"mean": 160000, "count": 2000,
                                                  "n_results": 100, "n_disclosed": 60}})
     monkeypatch.setattr(real_build, "latest_ppp", lambda: {})
+    gen = build_generated_dataset(_CATALOG)
+    gen_swe_us_median = next(r for r in gen["roles"] if r["id"] == "swe")["countries"]["US"]["median"]
     ds = real_build.build_real_dataset()
     swe = next(r for r in ds["roles"] if r["id"] == "swe")
     bc = next(r for r in ds["roles"] if r["id"] == "blockchain-eng")
-    # measured upgrade: swe/US now Adzuna-sourced (measured stamp wins)
-    assert swe["countries"]["US"]["source"] == real_build.REAL_SOURCE
-    assert swe["countries"]["US"]["kind"] == "job-level"
-    # untouched generated cells stay generated (filled, never relabeled 'modeled')
+    # headline stays the EARLY-CAREER generated figure — NOT Adzuna's 160000 blend
+    assert swe["countries"]["US"]["source"] == GENERATED_SOURCE
+    assert swe["countries"]["US"]["kind"] == GENERATED_KIND
+    assert swe["countries"]["US"]["median"] == gen_swe_us_median
+    assert swe["countries"]["US"]["median"] != 160000
+    # Adzuna still upgraded the real demand signal on that cell
+    assert swe["countries"]["US"]["transparency"] > 0
+    # cells with no Adzuna stay fully generated
     assert bc["countries"]["US"]["source"] == GENERATED_SOURCE
-    assert bc["countries"]["US"]["kind"] == GENERATED_KIND
-    assert swe["countries"]["IN"]["source"] == GENERATED_SOURCE

@@ -110,24 +110,31 @@ def build_real_dataset() -> dict:
                 cd["source"] = MIXED_SOURCE
                 cd["kind"] = "job-level"
             elif has_salary:
-                real_n += 1
-                real_med = round_nice(float(mean), code)
-                old_med = cd["median"] or real_med
-                scale = (real_med / old_med) if old_med else 1.0
-                cd["series"] = [{"year": p["year"], "value": round_nice(p["value"] * scale, code)}
-                                for p in cd["series"]]
-                cd["median"] = real_med
-                cd["series"][-1]["value"] = real_med
-
+                # Adzuna real DEMAND + transparency apply to every cell.
                 _apply_demand(cd, count, code)
                 if n_res:
                     cd["transparency"] = max(0.05, min(0.95, round(n_disc / n_res, 3)))
-
-                cd["sample"] = count
-                cd["conf"] = "high" if count > 1500 else "med" if count > 400 else "low"
-                cd["source"] = REAL_SOURCE
-                cd["kind"] = "job-level"
-                cd["freshness"] = "live"
+                if cd.get("source") == GENERATED_SOURCE:
+                    # KEEP the generated EARLY-CAREER headline. Adzuna's pooled mean is a
+                    # mid-career BLEND, never a starting figure — it must not sit in the
+                    # headline (that is the exact misinformation strata exists not to do).
+                    # Its salary informs the progression lens, not the entry headline.
+                    generated_n += 1
+                else:
+                    # seed-fallback base (no generated catalog): Adzuna is the salary anchor.
+                    real_n += 1
+                    real_med = round_nice(float(mean), code)
+                    old_med = cd["median"] or real_med
+                    scale = (real_med / old_med) if old_med else 1.0
+                    cd["series"] = [{"year": p["year"], "value": round_nice(p["value"] * scale, code)}
+                                    for p in cd["series"]]
+                    cd["median"] = real_med
+                    cd["series"][-1]["value"] = real_med
+                    cd["sample"] = count
+                    cd["conf"] = "high" if count > 1500 else "med" if count > 400 else "low"
+                    cd["source"] = REAL_SOURCE
+                    cd["kind"] = "job-level"
+                    cd["freshness"] = "live"
             else:
                 # No Adzuna salary for this cell. If it's a GENERATED-spine cell, keep the
                 # generated stamp — measured simply didn't upgrade it (filled, not blank).

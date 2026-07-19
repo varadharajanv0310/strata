@@ -1132,8 +1132,14 @@ def build_warehouse_from_staging() -> None:
                 con.execute("BEGIN TRANSACTION")
                 from backend.warehouse.ladder_build import build_ladder_v2
                 v2 = build_ladder_v2(con)
+                # GENERATED progression is the SPINE of the experience axis — filled AFTER
+                # build_ladder_v2 (which resets the two fact tables + fits measured curves),
+                # so measured YoE/curve lenses coexist and upgrade it; generated stays where
+                # no measured stage-data exists. Also fills dim_ladder_rung + trajectory edges.
+                from backend.warehouse.generated_build import fuse_generated_progression
+                gp = fuse_generated_progression(con)
                 con.execute("COMMIT")
-                log.info("ladder_build v2: %s", v2)
+                log.info("ladder_build v2: %s | generated progression: %s", v2, gp)
             except Exception as e:  # noqa: BLE001 — v2 must never sink the core fuse
                 try:
                     con.execute("ROLLBACK")

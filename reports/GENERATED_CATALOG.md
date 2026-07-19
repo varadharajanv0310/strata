@@ -56,10 +56,34 @@ embodied the retired dataset-hunting mindset was removed).
 | Salary sources | `generated-model-knowledge` 20,790 · `adzuna-aggregated-postings` 864 · `adzuna-demand-modeled-salary` 144 |
 
 Every one of the 346 generated roles has all 7 countries filled with a local-currency
-salary, skills, ladder and description, stamped `generated`; the 16 roles Adzuna covers are
-**upgraded** to the measured stamp on the cells it reaches, the rest stay generated. Sample:
-Software Engineer / India median ₹18,00,000 · US $150,000, both `generated`; measured Adzuna
-upgrades them where it has data.
+salary, skills, ladder and description, stamped `generated`; the 16 roles Adzuna covers get
+their **demand** upgraded to the measured stamp on the cells it reaches, the rest stay
+generated. (Headline salaries are the EARLY-CAREER figures — see the progression section
+below — not the mid-career blend.)
+
+## Salary progression — the headline is the EARLY-CAREER figure (this pass)
+
+The single per-country number was a mid-career blend read as *the* salary — misinforming the
+person deciding whether to enter a field (no new ML Engineer starts on ₹24L). Fixed:
+
+- **The headline is now the early-career (entry) figure.** Each role×country×stage salary
+  was generated (parallel fan-out over all 346 roles), and the headline is anchored to the
+  **first stage**. E.g. **ML Engineer / India: ₹10,00,000 entry** (was the ₹24L blend) →
+  ₹22L → Senior ₹42L → Staff ₹70L → Principal ₹1,00,00,000. Software Engineer / India:
+  ₹7,00,000 entry → … → ₹80,00,000 principal.
+- **The full progression fills the (previously orphaned) v2 experience substrate**, now
+  load-bearing: per role×country×stage a `fact_salary_yoe_obs` observation + a
+  `fact_salary_curve` point (kind=`generated`, monotonic in YoE); per role×stage a
+  `dim_ladder_rung` spine with **year-of-experience bands** (Entry 0–2, Mid 2–5, Senior 5–9,
+  Staff 9–13, …); and per role its **career-trajectory** `leads_to` edges into
+  `bridge_role_adjacency`. The serving layer already renders these as `experienceCurve` +
+  `ladder` + `trajectory` — no serving rewrite needed.
+- **Measured data upgrades the progression per lens.** `build_real_dataset` no longer lets
+  Adzuna's pooled (mid-career) mean overwrite the early headline — it upgrades **demand**
+  instead. Per-YoE measured sources (Stack Overflow experience bands, H-1B levels, the
+  AmbitionBox/PayScale estimate connectors via `build_ladder_v2`) land as their **own curve
+  lens** (kind=`estimate`/`realized`/…) beside the generated spine; generated stays where no
+  measured stage-data exists. The curve schema never blends kinds, so the lenses stay honest.
 
 ## Honest state after this pass
 - The product now has a **filled catalog of hundreds of roles for all 7 countries** on day
@@ -75,7 +99,7 @@ upgrades them where it has data.
   changing which roles exist. Proven in the serving layer: Software Engineer / Data Engineer
   render with the `job-level` (Adzuna, measured) stamp, while Penetration Tester / Blockchain
   Engineer render `generated` — all with 7/7 countries filled.
-- Nothing was pushed or published; no ingestion/GPU/corpus run. The suite stays green (47/47).
+- Nothing was pushed or published; no ingestion/GPU/corpus run. The suite stays green (49/49).
 
 ### One honest follow-on (does not affect this pass — no publish)
 The pre-publish **validation gate** flags a `disclosure.fact_salary_job` breach because it

@@ -342,6 +342,10 @@ def get_role(db: Session, role_id: str) -> dict | None:
             "payLadder": _pay_ladder_by_role(db, role_id).get(role_id, []),
             "trajectory": _trajectory_by_role(db, role_id).get(role_id, []),
             "importance": _importance_by_role(db, role_id).get(role_id, []),
+            # the full pay-vs-experience PROGRESSION + its coverage, so the role detail /
+            # career view renders early→senior (generated spine, measured lenses where present)
+            "experienceCurve": _experience_curve_by_role(db, role_id).get(role_id, {}),
+            "coverage": _coverage_by_role(db, role_id).get(role_id, {}),
             "countries": countries}
 
 
