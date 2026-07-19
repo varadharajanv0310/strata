@@ -265,7 +265,7 @@ import { Charts } from "./charts.jsx";
                 <div className="h3" style={{ color: "#fff" }}>{r.name}</div>
                 <div className="small" style={{ color: "var(--t3)", flex: 1, lineHeight: 1.45 }}>{r.blurb}</div>
                 <div className="row between" style={{ borderTop: "1px solid var(--line)", paddingTop: 14 }}>
-                  <div><div className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10.5, color: "var(--t3)" }}>median · {code}</div></div>
+                  <div><div className="tnum" style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10.5, color: "var(--t3)" }}>early-career · {code}</div></div>
                   <div className="row gap8"><span className="tag">demand {cd.demand}</span></div>
                 </div>
               </div>

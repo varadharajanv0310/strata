@@ -232,7 +232,7 @@ import { Charts } from "./charts.jsx";
                 <button className="pill ghost" onClick={() => app.go("resume")}>Drop a résumé</button>
               </div>
               <div className="row gap24 mt40 enter wrap-f" style={{ animationDelay: "0.36s", color: "var(--t3)" }}>
-                {[["16", "tech roles"], ["7", "countries"], ["9 yrs", "of trend data"], ["100%", "traceable"]].map(([n, l]) => (
+                {[[String(S().roles.length), "tech roles"], ["7", "countries"], ["9 yrs", "of trend data"], ["100%", "traceable"]].map(([n, l]) => (
                   <div key={l}><div className="tnum" style={{ fontSize: 22, fontWeight: 700, color: "#fff" }}>{n}</div><div style={{ fontSize: 11.5, letterSpacing: "0.04em" }}>{l}</div></div>
                 ))}
               </div>

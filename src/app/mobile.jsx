@@ -260,7 +260,7 @@ import { Countries } from "./countries.jsx";
                 <div className="h3" style={{ color: "#fff", fontSize: 16 }}>{r.name}</div>
                 <div className="small" style={{ color: "var(--t3)", lineHeight: 1.4, marginTop: 4 }}>{r.blurb}</div>
                 <div className="row between" style={{ borderTop: "1px solid var(--line)", paddingTop: 11, marginTop: 11 }}>
-                  <div><div className="tnum" style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10, color: "var(--t3)" }}>median · {code}</div></div>
+                  <div><div className="tnum" style={{ fontSize: 17, fontWeight: 700, color: "#fff" }}>{S().fmtCur(cd.median, code)}</div><div style={{ fontSize: 10, color: "var(--t3)" }}>early-career · {code}</div></div>
                   <div className="col" style={{ alignItems: "flex-end", gap: 3 }}>
                     <span className="tag">demand {cd.demand}{cd.postings != null ? ` · ${cd.postings.toLocaleString()} postings` : ""}</span>
                     {cd.outlook && (
