@@ -1108,6 +1108,54 @@ def build_warehouse_from_staging() -> None:
                             (rid, sk_id, sk_name, "I", i))
                     n_derived += 1
 
+            # dim_role ← CORPUS-FREE taxonomy occupation nodes (search-defined catalog).
+            # The O*NET occupation tables on disk define real, searchable roles the corpus
+            # never surfaces (Database Administrators, Penetration Testers, Blockchain
+            # Engineers, Statisticians, …). They are admitted ADDITIVELY under the disjoint
+            # 'onet:' namespace (ON CONFLICT DO NOTHING) — the curated 16 and the derived
+            # clusters are never touched — so the catalog exists independent of posting
+            # volume, identical for all 7 countries incl. India. Salary/demand are left
+            # ABSENT (honest "not enough data") until a measured or researched fact lands;
+            # the node still ships an official blurb + real O*NET skills. Provenance is
+            # stamped by family_id='onet'. See reports/CATALOG_DECOUPLE_PLAN.md.
+            n_onet = 0
+            try:
+                from backend.warehouse.role_universe import (
+                    FAMILY_HUE, FAMILY_ID, FAMILY_NAME, assemble_universe_nodes)
+                universe = assemble_universe_nodes()
+            except Exception as e:  # noqa: BLE001 — a missing/bad reference file must not break the fuse
+                log.warning("role universe unavailable (%s) — taxonomy nodes skipped", e)
+                universe = []
+            if universe:
+                curated_name_by_id = dict(
+                    con.execute("SELECT skill_id, name FROM dim_skill").fetchall())
+                for node in universe:
+                    rid = node["role_id"]
+                    con.execute(
+                        "INSERT INTO dim_role VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                        "ON CONFLICT (role_id) DO NOTHING",
+                        (rid, node["name"], FAMILY_ID, FAMILY_NAME, FAMILY_HUE,
+                         node["blurb"], None, False, 800 + n_onet),
+                    )
+                    for i, sk in enumerate(node.get("skills", [])[:12]):
+                        sk_id = slug(sk)
+                        if not sk_id:
+                            continue
+                        # reuse curated casing when the slug names a real skill, so the
+                        # name-keyed materialize join resolves its true durability/trend;
+                        # else an honest 'onet' marker (no fabricated durability/trend).
+                        sk_name = curated_name_by_id.get(sk_id, sk)
+                        con.execute(
+                            "INSERT INTO dim_skill VALUES (?, ?, ?, ?, ?) "
+                            "ON CONFLICT (skill_id) DO NOTHING",
+                            (sk_id, sk_name, 0, "unknown", "onet"))
+                        con.execute(
+                            "INSERT INTO bridge_role_skill VALUES (?, ?, ?, ?, ?) "
+                            "ON CONFLICT (role_id, skill_id) DO NOTHING",
+                            (rid, sk_id, sk_name, "A", i))
+                    n_onet += 1
+                log.info("taxonomy occupation nodes fused: %d (corpus-free, family='onet')", n_onet)
+
             con.execute("COMMIT")
 
             # v2 ladder/experience substrate (GRID_PLAN §3): estimate observations,

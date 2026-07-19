@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 10080
 
     # ---- pipeline tunables ----
+    # RETIRED as a boundary (catalog is search-defined — see reports/CATALOG_DECOUPLE_PLAN.md).
+    # No longer gates role existence; kept only as an INFORMATIONAL corpus-thinness reference
+    # threshold in validate_run's transparency scan. Role derivation uses a denoise min instead.
     role_volume_floor: int = 200
     jobscore_w_demand: float = 0.42
     jobscore_w_interest: float = 0.25

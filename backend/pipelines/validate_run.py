@@ -435,15 +435,18 @@ def _check_disclosure_and_volume(con, tables: set[str], rep: Report) -> None:
         rep.add(Check(dname, "disclosure", "skip",
                       "fact_salary_job/transparency absent — disclosure check skipped"))
 
-    # ---- per-role volume floor on demand (postings_count) ----
+    # ---- per-role corpus-volume TRANSPARENCY on demand (postings_count) ----
+    # DECOUPLED: a role that never clears a posting-volume threshold is NO LONGER a defect.
+    # The catalog is search-defined — corpus-free O*NET occupation nodes and thin-corpus
+    # (India/SG/CA) derived roles legitimately carry little or no demand volume, and their
+    # cells are provenance-stamped "not enough data" rather than fabricated. This check is
+    # therefore INFORMATIONAL (never fails the gate): it reports how much of the catalog is
+    # corpus-thin for transparency. The retired boundary must not resurrect here as a gate.
     vname = "volume.fact_demand"
     table = "fact_demand"
     cols = _columns(con, table)
     if table in tables and "postings_count" in cols:
         try:
-            # roles that exist in demand but never clear the per-role volume floor in
-            # ANY country/year. A published role with no country above the floor is too
-            # thin to be called "the market" for that role.
             thin = con.execute(
                 f"SELECT role_id, MAX(postings_count) AS top FROM {table} "
                 f"GROUP BY role_id HAVING MAX(postings_count) < {ROLE_VOLUME_FLOOR}"
@@ -453,16 +456,18 @@ def _check_disclosure_and_volume(con, tables: set[str], rep: Report) -> None:
             ).fetchone()[0])
             if total_roles == 0:
                 rep.add(Check(vname, "disclosure", "skip",
-                              "fact_demand has no roles — volume floor skipped"))
+                              "fact_demand has no roles — volume scan skipped"))
             elif thin:
-                rep.add(Check(vname, "disclosure", "fail",
-                              f"{len(thin)}/{total_roles} role(s) never clear volume floor "
-                              f"{ROLE_VOLUME_FLOOR} in any country",
+                rep.add(Check(vname, "disclosure", "pass",
+                              f"{len(thin)}/{total_roles} role(s) are corpus-thin "
+                              f"(< {ROLE_VOLUME_FLOOR} postings in every country) — expected in "
+                              f"the search-defined catalog; provenance-stamped, not a defect",
                               {"thin_roles": [r[0] for r in thin][:25],
-                               "thin_count": len(thin), "floor": ROLE_VOLUME_FLOOR}))
+                               "thin_count": len(thin), "reference_threshold": ROLE_VOLUME_FLOOR}))
             else:
                 rep.add(Check(vname, "disclosure", "pass",
-                              f"all {total_roles} roles clear volume floor {ROLE_VOLUME_FLOOR}"))
+                              f"all {total_roles} roles carry >= {ROLE_VOLUME_FLOOR} postings "
+                              f"in at least one country"))
         except Exception as e:  # noqa: BLE001
             rep.add(Check(vname, "disclosure", "fail", f"volume scan failed: {e}"))
     else:

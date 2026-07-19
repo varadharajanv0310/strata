@@ -1,9 +1,13 @@
 """Role derivation (brief §4, GPU clustering).
 
-Roles are **not** a fixed list. Cluster postings per country into canonical roles;
-a role enters the catalog only when it clears the **minimum posting-volume floor**
-(``ROLE_VOLUME_FLOOR``, config) for the period. Different countries surface different
-roles organically. Grouping per (country) also blocks the clusterer so n stays bounded.
+Roles are **not** a fixed list. Cluster postings per country into canonical roles.
+The corpus is a **contributor** to the catalog, never a **boundary**: a clustered role
+enters regardless of posting volume — the old ``role_volume_floor`` market-volume gate is
+RETIRED (it dropped every thin-corpus India/SG/CA role, letting the US-skewed corpus decide
+the catalog). Only a tiny ``_DENOISE_MIN_MEMBERS`` singleton-noise filter remains. This is
+one of several catalog contributors (union with the curated seed + the corpus-free O*NET
+occupation nodes in ``role_universe.py``); see ``reports/CATALOG_DECOUPLE_PLAN.md``.
+Grouping per (country) also blocks the clusterer so n stays bounded.
 
 The unit of clustering is the **composite fingerprint** — title ⊕ skills ⊕ department
 ⊕ salary-band (built by ``_composite_docs`` via ``fingerprint.composite_document``),
@@ -37,6 +41,11 @@ log = get_logger("ml.role_derivation")
 
 POSTINGS = "common_crawl/postings.parquet"
 OUT_REL = "normalized/derived_roles.parquet"
+
+# The retired role_volume_floor is replaced by a tiny denoise threshold: a cluster with
+# fewer than this many member titles is embedding noise, not a market signal. This is a
+# data-quality filter, NOT a market-volume boundary — a small real role still enters.
+_DENOISE_MIN_MEMBERS = 2
 
 
 def _have_embeddings() -> bool:
@@ -195,14 +204,22 @@ def run() -> dict:
             log.warning("role_derivation: postings parquet is empty")
             return {"postings": 0, "derived": 0, "written": False, "mode": "skipped"}
 
-        floor = int(settings.role_volume_floor)
+        # DECOUPLED: the corpus is a CONTRIBUTOR, never a boundary. The old
+        # role_volume_floor (settings.role_volume_floor=200, per country) decided which
+        # clusters were allowed to EXIST — it dropped every India/Singapore/Canada role
+        # that couldn't muster 200 postings on a US-skewed corpus, i.e. the corpus decided
+        # the catalog. That gate is RETIRED (see reports/CATALOG_DECOUPLE_PLAN.md). What
+        # survives is only a tiny DENOISE threshold: a singleton "cluster" is embedding
+        # noise, not a market signal, so we drop clusters below _DENOISE_MIN_MEMBERS. This
+        # is a data-quality filter, NOT a market-volume boundary — a real 3-posting role in
+        # India now enters the catalog where a 199-posting one used to be silently dropped.
+        min_members = _DENOISE_MIN_MEMBERS
         mode = "embed" if _have_embeddings() else "lexical"
         rows = []
         derived = 0
         for code, grp in posts.groupby("country", dropna=True):
             titles = grp.get("title", "").fillna("").astype(str).tolist()
-            if len(titles) < floor:
-                log.info("role_derivation: %s has %d postings < floor %d — skip", code, len(titles), floor)
+            if not titles:
                 continue
             # cluster on the COMPOSITE fingerprint (title⊕skills⊕dept⊕salary-band), the
             # same representation fingerprint.cluster_fingerprints uses at scale, so the
@@ -224,7 +241,7 @@ def run() -> dict:
                     continue
                 members[lbl].append(t)
             for lbl, mtitles in members.items():
-                if len(mtitles) < floor:
+                if len(mtitles) < min_members:      # denoise singletons, NOT a volume gate
                     continue
                 label_title = Counter(_canon_title(t) for t in mtitles).most_common(1)[0][0] or "role"
                 rows.append({
@@ -245,7 +262,7 @@ def run() -> dict:
         summary = {
             "postings": len(posts),
             "derived": derived,
-            "floor": floor,
+            "min_members": min_members,     # denoise threshold (floor retired — decoupled)
             "written": True,
             "mode": mode,
             "out": str(out),
