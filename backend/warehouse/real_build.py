@@ -16,6 +16,8 @@ from __future__ import annotations
 from backend.core.logging import get_logger
 from backend.ingest.adzuna_salaries import load_cache
 from backend.ingest.worldbank_ppp import latest_ppp
+from backend.warehouse.generated_build import (
+    GENERATED_SOURCE, build_generated_dataset, has_generated_catalog)
 from backend.warehouse.seed import COUNTRIES, ROLE_DEFS, build_seed_dataset, round_nice
 
 log = get_logger("warehouse.real_build")
@@ -43,7 +45,12 @@ def _demand_from_count(count: int, max_count: int) -> int:
 
 
 def build_real_dataset() -> dict:
-    ds = build_seed_dataset()
+    # SPINE: the GENERATED catalog (hundreds of roles × 7 countries, all cells filled and
+    # stamped 'generated') is the base. Measured Adzuna facts below UPGRADE cells where they
+    # exist (measured stamp wins); the generated cells the pipeline can't reach stay
+    # generated — filled, never blank. Falls back to the curated seed only if the generated
+    # catalog hasn't been produced yet. The corpus never decides which roles exist.
+    ds = build_generated_dataset() if has_generated_catalog() else build_seed_dataset()
     cache = load_cache()
     if not cache:
         raise RuntimeError("No Adzuna staging cache found — run the fetch first "
@@ -81,7 +88,7 @@ def build_real_dataset() -> dict:
         cd["demandSeries"][-1]["value"] = dem
         cd["demand"] = dem
 
-    real_n = total = modeled_n = mixed_n = 0
+    real_n = total = modeled_n = mixed_n = generated_n = 0
     for role in ds["roles"]:
         for code, cd in role["countries"].items():
             total += 1
@@ -122,14 +129,22 @@ def build_real_dataset() -> dict:
                 cd["kind"] = "job-level"
                 cd["freshness"] = "live"
             else:
-                modeled_n += 1
-                cd["conf"] = "low"
-                cd["source"] = MODELED_SOURCE
-                cd["kind"] = "job-level"
+                # No Adzuna salary for this cell. If it's a GENERATED-spine cell, keep the
+                # generated stamp — measured simply didn't upgrade it (filled, not blank).
+                # Only the curated-seed fallback base carries the 'modeled' label.
+                if cd.get("source") == GENERATED_SOURCE:
+                    generated_n += 1
+                else:
+                    modeled_n += 1
+                    cd["conf"] = "low"
+                    cd["source"] = MODELED_SOURCE
+                    cd["kind"] = "job-level"
 
     ds["is_seed"] = False
-    log.info("real overlay: %d/%d real (Adzuna salary+demand), %d mixed (real demand, modeled salary), %d modeled",
-             real_n, total, mixed_n, modeled_n)
+    log.info("real overlay: %d/%d real (Adzuna salary+demand), %d mixed (real demand, modeled "
+             "salary), %d modeled, %d stayed generated (measured did not reach)",
+             real_n, total, mixed_n, modeled_n, generated_n)
     ds["_real_count"], ds["_total_count"] = real_n, total
     ds["_modeled_count"], ds["_mixed_count"] = modeled_n, mixed_n
+    ds["_generated_count"] = generated_n
     return ds

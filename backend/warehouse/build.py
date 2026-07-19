@@ -31,6 +31,15 @@ def slug(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 
 
+def skill_slug(s: str) -> str:
+    """Skill id that preserves the language distinctions plain ``slug`` collapses — C, C++
+    and C# would all slug to 'c' and collide on the bridge_role_skill PK. Keeps them
+    distinct (c / c-plus-plus / c-sharp / f-sharp). Identical to ``slug`` for any skill
+    without ++/# (so the curated seed skill ids are unchanged)."""
+    s = (s or "").lower().replace("++", "-plus-plus").replace("#", "-sharp")
+    return slug(s)
+
+
 def build_warehouse_from_dataset(ds: dict, is_seed: bool = True) -> None:
     years = ds["years"]
     fyears = ds["fyears"]
@@ -81,7 +90,7 @@ def build_warehouse_from_dataset(ds: dict, is_seed: bool = True) -> None:
             seen_skills: dict[str, tuple] = {}
             for role in ds["roles"]:
                 for sk in role["skills"]:
-                    sid = slug(sk["name"])
+                    sid = skill_slug(sk["name"])
                     if sid not in seen_skills:
                         seen_skills[sid] = (sid, sk["name"], sk["dura"], sk["trend"], "seed" if seed else "lightcast")
             con.executemany("INSERT INTO dim_skill VALUES (?, ?, ?, ?, ?)", list(seen_skills.values()))
@@ -91,8 +100,13 @@ def build_warehouse_from_dataset(ds: dict, is_seed: bool = True) -> None:
             for ri, role in enumerate(ds["roles"]):
                 fam = role["family"]
                 role_rows.append((role["id"], role["name"], fam["id"], fam["name"], fam["hue"], role["blurb"], None, seed, ri))
+                seen_sk: set[str] = set()
                 for i, sk in enumerate(role["skills"]):
-                    skill_rows.append((role["id"], slug(sk["name"]), sk["name"], sk["level"], i))
+                    sid = skill_slug(sk["name"])
+                    if sid in seen_sk:      # a role can't carry the same skill_id twice (bridge PK)
+                        continue
+                    seen_sk.add(sid)
+                    skill_rows.append((role["id"], sid, sk["name"], sk["level"], i))
                 for i, (title, mult) in enumerate(role["ladder"]):
                     ladder_rows.append((role["id"], i, title, mult))
             con.executemany("INSERT INTO dim_role VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", role_rows)
@@ -1107,54 +1121,6 @@ def build_warehouse_from_staging() -> None:
                             "ON CONFLICT (role_id, skill_id) DO NOTHING",
                             (rid, sk_id, sk_name, "I", i))
                     n_derived += 1
-
-            # dim_role ← CORPUS-FREE taxonomy occupation nodes (search-defined catalog).
-            # The O*NET occupation tables on disk define real, searchable roles the corpus
-            # never surfaces (Database Administrators, Penetration Testers, Blockchain
-            # Engineers, Statisticians, …). They are admitted ADDITIVELY under the disjoint
-            # 'onet:' namespace (ON CONFLICT DO NOTHING) — the curated 16 and the derived
-            # clusters are never touched — so the catalog exists independent of posting
-            # volume, identical for all 7 countries incl. India. Salary/demand are left
-            # ABSENT (honest "not enough data") until a measured or researched fact lands;
-            # the node still ships an official blurb + real O*NET skills. Provenance is
-            # stamped by family_id='onet'. See reports/CATALOG_DECOUPLE_PLAN.md.
-            n_onet = 0
-            try:
-                from backend.warehouse.role_universe import (
-                    FAMILY_HUE, FAMILY_ID, FAMILY_NAME, assemble_universe_nodes)
-                universe = assemble_universe_nodes()
-            except Exception as e:  # noqa: BLE001 — a missing/bad reference file must not break the fuse
-                log.warning("role universe unavailable (%s) — taxonomy nodes skipped", e)
-                universe = []
-            if universe:
-                curated_name_by_id = dict(
-                    con.execute("SELECT skill_id, name FROM dim_skill").fetchall())
-                for node in universe:
-                    rid = node["role_id"]
-                    con.execute(
-                        "INSERT INTO dim_role VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                        "ON CONFLICT (role_id) DO NOTHING",
-                        (rid, node["name"], FAMILY_ID, FAMILY_NAME, FAMILY_HUE,
-                         node["blurb"], None, False, 800 + n_onet),
-                    )
-                    for i, sk in enumerate(node.get("skills", [])[:12]):
-                        sk_id = slug(sk)
-                        if not sk_id:
-                            continue
-                        # reuse curated casing when the slug names a real skill, so the
-                        # name-keyed materialize join resolves its true durability/trend;
-                        # else an honest 'onet' marker (no fabricated durability/trend).
-                        sk_name = curated_name_by_id.get(sk_id, sk)
-                        con.execute(
-                            "INSERT INTO dim_skill VALUES (?, ?, ?, ?, ?) "
-                            "ON CONFLICT (skill_id) DO NOTHING",
-                            (sk_id, sk_name, 0, "unknown", "onet"))
-                        con.execute(
-                            "INSERT INTO bridge_role_skill VALUES (?, ?, ?, ?, ?) "
-                            "ON CONFLICT (role_id, skill_id) DO NOTHING",
-                            (rid, sk_id, sk_name, "A", i))
-                    n_onet += 1
-                log.info("taxonomy occupation nodes fused: %d (corpus-free, family='onet')", n_onet)
 
             con.execute("COMMIT")
 

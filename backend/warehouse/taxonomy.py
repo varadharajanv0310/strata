@@ -600,16 +600,6 @@ def build_taxonomy(con: duckdb.DuckDBPyConnection, *, as_of: str | None = None) 
             _add_xwalk(role_id, system, code, label, conf)
     for role_id, code, label in esco_xwalk:                    # ESCO occupations (when present)
         _add_xwalk(role_id, "esco", code, label, "med")
-    # corpus-free taxonomy occupation nodes carry their OWN O*NET-SOC as a high-confidence
-    # anchor (the node IS that occupation), so they stay cross-market comparable. Guarded
-    # by _add_xwalk's role_id∈role_ids check: a no-op until the occupation nodes have been
-    # fused into dim_role (they are absent from the seed catalogue). See role_universe.py.
-    try:
-        from backend.warehouse.role_universe import assemble_universe_nodes
-        for node in assemble_universe_nodes():
-            _add_xwalk(node["role_id"], "onet_soc", node["soc"], node["name"], "high")
-    except Exception as e:  # noqa: BLE001 — a missing reference file must not break the build
-        log.warning("role-universe crosswalk skipped (%s)", e)
     # file-drop crosswalks: staging/crosswalks/<system>.csv → low-confidence extension
     for system in CROSSWALK_FILE_SYSTEMS:
         for role_id, code, label in load_crosswalk_file(system):
