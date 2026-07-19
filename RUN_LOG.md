@@ -191,3 +191,97 @@ Two git tracks. **Track A** = older data-pipeline work, fixed + PUSHED to origin
 - `23:00` — ✅ **extract_validate** 2s — **validated (report present)**
 - `23:00` — ▶ **fuse** start (budget 90m)
 - `23:01` — ✅ **fuse** 41s — **salary_person 2034, demand 1009, interest 224, salary_job 1008, dim_role 17**
+- `00:19` — ▶ **onet_trajectory** start (budget 5m)
+- `00:19` — ✅ **onet_trajectory** 1s — **87 adjacency edges, 1316 skill-importance rows**
+- `00:20` — ▶ **baselines** start (budget 20m)
+- `00:20` — ✅ **baselines** 0s — **73 anchors**
+- `00:20` — ▶ **so_survey** start (budget 15m)
+- `00:21` — ✅ **so_survey** 9s — **1886 cells**
+- `00:21` — ▶ **h1b** start (budget 45m)
+- `00:24` — ✅ **h1b** 228s — **210 US wage cells**
+- `00:24` — ▶ **ilostat** start (budget 20m)
+- `00:24` — ✅ **ilostat** 0s — **324 earnings rows, 4 countries**
+- `00:24` — ▶ **google_trends** start (budget 50m)
+- `00:24` — ✅ **google_trends** 0s — **112 interest rows**
+- `00:24` — ▶ **gh_archive** start (budget 120m)
+- `00:24` — ✅ **gh_archive** 0s — **60 demand records**
+- `00:24` — ▶ **package_registries** start (budget 40m)
+- `00:24` — ✅ **package_registries** 0s — **38 rows landed**
+- `00:24` — ▶ **wikidata_occupations** start (budget 40m)
+- `00:24` — ✅ **wikidata_occupations** 0s — **1538 rows landed**
+- `00:24` — ▶ **wikipedia_pageviews** start (budget 40m)
+- `00:24` — ✅ **wikipedia_pageviews** 0s — **2112 rows landed**
+- `00:24` — ▶ **huggingface** start (budget 40m)
+- `00:24` — ✅ **huggingface** 0s — **22350 rows landed**
+- `00:24` — ▶ **onet_trajectory** start (budget 5m)
+- `00:24` — ✅ **onet_trajectory** 1s — **87 adjacency edges, 1316 skill-importance rows**
+- `00:24` — ▶ **role_ladders** start (budget 15m)
+- `00:28` — ✅ **role_ladders** 187s — **14 role pay ladders**
+- `00:28` — ▶ **hedonic** start (budget 15m)
+- `00:28` — ✅ **hedonic** 12s — **60 skill premiums**
+- `00:28` — ▶ **adzuna** start (budget 40m)
+- `00:28` — ✅ **adzuna** 0s — **112 rows landed**
+- `00:28` — ▶ **ambitionbox** start (budget 45m)
+- `00:31` — ✅ **ambitionbox** 188s — **37 rows landed**
+- `00:31` — ▶ **itjobswatch** start (budget 40m)
+- `00:31` — ✅ **itjobswatch** 0s — **18 rows landed**
+- `00:31` — ▶ **seek_jobstreet** start (budget 40m)
+- `00:31` — ✅ **seek_jobstreet** 0s — **25 rows landed**
+- `00:31` — ▶ **talent** start (budget 40m)
+- `00:33` — ✅ **talent** 117s — **15 rows landed**
+- `00:33` — ▶ **payscale** start (budget 40m)
+- `00:33` — ✅ **payscale** 25s — **194 rows landed**
+- `00:33` — ▶ **levelsfyi** start (budget 40m)
+- `00:34` — ✅ **levelsfyi** 23s — **190 rows landed**
+- `00:34` — ▶ **gehalt_de** start (budget 40m)
+- `00:34` — ✅ **gehalt_de** 0s — **25 rows landed**
+- `00:34` — ▶ **canada_jobbank** start (budget 40m)
+- `00:34` — ✅ **canada_jobbank** 0s — **15 rows landed**
+- `00:34` — ▶ **roberthalf** start (budget 40m)
+- `00:34` — ✅ **roberthalf** 0s — **459 rows landed**
+- `00:34` — ▶ **gov_projections** start (budget 40m)
+- `00:37` — ✅ **gov_projections** 181s — **1000 rows landed**
+- `00:37` — ▶ **arxiv** start (budget 90m)
+- `00:37` — ✅ **arxiv** 0s — **48468 rows landed**
+- `00:37` — ▶ **eures** start (budget 40m)
+- `00:37` — ✅ **eures** 0s — **0 rows landed**
+- `00:37` — ▶ **bundesagentur** start (budget 40m)
+- `00:37` — ✅ **bundesagentur** 6s — **10 rows landed**
+- `00:37` — ▶ **mycareersfuture** start (budget 40m)
+- `00:37` — ✅ **mycareersfuture** 0s — **10000 rows landed**
+- `00:37` — ▶ **usajobs** start (budget 40m)
+- `00:37` — ✅ **usajobs** 0s — **2394 rows landed**
+- `00:37` — ▶ **cedefop_ovate** start (budget 30m)
+- `00:37` — ✅ **cedefop_ovate** 4s — **0 rows landed**
+- `00:37` — ▶ **hn_hiring** start (budget 90m)
+- `00:37` — ✅ **hn_hiring** 0s — **74447 rows landed**
+- `00:37` — ▶ **remoteok** start (budget 10m)
+- `00:37` — ✅ **remoteok** 0s — **100 rows landed**
+- `00:37` — ▶ **stack_exchange** start (budget 360m)
+- `00:57` — ✅ **stack_exchange** 1223s — **3002985 rows landed**
+- `00:57` — ▶ **smartrecruiters** start (budget 45m)
+- `00:57` — ✅ **smartrecruiters** 3s — **?**
+- `00:57` — ▶ **personio** start (budget 45m)
+- `00:58` — ✅ **personio** 15s — **?**
+- `00:58` — ▶ **hf_jobposting** start (budget 120m)
+- `01:20` — ✅ **hf_jobposting** 1358s — **215745 tech postings (historical corpus)**
+- `01:20` — ▶ **gpu_normalize** start (budget 180m)
+- `01:42` — ✅ **gpu_normalize** 1268s — **derived_roles:7, employers:86, posting_dedup:1128, posting_skills:1097**
+- `01:42` — ▶ **llm_extract** start (budget 360m)
+- `03:33` — ✅ **llm_extract** 6652s — **2128 postings extracted, 61 abstained**
+- `03:33` — ▶ **extract_validate** start (budget 120m)
+- `03:33` — ✅ **extract_validate** 5s — **role_agreement=0.908883826879271, faithfulness=4.935 (n_scored=200)**
+- `03:33` — ▶ **posting_attributes** start (budget 10m)
+- `03:33` — ✅ **posting_attributes** 0s — **25 concordance, 17 role-attr, 70 demand-yoe rows**
+- `03:33` — ▶ **role_layer** start (budget 30m)
+- `03:34` — ✅ **role_layer** 81s — **16 roles generated (labelled generated)**
+- `03:34` — ▶ **fuse** start (budget 90m)
+- `03:35` — ✅ **fuse** 46s — **salary_person 2034, demand 1014, interest 224, salary_job 1008, dim_role 23**
+- `03:35` — ▶ **materialize** start (budget 20m)
+- `03:35` — ✅ **materialize** 6s — **23 roles materialized to app.db**
+- `03:42` — ▶ **gpu_normalize** start (budget 180m)
+- `04:03` — ✅ **gpu_normalize** 1231s — **derived_roles:136, employers:86, posting_dedup:1128, posting_skills:1413**
+- `04:03` — ▶ **fuse** start (budget 90m)
+- `04:04` — ✅ **fuse** 49s — **salary_person 2034, demand 1094, interest 224, salary_job 1008, dim_role 102**
+- `04:04` — ▶ **materialize** start (budget 20m)
+- `04:04` — ✅ **materialize** 5s — **102 roles materialized to app.db**
