@@ -4,7 +4,6 @@
 
 <p align="center">
   <img alt="status" src="https://img.shields.io/badge/status-active%20development-0033FF">
-  <img alt="license" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="python" src="https://img.shields.io/badge/python-3.13-3776AB">
   <img alt="node" src="https://img.shields.io/badge/node-vite%20%2B%20react%2018-61DAFB">
   <img alt="charter" src="https://img.shields.io/badge/scope-roles--only-111">
@@ -73,6 +72,60 @@ on-call load, and honest **abstain** flags. Validated without hand-labeling (gro
 Published datasets never reach *"Data Scientist, 5 years, India."* strata also ingests the
 pre-computed estimates aggregators publish (e.g. AmbitionBox — per-year experience), landing them
 as their **own labeled lens** (`kind=estimate`), never blended into the others.
+
+---
+
+## Features
+
+| Capability | How it works |
+|---|---|
+| Three salary lenses | Advertised, reported and aggregator-estimated pay kept as separate facts and never blended into one number |
+| Roles-only charter | The schema has no employer dimension; salaries attach to roles and markets, never to a named company |
+| Abstain-capable extraction | Grammar-constrained LLM extraction into a 19-field schema that declines to guess rather than filling a field |
+| Provenance on every figure | Each number carries source, sample size, freshness and lens, reachable from a confidence badge |
+| PPP cross-country comparison | Purchasing-power adjustment for cross-market comparison; native currency everywhere else, never live FX |
+| Honest sparsity | Where a role x country cell is too thin the UI says so instead of interpolating |
+| Demand and interest series | Posting volume and search interest tracked alongside pay, so a rising salary can be read against rising demand |
+| Résumé valuation | A dropped résumé is scored per market with a skills-gap plan |
+
+## Screenshots
+
+### Explore
+
+![strata explore](docs/screenshots/hero.png)
+
+The entry surface. A dotted globe drives the whole page — tapping a country redraws
+every panel around that market. The counters are the live dataset: 346 tech roles
+across 7 countries with 9 years of trend data.
+
+### Roles
+
+![Roles index](docs/screenshots/roles.png)
+
+The searchable role index with the explainable Job Score board. Scores decompose
+into their components rather than arriving as a single opaque ranking.
+
+### Role dashboard
+
+![Role dashboard](docs/screenshots/role-dashboard.png)
+
+The deep view for one role: three-lens salary, salary over time, demand trajectory
+with a forecast band, skills and their durability, the pay ladder, and a PPP-fair
+cross-country strip.
+
+### Compare
+
+![Compare](docs/screenshots/compare.png)
+
+Up to four role x country x year combinations pinned side by side, with per-chart
+series selection and a nominal/PPP toggle.
+
+### Countries
+
+![Countries](docs/screenshots/countries.png)
+
+Per-market dashboards and the Pay Transparency Index — how much of each market's
+posting volume discloses pay at all.
 
 ---
 
@@ -147,6 +200,22 @@ python -m backend.cli serve              # FastAPI on http://127.0.0.1:8000
 The frontend fetches `http://127.0.0.1:8000/api/dataset` (override with `VITE_API_BASE`). With no
 warehouse present, the pipeline falls back to a realistic seed so the UI always renders.
 
+### Configuration
+
+All source credentials are optional — every connector skips gracefully when its key is
+absent, and the app renders from the committed seed if no warehouse has been built.
+
+| Variable | Required | Default | Purpose |
+|---|---|---|---|
+| `STRATA_ENV` | No | `dev` | Environment label used in logging |
+| `STRATA_LOG_LEVEL` | No | `INFO` | Log verbosity |
+| `CORS_ORIGINS` | No | `http://localhost:5173,http://localhost:5191,http://127.0.0.1:5173` | Origins the API accepts; the dev server must be on one of these |
+| `VITE_API_BASE` | No | `http://127.0.0.1:8000` | API base the frontend calls |
+| `ADZUNA_APP_ID` / `ADZUNA_APP_KEY` | No | — | Advertised salary and demand per role and country |
+| `BLS_API_KEY` | No | — | US occupational employment and wage statistics |
+| `USAJOBS_API_KEY` / `USAJOBS_EMAIL` | No | — | US federal postings |
+| `HF_TOKEN` | No | — | Hugging Face datasets used in enrichment |
+
 ### 2. Building the data (optional — the full pipeline)
 
 ```bash
@@ -197,10 +266,3 @@ active roadmap ([`GRID_PLAN.md`](GRID_PLAN.md)) widens coverage toward *almost e
 a full pay-vs-experience-vs-ladder grid: more aggregator + regional connectors, a large role catalog
 with automatic admission of emerging roles, career-ladder rungs with per-country pay, and the
 experience curves surfaced in the UI.
-
----
-
-## License
-
-[MIT](LICENSE) © V Varadharajan. The license covers the code. Ingested third-party data remains
-under its respective sources' terms.

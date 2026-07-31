@@ -6,7 +6,7 @@
   "description": "An honest, roles-only explorer of the global tech job market — salaries, demand, skills, ladders and experience curves across 7 countries.",
   "keywords": ["job-market", "salary", "data-pipeline", "duckdb", "fastapi", "react", "career", "roles-only"],
   "author": "V Varadharajan",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "homepage": "https://github.com/varadharajanv0310/strata#readme",
   "repository": {
     "type": "git",
