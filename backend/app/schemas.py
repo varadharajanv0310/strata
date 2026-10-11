@@ -125,6 +125,10 @@ class RoleOut(BaseModel):
     payLadder: list[PayLadderStepOut] = []
     trajectory: list[TrajectoryEdgeOut] = []
     importance: list[SkillImportanceOut] = []
+    # pay-vs-experience progression {country: {lens: {...}}} + its source coverage — without
+    # these declared, the response model silently strips them from the role detail endpoint
+    experienceCurve: dict[str, Any] = {}
+    coverage: dict[str, Any] = {}
     countries: dict[str, RoleCountryOut]
 
 

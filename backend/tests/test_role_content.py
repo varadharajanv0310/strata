@@ -75,3 +75,26 @@ def test_cli_validate_reports(tmp_path, capsys):
     bad = tmp_path / "bad.json"
     bad.write_text(json.dumps({"roles": {"not-a-role": {}}}))
     assert rc._main(["validate", "traits", str(bad)]) == 1
+
+
+# ---- API: what InternshipOS consumes ---------------------------------------------------------
+def test_api_dimensions_and_all_traits(client):
+    dims = client.get("/api/role-content/dimensions").json()
+    assert [d["id"] for d in dims] == rc.DIMENSION_IDS
+    t = client.get("/api/role-content/traits").json()
+    assert t["kind"] == "generated"
+    assert set(t["roles"]) == set(rc._catalog_roles())
+    assert t["roles"]["sre"] == rc.TRAIT_ANCHORS["sre"]
+
+
+def test_api_single_role_content(client):
+    body = client.get("/api/role-content/swe").json()
+    assert body["kind"] == "generated"
+    assert body["traits"]["scores"] == rc.TRAIT_ANCHORS["swe"]
+    assert body["roadmap"] and len(body["roadmap"]["phases"]) >= 3
+    assert client.get("/api/role-content/not-a-role").status_code == 404
+
+
+def test_role_detail_keeps_progression_fields(client):
+    body = client.get("/api/roles/swe").json()
+    assert "experienceCurve" in body and "coverage" in body

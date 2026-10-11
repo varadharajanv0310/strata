@@ -21,6 +21,7 @@ from backend.app.routers import (
     favourites,
     provenance,
     resume,
+    role_content,
     roles,
 )
 from backend.app.schemas import HealthOut
@@ -66,7 +67,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for r in (dataset, roles, countries, explore, compare, provenance, resume, auth, favourites):
+for r in (dataset, roles, role_content, countries, explore, compare, provenance, resume, auth, favourites):
     app.include_router(r.router)
 
 
