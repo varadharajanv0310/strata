@@ -58,12 +58,11 @@ def test_tracked_traits_cover_catalog_on_one_scale():
     assert data["kind"] == "generated"
 
 
-def test_tracked_roadmaps_all_valid():
+def test_tracked_roadmaps_cover_catalog_and_are_valid():
     data = rc.load("roadmaps")
     catalog = rc._catalog_roles()
-    assert data["roles"], "roadmaps file is empty"
+    assert set(data["roles"]) == set(catalog), "every catalog role needs a roadmap"
     for rid, rec in data["roles"].items():
-        assert rid in catalog
         assert rc.validate_roadmap_record(rid, rec, catalog[rid]) == []
     assert data["kind"] == "generated"
 
