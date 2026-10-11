@@ -1,0 +1,5600 @@
+{
+ "source": "Generated (model knowledge)",
+ "kind": "generated",
+ "roles": {
+  "swe": {
+   "scores": {
+    "build": 90,
+    "analyze": 40,
+    "math": 25,
+    "design": 20,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 45,
+    "interruptions": 35,
+    "collaboration": 55,
+    "research": 25,
+    "customer_contact": 10
+   },
+   "summary": "Writing and reviewing code for features across the stack, debugging tests and the occasional production issue, and turning loosely defined tickets into working, shipped software with your team."
+  },
+  "backend": {
+   "scores": {
+    "build": 88,
+    "analyze": 45,
+    "math": 25,
+    "design": 5,
+    "operate": 45,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Building server-side endpoints, data models and queries, wiring services together through queues and caches, and chasing slow queries or failing integrations when something breaks under load."
+  },
+  "frontend": {
+   "scores": {
+    "build": 90,
+    "analyze": 30,
+    "math": 10,
+    "design": 65,
+    "operate": 15,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 65,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "Turning designer mockups into React components, managing UI state, fixing layout and browser quirks, tuning load times and accessibility, and iterating closely with designers and backend engineers."
+  },
+  "fullstack": {
+   "scores": {
+    "build": 92,
+    "analyze": 35,
+    "math": 15,
+    "design": 40,
+    "operate": 35,
+    "people": 35,
+    "ambiguity": 55,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 15
+   },
+   "summary": "Shipping whole features yourself: a schema change, an API route, and the UI that uses it, often in the same day, plus deploying it and fixing whatever layer breaks, usually on a small team."
+  },
+  "web-developer": {
+   "scores": {
+    "build": 80,
+    "analyze": 20,
+    "math": 5,
+    "design": 60,
+    "operate": 25,
+    "people": 45,
+    "ambiguity": 30,
+    "interruptions": 50,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 40
+   },
+   "summary": "Building and updating site pages, CMS templates and landing pages, fixing cross-browser and mobile layout bugs, and juggling change requests from marketing teams or agency clients."
+  },
+  "api-engineer": {
+   "scores": {
+    "build": 85,
+    "analyze": 45,
+    "math": 15,
+    "design": 25,
+    "operate": 40,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 30
+   },
+   "summary": "Designing and versioning API contracts, writing OpenAPI specs, implementing auth, rate limits and gateway rules, and answering integration questions from internal teams and external developers."
+  },
+  "platform-engineer": {
+   "scores": {
+    "build": 75,
+    "analyze": 45,
+    "math": 10,
+    "design": 15,
+    "operate": 70,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 55,
+    "collaboration": 65,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Writing Terraform, CI/CD pipelines and Kubernetes configs that other engineers deploy on, building self-serve tooling, and fielding support requests from developer teams who are your internal customers."
+  },
+  "software-architect": {
+   "scores": {
+    "build": 50,
+    "analyze": 70,
+    "math": 20,
+    "design": 25,
+    "operate": 30,
+    "people": 70,
+    "ambiguity": 75,
+    "interruptions": 50,
+    "collaboration": 85,
+    "research": 45,
+    "customer_contact": 25
+   },
+   "summary": "Writing design docs and diagrams, weighing technology and pattern trade-offs, reviewing other teams' designs, and meeting with engineering leads and stakeholders to keep many systems aligned on one blueprint."
+  },
+  "staff-engineer": {
+   "scores": {
+    "build": 65,
+    "analyze": 70,
+    "math": 25,
+    "design": 15,
+    "operate": 35,
+    "people": 70,
+    "ambiguity": 85,
+    "interruptions": 55,
+    "collaboration": 80,
+    "research": 45,
+    "customer_contact": 10
+   },
+   "summary": "Scoping fuzzy cross-team technical problems, writing design docs and prototypes, reviewing critical code, mentoring engineers, and persuading several teams to adopt a direction without managing anyone."
+  },
+  "principal-engineer": {
+   "scores": {
+    "build": 50,
+    "analyze": 75,
+    "math": 30,
+    "design": 15,
+    "operate": 30,
+    "people": 80,
+    "ambiguity": 92,
+    "interruptions": 55,
+    "collaboration": 85,
+    "research": 55,
+    "customer_contact": 15
+   },
+   "summary": "Setting multi-year technical strategy for the org, evaluating emerging technology, diving into the hardest problems, and spending much of the week influencing directors and senior engineers across teams."
+  },
+  "tech-lead": {
+   "scores": {
+    "build": 70,
+    "analyze": 50,
+    "math": 20,
+    "design": 20,
+    "operate": 40,
+    "people": 80,
+    "ambiguity": 60,
+    "interruptions": 75,
+    "collaboration": 90,
+    "research": 20,
+    "customer_contact": 15
+   },
+   "summary": "Splitting coding time with breaking down work, reviewing PRs, unblocking teammates, running planning with the product manager, and answering a steady stream of questions about how the team's system should work."
+  },
+  "distributed-systems-engineer": {
+   "scores": {
+    "build": 85,
+    "analyze": 70,
+    "math": 45,
+    "design": 5,
+    "operate": 55,
+    "people": 20,
+    "ambiguity": 60,
+    "interruptions": 40,
+    "collaboration": 45,
+    "research": 45,
+    "customer_contact": 5
+   },
+   "summary": "Writing and testing code for replication, partitioning and consensus, hunting race conditions and tail-latency problems through traces and metrics, and reasoning carefully about how systems fail at scale."
+  },
+  "java-developer": {
+   "scores": {
+    "build": 85,
+    "analyze": 35,
+    "math": 15,
+    "design": 10,
+    "operate": 40,
+    "people": 30,
+    "ambiguity": 25,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Implementing well-specified features in Spring-based enterprise services, writing JPA queries and JUnit tests, modernizing legacy code, and following established processes in large bank or telecom teams."
+  },
+  "python-developer": {
+   "scores": {
+    "build": 82,
+    "analyze": 50,
+    "math": 25,
+    "design": 10,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Writing Django or FastAPI endpoints one day and automation scripts or data-handling code with Pandas the next, plus pytest suites and the glue that connects services, data and tools."
+  },
+  "nodejs-developer": {
+   "scores": {
+    "build": 87,
+    "analyze": 30,
+    "math": 10,
+    "design": 20,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Building Express or NestJS services and API layers in JavaScript/TypeScript, handling async and real-time features, and often crossing into frontend code at startups that use one language end to end."
+  },
+  "golang-engineer": {
+   "scores": {
+    "build": 88,
+    "analyze": 45,
+    "math": 20,
+    "design": 5,
+    "operate": 55,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Writing concurrent Go microservices and cloud-native tooling, defining gRPC APIs, profiling goroutines and memory, and deploying to Kubernetes, with a strong infrastructure flavor to the work."
+  },
+  "dotnet-developer": {
+   "scores": {
+    "build": 82,
+    "analyze": 35,
+    "math": 15,
+    "design": 15,
+    "operate": 35,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Building and maintaining C#/ASP.NET business applications against SQL Server, writing Entity Framework data access, and handling feature requests and fixes in corporate IT, finance or healthcare teams."
+  },
+  "php-developer": {
+   "scores": {
+    "build": 82,
+    "analyze": 30,
+    "math": 10,
+    "design": 30,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 50,
+    "collaboration": 50,
+    "research": 10,
+    "customer_contact": 25
+   },
+   "summary": "Building Laravel or Symfony features, writing MySQL queries and templates, and patching older PHP and WordPress codebases, often switching between several small client or product requests in a day."
+  },
+  "ruby-developer": {
+   "scores": {
+    "build": 90,
+    "analyze": 30,
+    "math": 10,
+    "design": 25,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 15,
+    "customer_contact": 20
+   },
+   "summary": "Shipping product features quickly in Rails at a startup or SaaS company: models, controllers, RSpec tests and background jobs, often with loose specs and direct input from founders or product leads."
+  },
+  "application-developer": {
+   "scores": {
+    "build": 78,
+    "analyze": 40,
+    "math": 10,
+    "design": 20,
+    "operate": 35,
+    "people": 45,
+    "ambiguity": 20,
+    "interruptions": 45,
+    "collaboration": 60,
+    "research": 5,
+    "customer_contact": 20
+   },
+   "summary": "Building and maintaining internal business applications and integrations to written requirements, fixing bugs reported by business users, and following a formal SDLC in corporate IT or consulting teams."
+  },
+  "java-backend": {
+   "scores": {
+    "build": 85,
+    "analyze": 40,
+    "math": 15,
+    "design": 5,
+    "operate": 50,
+    "people": 25,
+    "ambiguity": 25,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Writing Spring services and Hibernate data access for high-traffic enterprise systems like banking or e-commerce, adding tests, and investigating performance and stability issues under production load."
+  },
+  "spring-engineer": {
+   "scores": {
+    "build": 87,
+    "analyze": 35,
+    "math": 15,
+    "design": 5,
+    "operate": 45,
+    "people": 25,
+    "ambiguity": 30,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Designing and wiring Spring Boot microservices together with Spring Cloud, Kafka and Spring Security, building REST/gRPC APIs, and containerizing services in enterprise Java and fintech backends."
+  },
+  "python-backend": {
+   "scores": {
+    "build": 86,
+    "analyze": 45,
+    "math": 25,
+    "design": 5,
+    "operate": 40,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Building FastAPI or Django services, async I/O and Postgres models, running Celery task queues, and serving data or ML features to other parts of the product, with pytest and Docker as daily tools."
+  },
+  "django-engineer": {
+   "scores": {
+    "build": 88,
+    "analyze": 30,
+    "math": 10,
+    "design": 25,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 35,
+    "interruptions": 35,
+    "collaboration": 50,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Modeling data with the Django ORM, building DRF APIs, admin screens and templates, and adding auth, Celery jobs and migrations for content platforms, marketplaces and SaaS products."
+  },
+  "rust-engineer": {
+   "scores": {
+    "build": 88,
+    "analyze": 50,
+    "math": 30,
+    "design": 5,
+    "operate": 35,
+    "people": 20,
+    "ambiguity": 50,
+    "interruptions": 25,
+    "collaboration": 40,
+    "research": 35,
+    "customer_contact": 5
+   },
+   "summary": "Writing performance-critical Rust services, async Tokio code or crypto and database internals, working through the borrow checker, and benchmarking hot paths, mostly in long stretches of focused work."
+  },
+  "dotnet-engineer": {
+   "scores": {
+    "build": 85,
+    "analyze": 35,
+    "math": 15,
+    "design": 10,
+    "operate": 40,
+    "people": 30,
+    "ambiguity": 25,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Building ASP.NET Core APIs and backend services in C#, writing LINQ and Entity Framework queries, deploying to Azure, and maintaining enterprise systems in government, healthcare or Windows-centric shops."
+  },
+  "cpp-engineer": {
+   "scores": {
+    "build": 85,
+    "analyze": 55,
+    "math": 40,
+    "design": 10,
+    "operate": 20,
+    "people": 20,
+    "ambiguity": 45,
+    "interruptions": 25,
+    "collaboration": 40,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Writing and optimizing native C++ for engines, embedded devices, databases or desktop apps, managing memory and threads, and spending long sessions in debuggers and profilers tracking down crashes."
+  },
+  "cpp-lowlatency": {
+   "scores": {
+    "build": 85,
+    "analyze": 75,
+    "math": 55,
+    "design": 0,
+    "operate": 50,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 40,
+    "customer_contact": 5
+   },
+   "summary": "Shaving nanoseconds off trading-system hot paths: profiling cache misses, writing lock-free C++, tuning kernels and networking, and working with traders and quants, with live issues during market hours."
+  },
+  "rails-engineer": {
+   "scores": {
+    "build": 90,
+    "analyze": 35,
+    "math": 10,
+    "design": 30,
+    "operate": 40,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Building and scaling features in a large Rails codebase: ActiveRecord models, Sidekiq jobs, Hotwire views and RSpec tests, plus tuning slow queries as traffic grows, within a strong review and testing culture."
+  },
+  "php-engineer": {
+   "scores": {
+    "build": 78,
+    "analyze": 30,
+    "math": 5,
+    "design": 25,
+    "operate": 45,
+    "people": 30,
+    "ambiguity": 20,
+    "interruptions": 55,
+    "collaboration": 45,
+    "research": 5,
+    "customer_contact": 25
+   },
+   "summary": "Maintaining and extending PHP backends, WordPress sites and e-commerce stores on LAMP servers, fixing legacy bugs, upgrading code to modern PHP 8, and handling a steady flow of small change requests."
+  },
+  "laravel-engineer": {
+   "scores": {
+    "build": 88,
+    "analyze": 25,
+    "math": 5,
+    "design": 40,
+    "operate": 25,
+    "people": 40,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 35
+   },
+   "summary": "Building SaaS apps, admin panels and APIs in Laravel with Eloquent, Blade or Livewire views and queued jobs, often for agency clients whose feedback shapes each iteration."
+  },
+  "nodejs-engineer": {
+   "scores": {
+    "build": 87,
+    "analyze": 35,
+    "math": 10,
+    "design": 10,
+    "operate": 40,
+    "people": 30,
+    "ambiguity": 35,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Building event-driven Node.js services, REST/GraphQL APIs and backend-for-frontend layers, managing async flows, MongoDB/Postgres access and Redis caching, and keeping real-time features responsive."
+  },
+  "typescript-backend": {
+   "scores": {
+    "build": 90,
+    "analyze": 35,
+    "math": 15,
+    "design": 15,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Building NestJS or tRPC services with strict types from Prisma schema to API, modeling data with Zod, writing Jest tests, and sharing types with frontend teammates so changes stay safe end to end."
+  },
+  "scala-engineer": {
+   "scores": {
+    "build": 85,
+    "analyze": 60,
+    "math": 40,
+    "design": 5,
+    "operate": 35,
+    "people": 25,
+    "ambiguity": 45,
+    "interruptions": 30,
+    "collaboration": 45,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Writing functional, strongly typed Scala services and Spark or Kafka data pipelines, reasoning with Cats/ZIO abstractions, and tuning large-scale streaming jobs in fintech, adtech or data platforms."
+  },
+  "elixir-engineer": {
+   "scores": {
+    "build": 88,
+    "analyze": 45,
+    "math": 20,
+    "design": 20,
+    "operate": 45,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 50,
+    "research": 30,
+    "customer_contact": 10
+   },
+   "summary": "Building Phoenix and LiveView apps and OTP supervision trees, designing fault-tolerant real-time and messaging features, and debugging concurrency across BEAM nodes on small, specialized teams."
+  },
+  "kotlin-backend": {
+   "scores": {
+    "build": 88,
+    "analyze": 40,
+    "math": 20,
+    "design": 10,
+    "operate": 40,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Writing Kotlin services and REST endpoints in Spring Boot or Ktor, wiring coroutines and PostgreSQL queries, reviewing pull requests, writing tests, and debugging microservice behavior in staging and production."
+  },
+  "clojure-engineer": {
+   "scores": {
+    "build": 88,
+    "analyze": 45,
+    "math": 30,
+    "design": 10,
+    "operate": 35,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 50,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Growing backend features interactively at the REPL, shaping immutable data transformations in Clojure, writing Ring handlers and Datomic or SQL queries, and reviewing small functional code changes with a tight-knit team."
+  },
+  "perl-developer": {
+   "scores": {
+    "build": 70,
+    "analyze": 50,
+    "math": 15,
+    "design": 5,
+    "operate": 55,
+    "people": 25,
+    "ambiguity": 30,
+    "interruptions": 50,
+    "collaboration": 40,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Reading and patching long-lived Perl codebases, fixing regex-heavy text processing and Unix automation scripts, keeping legacy web backends and batch jobs running, and occasionally migrating pieces to newer stacks."
+  },
+  "dotnet-fullstack": {
+   "scores": {
+    "build": 88,
+    "analyze": 35,
+    "math": 15,
+    "design": 40,
+    "operate": 35,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "Building features end to end in C#: ASP.NET Core APIs, Entity Framework and SQL Server data access, Blazor or Angular screens, and Azure deployments, plus bug fixes from business users of enterprise apps."
+  },
+  "mobile": {
+   "scores": {
+    "build": 90,
+    "analyze": 35,
+    "math": 15,
+    "design": 55,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 20
+   },
+   "summary": "Implementing app screens from designs, integrating APIs and offline state, working around iOS or Android platform quirks, fixing crashes reported in monitoring, and shepherding builds through store review."
+  },
+  "ios-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 30,
+    "math": 15,
+    "design": 60,
+    "operate": 25,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 15
+   },
+   "summary": "Building pixel-accurate SwiftUI and UIKit screens, handling async data flow and Core Data, profiling in Xcode Instruments, pairing with designers, and adapting the app to each new iOS release."
+  },
+  "android-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 35,
+    "math": 15,
+    "design": 50,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 15
+   },
+   "summary": "Writing Kotlin and Jetpack Compose UI, managing coroutines, Room and navigation, fighting Gradle builds, and debugging behavior across a wide device and OS matrix before Play Console releases."
+  },
+  "react-native-eng": {
+   "scores": {
+    "build": 88,
+    "analyze": 30,
+    "math": 10,
+    "design": 55,
+    "operate": 25,
+    "people": 35,
+    "ambiguity": 45,
+    "interruptions": 45,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 20
+   },
+   "summary": "Building screens and state logic in React Native and TypeScript for both stores, wiring Redux or Zustand, wrestling Expo and native build tooling, and occasionally writing native modules when the bridge falls short."
+  },
+  "flutter-eng": {
+   "scores": {
+    "build": 88,
+    "analyze": 25,
+    "math": 10,
+    "design": 65,
+    "operate": 20,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 20
+   },
+   "summary": "Composing Flutter widgets in Dart for pixel-consistent UI, managing state with Bloc or Riverpod, hooking up Firebase backends, and writing platform channels for the few things that need native code."
+  },
+  "mobile-architect": {
+   "scores": {
+    "build": 55,
+    "analyze": 65,
+    "math": 20,
+    "design": 40,
+    "operate": 35,
+    "people": 80,
+    "ambiguity": 80,
+    "interruptions": 55,
+    "collaboration": 85,
+    "research": 45,
+    "customer_contact": 15
+   },
+   "summary": "Writing architecture proposals, reviewing designs and pull requests across many app teams, deciding modularization and cross-platform strategy, setting performance budgets, and mentoring engineers more than shipping features."
+  },
+  "cross-platform-mobile": {
+   "scores": {
+    "build": 88,
+    "analyze": 40,
+    "math": 15,
+    "design": 50,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 25,
+    "customer_contact": 15
+   },
+   "summary": "Building shared app code in React Native or Flutter, deciding what stays shared versus native, writing bridges into iOS and Android, and keeping CI builds green for both platforms."
+  },
+  "kmp-eng": {
+   "scores": {
+    "build": 88,
+    "analyze": 40,
+    "math": 15,
+    "design": 35,
+    "operate": 25,
+    "people": 35,
+    "ambiguity": 55,
+    "interruptions": 30,
+    "collaboration": 55,
+    "research": 40,
+    "customer_contact": 10
+   },
+   "summary": "Moving business logic into shared Kotlin Multiplatform modules, designing Swift-friendly APIs for the iOS team, experimenting with Compose Multiplatform UI, and untangling Gradle and interop issues in a young ecosystem."
+  },
+  "mobile-game-dev": {
+   "scores": {
+    "build": 85,
+    "analyze": 40,
+    "math": 50,
+    "design": 60,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 45,
+    "collaboration": 65,
+    "research": 30,
+    "customer_contact": 20
+   },
+   "summary": "Scripting gameplay loops and physics in Unity or Unreal, profiling frame rate, memory and battery on phones, integrating ads and monetization SDKs, and patching live-ops events alongside designers and artists."
+  },
+  "unity-client-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 35,
+    "math": 55,
+    "design": 60,
+    "operate": 15,
+    "people": 35,
+    "ambiguity": 45,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 30,
+    "customer_contact": 15
+   },
+   "summary": "Writing C# gameplay and interaction scripts in Unity, hooking up animations and assets from artists, tweaking shaders, and optimizing scenes to hit frame rate on target hardware for games, AR or simulations."
+  },
+  "unreal-client-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 45,
+    "math": 65,
+    "design": 55,
+    "operate": 15,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 35,
+    "customer_contact": 10
+   },
+   "summary": "Building gameplay systems in Unreal C++ and Blueprints, working inside engine and rendering code, profiling GPU and CPU bottlenecks, and exposing tools designers use for games, film or simulation projects."
+  },
+  "game-client-eng": {
+   "scores": {
+    "build": 88,
+    "analyze": 45,
+    "math": 55,
+    "design": 50,
+    "operate": 20,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 10
+   },
+   "summary": "Implementing client gameplay, input and camera feel, integrating rendering and netcode, building tools for designers, and iterating with design and server engineers until moment-to-moment play feels right."
+  },
+  "mobile-sdk-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 35,
+    "math": 15,
+    "design": 45,
+    "operate": 30,
+    "people": 50,
+    "ambiguity": 45,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 50
+   },
+   "summary": "Designing public Swift and Kotlin APIs, guarding backward compatibility and binary size, packaging releases for SPM, CocoaPods and Maven, writing docs and sample apps, and triaging integration issues from external developers."
+  },
+  "mobile-platform-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 55,
+    "math": 15,
+    "design": 15,
+    "operate": 55,
+    "people": 55,
+    "ambiguity": 55,
+    "interruptions": 50,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 10
+   },
+   "summary": "Speeding up Gradle, Bazel or Xcode builds, splitting the app into modules, building internal tooling and CI checks for app size and performance, and helping product mobile teams adopt them."
+  },
+  "mobile-release-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 45,
+    "math": 5,
+    "design": 5,
+    "operate": 85,
+    "people": 45,
+    "ambiguity": 30,
+    "interruptions": 75,
+    "collaboration": 65,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Maintaining Fastlane and CI pipelines, fixing code signing and provisioning breakages, cutting release branches, running phased store rollouts, and watching crash dashboards to halt or hotfix bad releases."
+  },
+  "mobile-qa-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 60,
+    "math": 10,
+    "design": 15,
+    "operate": 35,
+    "people": 40,
+    "ambiguity": 35,
+    "interruptions": 55,
+    "collaboration": 60,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Writing Appium, Espresso and XCUITest suites, running them across device farms in CI, chasing down flaky tests, filing and reproducing bugs on real devices, and signing off releases with the team."
+  },
+  "mobile-ar-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 45,
+    "math": 70,
+    "design": 70,
+    "operate": 10,
+    "people": 30,
+    "ambiguity": 70,
+    "interruptions": 25,
+    "collaboration": 55,
+    "research": 65,
+    "customer_contact": 15
+   },
+   "summary": "Prototyping AR features with ARKit, ARCore or AR Foundation, working with 3D math, plane detection and occlusion, tuning rendering performance, and iterating on spatial interactions with designers on new devices."
+  },
+  "mobile-pm": {
+   "scores": {
+    "build": 20,
+    "analyze": 70,
+    "math": 25,
+    "design": 45,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 80,
+    "interruptions": 60,
+    "collaboration": 95,
+    "research": 35,
+    "customer_contact": 65
+   },
+   "summary": "Prioritizing the app roadmap, writing specs, reading retention and funnel dashboards, designing A/B tests, tuning store listings, talking to users, and aligning engineering, design and growth around release plans."
+  },
+  "data-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 55,
+    "math": 25,
+    "design": 5,
+    "operate": 65,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 65,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Writing SQL and Python pipelines, building Airflow DAGs and dbt models that land data in the warehouse, debugging failed or late loads, and fielding data requests and questions from analysts."
+  },
+  "analytics-engineer": {
+   "scores": {
+    "build": 70,
+    "analyze": 70,
+    "math": 30,
+    "design": 15,
+    "operate": 35,
+    "people": 55,
+    "ambiguity": 45,
+    "interruptions": 40,
+    "collaboration": 65,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Writing and testing dbt models in SQL, defining metrics in the semantic layer, documenting tables, reviewing pull requests, and working with analysts and business teams to settle what each number should mean."
+  },
+  "etl-developer": {
+   "scores": {
+    "build": 65,
+    "analyze": 45,
+    "math": 15,
+    "design": 5,
+    "operate": 55,
+    "people": 25,
+    "ambiguity": 20,
+    "interruptions": 50,
+    "collaboration": 45,
+    "research": 5,
+    "customer_contact": 5
+   },
+   "summary": "Building ETL mappings in Informatica, SSIS or Talend from specs, writing stored procedures, scheduling batch jobs, reconciling row counts and data quality, and fixing overnight failures in enterprise warehouse feeds."
+  },
+  "data-platform-engineer": {
+   "scores": {
+    "build": 80,
+    "analyze": 45,
+    "math": 20,
+    "design": 5,
+    "operate": 70,
+    "people": 45,
+    "ambiguity": 55,
+    "interruptions": 55,
+    "collaboration": 60,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Building self-serve data tooling on Kubernetes and the cloud, running orchestration, Spark and catalog services, writing Terraform, and supporting data teams who build their pipelines on the platform."
+  },
+  "streaming-data-engineer": {
+   "scores": {
+    "build": 80,
+    "analyze": 50,
+    "math": 35,
+    "design": 5,
+    "operate": 65,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 55,
+    "collaboration": 50,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Writing Kafka and Flink or Spark Streaming jobs in Java or Scala, designing event schemas, reasoning about windowing, state and exactly-once delivery, and debugging lag and backpressure in live pipelines."
+  },
+  "data-warehouse-engineer": {
+   "scores": {
+    "build": 65,
+    "analyze": 65,
+    "math": 25,
+    "design": 5,
+    "operate": 55,
+    "people": 40,
+    "ambiguity": 35,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Designing star schemas, tuning slow queries with partitioning and clustering, managing warehouse sizing and spend on Snowflake, Redshift or BigQuery, and loading cleaned source data for analysts."
+  },
+  "bi-engineer": {
+   "scores": {
+    "build": 55,
+    "analyze": 75,
+    "math": 25,
+    "design": 55,
+    "operate": 20,
+    "people": 65,
+    "ambiguity": 40,
+    "interruptions": 50,
+    "collaboration": 70,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Building semantic models and dashboards in Power BI, Tableau or Looker, writing SQL, DAX or LookML, gathering report requirements from business stakeholders, and fixing numbers that do not match expectations."
+  },
+  "big-data-engineer": {
+   "scores": {
+    "build": 75,
+    "analyze": 60,
+    "math": 30,
+    "design": 5,
+    "operate": 55,
+    "people": 30,
+    "ambiguity": 45,
+    "interruptions": 45,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Writing Spark jobs in Scala or Python over huge datasets, tuning shuffles, joins and partitioning, managing Hive tables and lakehouse formats, and keeping batch jobs on clusters finishing within SLA."
+  },
+  "data-architect": {
+   "scores": {
+    "build": 35,
+    "analyze": 65,
+    "math": 20,
+    "design": 20,
+    "operate": 25,
+    "people": 85,
+    "ambiguity": 80,
+    "interruptions": 45,
+    "collaboration": 85,
+    "research": 35,
+    "customer_contact": 20
+   },
+   "summary": "Designing how warehouses, lakes, streaming and governance fit together, modeling business domains, choosing platforms, setting data standards, and reviewing team designs in meetings with engineering and business leaders."
+  },
+  "dataops-engineer": {
+   "scores": {
+    "build": 65,
+    "analyze": 40,
+    "math": 10,
+    "design": 5,
+    "operate": 85,
+    "people": 40,
+    "ambiguity": 35,
+    "interruptions": 70,
+    "collaboration": 60,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Building CI/CD and test automation for data pipelines, managing Airflow or Dagster environments with Docker and Terraform, setting up data observability alerts, and responding when pipelines or deploys break."
+  },
+  "data-infrastructure-engineer": {
+   "scores": {
+    "build": 70,
+    "analyze": 55,
+    "math": 25,
+    "design": 5,
+    "operate": 90,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 80,
+    "collaboration": 50,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Running and scaling databases, Kafka clusters, storage and query engines, writing Go or Java tooling, planning capacity, tuning performance, and taking on-call for the data systems everything else depends on."
+  },
+  "cloud-data-engineer": {
+   "scores": {
+    "build": 78,
+    "analyze": 45,
+    "math": 15,
+    "design": 5,
+    "operate": 60,
+    "people": 35,
+    "ambiguity": 35,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Building managed pipelines with Glue, Dataflow or Data Factory in Python and SQL, provisioning them with Terraform or CloudFormation, sorting out IAM permissions, and watching cloud costs and job failures."
+  },
+  "snowflake-engineer": {
+   "scores": {
+    "build": 72,
+    "analyze": 55,
+    "math": 20,
+    "design": 5,
+    "operate": 50,
+    "people": 35,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Writing Snowflake SQL and dbt models, setting up Fivetran and Snowpipe ingestion, building Streams, Tasks and Snowpark jobs, and tuning warehouse sizes to keep queries fast and credit spend under control."
+  },
+  "databricks-engineer": {
+   "scores": {
+    "build": 80,
+    "analyze": 45,
+    "math": 15,
+    "design": 5,
+    "operate": 50,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Writing PySpark and SQL jobs on Databricks, managing Delta tables and Unity Catalog permissions, tuning clusters and costs, and wiring notebooks into scheduled workflows for analysts and ML teams."
+  },
+  "data-integration-engineer": {
+   "scores": {
+    "build": 70,
+    "analyze": 50,
+    "math": 5,
+    "design": 5,
+    "operate": 55,
+    "people": 40,
+    "ambiguity": 35,
+    "interruptions": 55,
+    "collaboration": 65,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Configuring connectors and API integrations between SaaS apps and databases, mapping schemas, chasing auth failures and schema drift, and reconciling records when two systems disagree about the same data."
+  },
+  "data-quality-engineer": {
+   "scores": {
+    "build": 60,
+    "analyze": 80,
+    "math": 30,
+    "design": 5,
+    "operate": 55,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 50,
+    "collaboration": 55,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Writing validation rules and dbt tests, profiling tables for anomalies, triaging alerts when a metric looks wrong, and tracing bad records upstream to find which pipeline or source broke them."
+  },
+  "kafka-platform-engineer": {
+   "scores": {
+    "build": 55,
+    "analyze": 50,
+    "math": 15,
+    "design": 0,
+    "operate": 90,
+    "people": 30,
+    "ambiguity": 45,
+    "interruptions": 80,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Running Kafka clusters, Connect and schema registry: scaling brokers, rebalancing partitions, watching lag and throughput dashboards, handling on-call incidents, and helping teams onboard new topics safely."
+  },
+  "spark-engineer": {
+   "scores": {
+    "build": 75,
+    "analyze": 70,
+    "math": 25,
+    "design": 0,
+    "operate": 40,
+    "people": 20,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 40,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Writing and refactoring large Spark jobs, reading query plans and Spark UI stages to find skew and shuffle bottlenecks, tuning partitioning and memory, and cutting runtime and cloud cost of slow pipelines."
+  },
+  "data-modeler": {
+   "scores": {
+    "build": 45,
+    "analyze": 70,
+    "math": 20,
+    "design": 10,
+    "operate": 15,
+    "people": 50,
+    "ambiguity": 40,
+    "interruptions": 25,
+    "collaboration": 65,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Interviewing business teams about entities and rules, drawing ER and dimensional models, defining keys, grain and naming standards, and reviewing schemas so warehouse tables stay consistent and easy to query."
+  },
+  "data-pipeline-engineer": {
+   "scores": {
+    "build": 80,
+    "analyze": 40,
+    "math": 10,
+    "design": 0,
+    "operate": 60,
+    "people": 25,
+    "ambiguity": 30,
+    "interruptions": 55,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Building ingestion and transform jobs in Python and SQL, scheduling them as Airflow or Dagster DAGs, fixing failed runs and late data, and adding monitoring so pipelines land data on time every day."
+  },
+  "real-time-analytics-engineer": {
+   "scores": {
+    "build": 80,
+    "analyze": 55,
+    "math": 20,
+    "design": 10,
+    "operate": 55,
+    "people": 25,
+    "ambiguity": 50,
+    "interruptions": 50,
+    "collaboration": 50,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Wiring Kafka or Flink streams into ClickHouse, Druid or Pinot, designing tables and materialized views for sub-second queries, and chasing latency and freshness issues behind live dashboards and product features."
+  },
+  "head-of-data-engineering": {
+   "scores": {
+    "build": 20,
+    "analyze": 45,
+    "math": 15,
+    "design": 5,
+    "operate": 40,
+    "people": 95,
+    "ambiguity": 80,
+    "interruptions": 80,
+    "collaboration": 95,
+    "research": 20,
+    "customer_contact": 25
+   },
+   "summary": "Back-to-back meetings on roadmap and priorities, hiring and 1:1s, architecture and vendor decisions, managing platform spend, and escalations when critical data breaks, with little hands-on coding."
+  },
+  "data-sci": {
+   "scores": {
+    "build": 40,
+    "analyze": 95,
+    "math": 80,
+    "design": 10,
+    "operate": 10,
+    "people": 45,
+    "ambiguity": 70,
+    "interruptions": 20,
+    "collaboration": 50,
+    "research": 65,
+    "customer_contact": 15
+   },
+   "summary": "Pulling and cleaning data with SQL and Python, exploring it for patterns, building models or analyzing experiments, and turning the results into charts and recommendations for product and business teams."
+  },
+  "applied-scientist": {
+   "scores": {
+    "build": 65,
+    "analyze": 80,
+    "math": 85,
+    "design": 5,
+    "operate": 15,
+    "people": 30,
+    "ambiguity": 75,
+    "interruptions": 15,
+    "collaboration": 50,
+    "research": 80,
+    "customer_contact": 5
+   },
+   "summary": "Reading recent papers, prototyping and training models on company data, running offline and online evaluations, and working with engineers to ship the winning approach into a production system."
+  },
+  "research-scientist": {
+   "scores": {
+    "build": 40,
+    "analyze": 80,
+    "math": 95,
+    "design": 5,
+    "operate": 0,
+    "people": 25,
+    "ambiguity": 95,
+    "interruptions": 10,
+    "collaboration": 40,
+    "research": 100,
+    "customer_contact": 5
+   },
+   "summary": "Formulating new methods, deriving and testing ideas in long experiment runs, reading and discussing papers, and writing up results for publication, with most experiments failing before one works."
+  },
+  "ml-scientist": {
+   "scores": {
+    "build": 50,
+    "analyze": 90,
+    "math": 85,
+    "design": 5,
+    "operate": 10,
+    "people": 35,
+    "ambiguity": 70,
+    "interruptions": 15,
+    "collaboration": 55,
+    "research": 75,
+    "customer_contact": 5
+   },
+   "summary": "Choosing model architectures and features, designing training and evaluation setups, analyzing error cases to improve quality metrics, and handing improved models to ML engineers for production."
+  },
+  "statistician": {
+   "scores": {
+    "build": 15,
+    "analyze": 90,
+    "math": 95,
+    "design": 10,
+    "operate": 5,
+    "people": 50,
+    "ambiguity": 50,
+    "interruptions": 25,
+    "collaboration": 55,
+    "research": 55,
+    "customer_contact": 25
+   },
+   "summary": "Designing studies and sample sizes, fitting statistical models in R or SAS, checking assumptions and methodology, and explaining what the data can and cannot support to researchers or decision makers."
+  },
+  "biostatistician": {
+   "scores": {
+    "build": 15,
+    "analyze": 85,
+    "math": 90,
+    "design": 5,
+    "operate": 5,
+    "people": 55,
+    "ambiguity": 35,
+    "interruptions": 30,
+    "collaboration": 70,
+    "research": 40,
+    "customer_contact": 15
+   },
+   "summary": "Writing statistical analysis plans for clinical trials, programming tables and survival analyses in SAS or R, reviewing outputs with clinicians and programmers, and documenting everything for regulators."
+  },
+  "econometrician": {
+   "scores": {
+    "build": 20,
+    "analyze": 90,
+    "math": 90,
+    "design": 5,
+    "operate": 5,
+    "people": 40,
+    "ambiguity": 70,
+    "interruptions": 15,
+    "collaboration": 45,
+    "research": 75,
+    "customer_contact": 15
+   },
+   "summary": "Specifying and estimating economic models for demand, pricing or policy effects, running causal and time-series analyses in R, Stata or Python, and writing up findings for economists and leadership."
+  },
+  "quant-analyst": {
+   "scores": {
+    "build": 65,
+    "analyze": 75,
+    "math": 95,
+    "design": 5,
+    "operate": 25,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 50,
+    "collaboration": 60,
+    "research": 45,
+    "customer_contact": 15
+   },
+   "summary": "Implementing and testing pricing and risk models in Python and C++, calibrating them to market data, answering traders' and risk managers' questions, and documenting models for validation and regulators."
+  },
+  "quant-researcher": {
+   "scores": {
+    "build": 55,
+    "analyze": 95,
+    "math": 95,
+    "design": 0,
+    "operate": 10,
+    "people": 20,
+    "ambiguity": 85,
+    "interruptions": 25,
+    "collaboration": 40,
+    "research": 90,
+    "customer_contact": 0
+   },
+   "summary": "Mining noisy market data for predictive signals, building and backtesting strategies, stress-testing results for overfitting, and pitching the few ideas that survive for live trading."
+  },
+  "quant-trader": {
+   "scores": {
+    "build": 40,
+    "analyze": 80,
+    "math": 85,
+    "design": 0,
+    "operate": 50,
+    "people": 45,
+    "ambiguity": 60,
+    "interruptions": 95,
+    "collaboration": 65,
+    "research": 35,
+    "customer_contact": 20
+   },
+   "summary": "Watching live strategies and positions through the trading day, adjusting parameters and risk limits as markets move, reacting fast to fills and events, and analyzing P&L afterwards to improve models."
+  },
+  "experimentation-scientist": {
+   "scores": {
+    "build": 40,
+    "analyze": 90,
+    "math": 85,
+    "design": 5,
+    "operate": 15,
+    "people": 55,
+    "ambiguity": 55,
+    "interruptions": 35,
+    "collaboration": 70,
+    "research": 60,
+    "customer_contact": 5
+   },
+   "summary": "Reviewing A/B test designs with product teams, building statistical methods like variance reduction and sequential testing into the experiment platform, and debugging suspicious results before teams ship on them."
+  },
+  "decision-scientist": {
+   "scores": {
+    "build": 15,
+    "analyze": 90,
+    "math": 60,
+    "design": 15,
+    "operate": 5,
+    "people": 80,
+    "ambiguity": 75,
+    "interruptions": 45,
+    "collaboration": 80,
+    "research": 40,
+    "customer_contact": 15
+   },
+   "summary": "Framing vague business questions, pulling data with SQL, modeling tradeoffs and likely impact, and presenting clear recommendations to leaders who need to make a call this week."
+  },
+  "actuary": {
+   "scores": {
+    "build": 15,
+    "analyze": 80,
+    "math": 85,
+    "design": 0,
+    "operate": 5,
+    "people": 45,
+    "ambiguity": 30,
+    "interruptions": 35,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 15
+   },
+   "summary": "Building and updating pricing and reserving models in Excel, R or actuarial software, analyzing claims and mortality experience, preparing regulatory reports, and studying for professional exams on the side."
+  },
+  "nlp-scientist": {
+   "scores": {
+    "build": 55,
+    "analyze": 80,
+    "math": 85,
+    "design": 5,
+    "operate": 10,
+    "people": 25,
+    "ambiguity": 85,
+    "interruptions": 15,
+    "collaboration": 45,
+    "research": 90,
+    "customer_contact": 5
+   },
+   "summary": "Fine-tuning and evaluating language models, building retrieval and evaluation datasets, running ablations on GPUs, reading the flood of new LLM papers, and writing up which ideas actually improve results."
+  },
+  "cv-scientist": {
+   "scores": {
+    "build": 60,
+    "analyze": 75,
+    "math": 85,
+    "design": 10,
+    "operate": 10,
+    "people": 25,
+    "ambiguity": 80,
+    "interruptions": 15,
+    "collaboration": 45,
+    "research": 85,
+    "customer_contact": 5
+   },
+   "summary": "Training and evaluating detection, segmentation or tracking models, curating and inspecting image and video data, analyzing failure cases, and optimizing models to meet real-world accuracy and latency limits."
+  },
+  "product-data-scientist": {
+   "scores": {
+    "build": 20,
+    "analyze": 95,
+    "math": 60,
+    "design": 20,
+    "operate": 5,
+    "people": 75,
+    "ambiguity": 65,
+    "interruptions": 50,
+    "collaboration": 85,
+    "research": 35,
+    "customer_contact": 15
+   },
+   "summary": "Writing SQL to answer product questions, defining metrics and dashboards, analyzing A/B tests and funnels, and sitting in product meetings to shape what the team builds next."
+  },
+  "marketing-scientist": {
+   "scores": {
+    "build": 25,
+    "analyze": 90,
+    "math": 70,
+    "design": 10,
+    "operate": 5,
+    "people": 65,
+    "ambiguity": 60,
+    "interruptions": 45,
+    "collaboration": 70,
+    "research": 45,
+    "customer_contact": 15
+   },
+   "summary": "Building attribution and media-mix models, predicting churn and lifetime value, analyzing campaign experiments, and advising marketers on where to move budget based on the results."
+  },
+  "or-scientist": {
+   "scores": {
+    "build": 55,
+    "analyze": 80,
+    "math": 95,
+    "design": 5,
+    "operate": 15,
+    "people": 40,
+    "ambiguity": 70,
+    "interruptions": 20,
+    "collaboration": 55,
+    "research": 65,
+    "customer_contact": 10
+   },
+   "summary": "Translating routing, scheduling or inventory problems into optimization models, coding them with solvers like Gurobi, running simulations to test scenarios, and working with ops teams to put solutions into use."
+  },
+  "bioinformatics-scientist": {
+   "scores": {
+    "build": 50,
+    "analyze": 90,
+    "math": 70,
+    "design": 5,
+    "operate": 20,
+    "people": 45,
+    "ambiguity": 70,
+    "interruptions": 25,
+    "collaboration": 65,
+    "research": 80,
+    "customer_contact": 10
+   },
+   "summary": "Running and maintaining sequencing pipelines on HPC clusters, analyzing genomic or single-cell data in Python and R, and discussing results with lab biologists to decide which follow-up experiments are worth doing."
+  },
+  "causal-inference-scientist": {
+   "scores": {
+    "build": 25,
+    "analyze": 90,
+    "math": 90,
+    "design": 5,
+    "operate": 5,
+    "people": 45,
+    "ambiguity": 80,
+    "interruptions": 15,
+    "collaboration": 50,
+    "research": 80,
+    "customer_contact": 5
+   },
+   "summary": "Estimating causal effects from observational data with quasi-experiments, matching and uplift models, testing whether assumptions hold, and explaining how confident teams can be in the answer."
+  },
+  "risk-quant": {
+   "scores": {
+    "build": 30,
+    "analyze": 85,
+    "math": 85,
+    "design": 0,
+    "operate": 10,
+    "people": 45,
+    "ambiguity": 35,
+    "interruptions": 30,
+    "collaboration": 55,
+    "research": 30,
+    "customer_contact": 10
+   },
+   "summary": "Reviewing other teams' credit and market risk models, re-implementing and stress-testing them, writing detailed validation reports on weaknesses, and preparing evidence for regulatory examinations."
+  },
+  "survey-statistician": {
+   "scores": {
+    "build": 15,
+    "analyze": 85,
+    "math": 85,
+    "design": 15,
+    "operate": 10,
+    "people": 45,
+    "ambiguity": 35,
+    "interruptions": 20,
+    "collaboration": 55,
+    "research": 45,
+    "customer_contact": 20
+   },
+   "summary": "Designing sampling frames and questionnaires, computing weights and non-response adjustments in R or SAS, estimating margins of error, and checking that published survey figures are truly representative."
+  },
+  "ml-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 60,
+    "math": 55,
+    "design": 5,
+    "operate": 50,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 35,
+    "customer_contact": 5
+   },
+   "summary": "Turning notebook models into production code, building training and feature pipelines, deploying models behind APIs, and monitoring live performance and data drift so models keep working after launch."
+  },
+  "ai-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 45,
+    "math": 25,
+    "design": 35,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 60,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 40,
+    "customer_contact": 20
+   },
+   "summary": "Building product features on LLM APIs: writing prompts and retrieval pipelines, wiring agents and tools into backend code, writing evals and guardrails, and iterating until the AI behaves reliably for users."
+  },
+  "mlops-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 40,
+    "math": 20,
+    "design": 0,
+    "operate": 85,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 70,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Setting up CI/CD for models, model registries and Kubernetes deployments, writing Terraform, monitoring model drift and serving health, and getting paged when a training job or inference service fails."
+  },
+  "ml-platform-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 35,
+    "math": 25,
+    "design": 15,
+    "operate": 60,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 45,
+    "collaboration": 65,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Building self-serve internal tools for training orchestration, experiment tracking and feature stores, designing their APIs, and gathering feedback from data scientists who use the platform every day."
+  },
+  "ml-infra-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 55,
+    "math": 30,
+    "design": 5,
+    "operate": 80,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 65,
+    "collaboration": 55,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Keeping GPU clusters and distributed training jobs healthy: debugging failed multi-node runs, tuning schedulers and interconnects, chasing utilization, and building tooling so researchers' jobs start fast and don't crash."
+  },
+  "cv-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 70,
+    "math": 65,
+    "design": 10,
+    "operate": 20,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 20,
+    "collaboration": 50,
+    "research": 50,
+    "customer_contact": 10
+   },
+   "summary": "Curating and labeling image data, training and evaluating detection or segmentation models, digging into failure cases, and optimizing models to run in real time on servers or edge devices."
+  },
+  "nlp-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 75,
+    "math": 55,
+    "design": 5,
+    "operate": 15,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 20,
+    "collaboration": 50,
+    "research": 50,
+    "customer_contact": 10
+   },
+   "summary": "Cleaning and tokenizing text, fine-tuning transformer models for classification or extraction, building LLM pipelines, and running careful evaluations and error analysis to see what the model actually gets wrong."
+  },
+  "dl-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 75,
+    "math": 80,
+    "design": 5,
+    "operate": 10,
+    "people": 25,
+    "ambiguity": 65,
+    "interruptions": 15,
+    "collaboration": 45,
+    "research": 70,
+    "customer_contact": 5
+   },
+   "summary": "Designing and tweaking network architectures, losses and training setups, launching GPU training runs, watching loss curves, and running ablations to figure out which change actually improved the model."
+  },
+  "recsys-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 80,
+    "math": 65,
+    "design": 10,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 30,
+    "collaboration": 55,
+    "research": 40,
+    "customer_contact": 5
+   },
+   "summary": "Building feature pipelines and training ranking and embedding models, shipping them to online serving, and reading A/B test results to see whether engagement moved without creating bad feedback loops."
+  },
+  "search-ranking-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 80,
+    "math": 55,
+    "design": 10,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 30,
+    "collaboration": 55,
+    "research": 35,
+    "customer_contact": 5
+   },
+   "summary": "Improving retrieval and learning-to-rank models, tuning Elasticsearch and vector indexes, analyzing bad queries, and running relevance evaluations and experiments to make search results more useful."
+  },
+  "ml-research-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 70,
+    "math": 70,
+    "design": 5,
+    "operate": 20,
+    "people": 30,
+    "ambiguity": 70,
+    "interruptions": 25,
+    "collaboration": 60,
+    "research": 75,
+    "customer_contact": 5
+   },
+   "summary": "Implementing ideas from papers and from research scientists, running and debugging large-scale experiments on GPUs, and building the training and evaluation tooling that lets the research team iterate quickly."
+  },
+  "research-scientist-ml": {
+   "scores": {
+    "build": 50,
+    "analyze": 80,
+    "math": 95,
+    "design": 5,
+    "operate": 5,
+    "people": 25,
+    "ambiguity": 90,
+    "interruptions": 10,
+    "collaboration": 40,
+    "research": 95,
+    "customer_contact": 5
+   },
+   "summary": "Reading literature, forming hypotheses about new methods or theory, running experiments to test them, analyzing results, and writing papers. Most ideas fail, and the job is learning why."
+  },
+  "llm-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 75,
+    "math": 70,
+    "design": 5,
+    "operate": 25,
+    "people": 30,
+    "ambiguity": 70,
+    "interruptions": 25,
+    "collaboration": 55,
+    "research": 70,
+    "customer_contact": 5
+   },
+   "summary": "Curating training data, running pretraining or fine-tuning and RLHF/DPO jobs, building eval harnesses, and debugging training instabilities on large models alongside frontier-model research teams."
+  },
+  "genai-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 50,
+    "math": 45,
+    "design": 35,
+    "operate": 20,
+    "people": 35,
+    "ambiguity": 60,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 45,
+    "customer_contact": 20
+   },
+   "summary": "Building text, image or audio generation features: picking and fine-tuning foundation or diffusion models, wiring them into serving and product code, and iterating on output quality until users want it."
+  },
+  "prompt-eng": {
+   "scores": {
+    "build": 45,
+    "analyze": 70,
+    "math": 15,
+    "design": 35,
+    "operate": 10,
+    "people": 55,
+    "ambiguity": 70,
+    "interruptions": 35,
+    "collaboration": 65,
+    "research": 50,
+    "customer_contact": 25
+   },
+   "summary": "Writing and iterating on prompts and system instructions, building eval sets to measure model behavior, reading lots of model outputs, and working with product and domain experts on tone, safety and reliability."
+  },
+  "conversational-ai-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 50,
+    "math": 25,
+    "design": 40,
+    "operate": 30,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 25,
+    "customer_contact": 30
+   },
+   "summary": "Building chatbot and voice assistant flows: intent handling, dialogue logic, LLM agents and API integrations with support systems, then reviewing transcripts to fix conversations that fail to resolve the user's task."
+  },
+  "speech-ai-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 70,
+    "math": 75,
+    "design": 5,
+    "operate": 15,
+    "people": 25,
+    "ambiguity": 60,
+    "interruptions": 20,
+    "collaboration": 45,
+    "research": 60,
+    "customer_contact": 5
+   },
+   "summary": "Preparing audio datasets, training and evaluating ASR or text-to-speech models, applying signal processing, and optimizing models for low-latency streaming inference."
+  },
+  "rl-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 75,
+    "math": 85,
+    "design": 5,
+    "operate": 10,
+    "people": 20,
+    "ambiguity": 75,
+    "interruptions": 15,
+    "collaboration": 40,
+    "research": 80,
+    "customer_contact": 5
+   },
+   "summary": "Designing reward functions and simulation environments, running unstable RL training loops, and patiently debugging why an agent learned the wrong behavior or stopped learning altogether."
+  },
+  "ads-ml-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 85,
+    "math": 70,
+    "design": 5,
+    "operate": 35,
+    "people": 35,
+    "ambiguity": 45,
+    "interruptions": 35,
+    "collaboration": 55,
+    "research": 35,
+    "customer_contact": 5
+   },
+   "summary": "Engineering features and training CTR/CVR and bidding models on huge logs, shipping them to low-latency serving, and running rigorous A/B tests where tiny metric gains translate into real revenue."
+  },
+  "rag-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 55,
+    "math": 25,
+    "design": 15,
+    "operate": 30,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 30,
+    "customer_contact": 25
+   },
+   "summary": "Building retrieval pipelines: ingesting documents, tuning chunking and embeddings, managing vector stores, and running evals on answer accuracy and citations so enterprise assistants stay grounded in real data."
+  },
+  "ml-perf-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 75,
+    "math": 45,
+    "design": 0,
+    "operate": 40,
+    "people": 20,
+    "ambiguity": 50,
+    "interruptions": 25,
+    "collaboration": 40,
+    "research": 45,
+    "customer_contact": 5
+   },
+   "summary": "Profiling model inference, writing and fusing GPU kernels, applying quantization, and tuning batching and serving engines like vLLM or TensorRT to cut latency and cost per request."
+  },
+  "multimodal-ml-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 75,
+    "math": 75,
+    "design": 5,
+    "operate": 15,
+    "people": 25,
+    "ambiguity": 75,
+    "interruptions": 15,
+    "collaboration": 50,
+    "research": 75,
+    "customer_contact": 5
+   },
+   "summary": "Building messy paired datasets of images, audio and text, training models that align modalities, and running large experiments and evals on vision-language or any-to-any models."
+  },
+  "edge-ml-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 60,
+    "math": 45,
+    "design": 5,
+    "operate": 25,
+    "people": 25,
+    "ambiguity": 45,
+    "interruptions": 25,
+    "collaboration": 50,
+    "research": 35,
+    "customer_contact": 5
+   },
+   "summary": "Quantizing, pruning and converting models to TFLite or ONNX, benchmarking them on phones and embedded hardware, and writing C++ to fit inference within tight memory, power and latency limits."
+  },
+  "genai-app-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 35,
+    "math": 10,
+    "design": 40,
+    "operate": 30,
+    "people": 40,
+    "ambiguity": 45,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 30
+   },
+   "summary": "Writing full-stack code that ships LLM features like chat, copilots and summarization: calling model APIs, adding retrieval and guardrails, and polishing the UI and backend for real users."
+  },
+  "ai-agent-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 50,
+    "math": 15,
+    "design": 25,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 65,
+    "interruptions": 35,
+    "collaboration": 55,
+    "research": 45,
+    "customer_contact": 20
+   },
+   "summary": "Building agent loops that plan and call tools: defining functions and integrations, managing memory and context, adding guardrails, and reading traces and evals to see where multi-step workflows go off the rails."
+  },
+  "fde": {
+   "scores": {
+    "build": 80,
+    "analyze": 50,
+    "math": 15,
+    "design": 25,
+    "operate": 30,
+    "people": 80,
+    "ambiguity": 70,
+    "interruptions": 70,
+    "collaboration": 85,
+    "research": 20,
+    "customer_contact": 95
+   },
+   "summary": "Working on-site or in close contact with customers: understanding their data and systems, rapidly prototyping and deploying AI solutions, fixing integration problems, and translating their needs back to the product team."
+  },
+  "ai-product-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 45,
+    "math": 10,
+    "design": 60,
+    "operate": 20,
+    "people": 60,
+    "ambiguity": 70,
+    "interruptions": 50,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 40
+   },
+   "summary": "Owning an AI feature end to end: deciding what to build, prototyping the UX, wiring in the LLM, writing evals, shipping to production, and iterating from user feedback and analytics."
+  },
+  "ai-safety-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 75,
+    "math": 35,
+    "design": 5,
+    "operate": 35,
+    "people": 50,
+    "ambiguity": 70,
+    "interruptions": 40,
+    "collaboration": 65,
+    "research": 55,
+    "customer_contact": 10
+   },
+   "summary": "Building classifiers, filters and guardrails, running safety evals and adversarial tests on models, reviewing harmful-output incidents, and working with policy teams to turn rules into enforceable checks."
+  },
+  "ai-alignment-researcher": {
+   "scores": {
+    "build": 45,
+    "analyze": 80,
+    "math": 85,
+    "design": 5,
+    "operate": 5,
+    "people": 30,
+    "ambiguity": 95,
+    "interruptions": 10,
+    "collaboration": 50,
+    "research": 95,
+    "customer_contact": 5
+   },
+   "summary": "Posing open questions about how models learn goals, running experiments on interpretability, RLHF or oversight methods, analyzing surprising model behavior, and writing up findings for papers and training teams."
+  },
+  "llm-eval-eng": {
+   "scores": {
+    "build": 60,
+    "analyze": 85,
+    "math": 45,
+    "design": 10,
+    "operate": 25,
+    "people": 45,
+    "ambiguity": 55,
+    "interruptions": 35,
+    "collaboration": 65,
+    "research": 40,
+    "customer_contact": 10
+   },
+   "summary": "Designing benchmarks and test sets, building LLM-as-judge and regression pipelines, checking metrics against human labels, and reporting whether a new model or prompt is actually better."
+  },
+  "ai-red-teamer": {
+   "scores": {
+    "build": 30,
+    "analyze": 80,
+    "math": 15,
+    "design": 5,
+    "operate": 20,
+    "people": 40,
+    "ambiguity": 75,
+    "interruptions": 30,
+    "collaboration": 45,
+    "research": 60,
+    "customer_contact": 15
+   },
+   "summary": "Crafting jailbreaks, prompt injections and adversarial inputs to break models, documenting what fails and how severe it is, and writing reports that safety and product teams use to fix the holes."
+  },
+  "llmops-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 50,
+    "math": 15,
+    "design": 5,
+    "operate": 90,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 75,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Deploying and versioning models and prompts, running CI/CD for LLM apps, watching dashboards for latency, cost and quality drift, and responding when a model endpoint slows down or starts misbehaving."
+  },
+  "genai-solutions-arch": {
+   "scores": {
+    "build": 45,
+    "analyze": 55,
+    "math": 15,
+    "design": 35,
+    "operate": 35,
+    "people": 85,
+    "ambiguity": 70,
+    "interruptions": 60,
+    "collaboration": 90,
+    "research": 30,
+    "customer_contact": 80
+   },
+   "summary": "Meeting customers and internal teams to scope GenAI use cases, drawing architectures that balance models, retrieval, security and cost, building proofs of concept, and guiding teams from pilot to production."
+  },
+  "applied-ai-research-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 70,
+    "math": 60,
+    "design": 10,
+    "operate": 15,
+    "people": 35,
+    "ambiguity": 70,
+    "interruptions": 25,
+    "collaboration": 65,
+    "research": 65,
+    "customer_contact": 5
+   },
+   "summary": "Implementing new techniques from papers, running fine-tuning and training experiments, evaluating whether they work on the product's data, and handing working capabilities to product engineering teams."
+  },
+  "fine-tuning-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 75,
+    "math": 55,
+    "design": 5,
+    "operate": 25,
+    "people": 25,
+    "ambiguity": 50,
+    "interruptions": 20,
+    "collaboration": 50,
+    "research": 50,
+    "customer_contact": 5
+   },
+   "summary": "Building and cleaning domain training datasets, running LoRA/PEFT and full fine-tunes on GPUs, and evaluating whether the tuned model really beats the base model on the target task."
+  },
+  "genai-pm": {
+   "scores": {
+    "build": 25,
+    "analyze": 60,
+    "math": 15,
+    "design": 45,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 85,
+    "interruptions": 60,
+    "collaboration": 95,
+    "research": 40,
+    "customer_contact": 55
+   },
+   "summary": "Deciding which AI features to build and why, writing specs with eval criteria and guardrails, making model quality vs. cost tradeoffs, and aligning engineering, research, design and users around launches."
+  },
+  "rlhf-eng": {
+   "scores": {
+    "build": 60,
+    "analyze": 75,
+    "math": 70,
+    "design": 5,
+    "operate": 25,
+    "people": 40,
+    "ambiguity": 65,
+    "interruptions": 25,
+    "collaboration": 60,
+    "research": 65,
+    "customer_contact": 5
+   },
+   "summary": "Building preference-data pipelines with annotation teams, training reward models, running RL fine-tuning on LLMs, and evaluating whether the model became more helpful and safe without new failure modes."
+  },
+  "llm-inference-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 70,
+    "math": 40,
+    "design": 0,
+    "operate": 55,
+    "people": 20,
+    "ambiguity": 45,
+    "interruptions": 40,
+    "collaboration": 45,
+    "research": 40,
+    "customer_contact": 5
+   },
+   "summary": "Tuning LLM serving stacks for tokens per second: KV-cache management, batching, quantization and kernel work, plus profiling and keeping distributed inference fast and stable in production."
+  },
+  "multimodal-ai-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 60,
+    "math": 45,
+    "design": 15,
+    "operate": 20,
+    "people": 35,
+    "ambiguity": 60,
+    "interruptions": 25,
+    "collaboration": 55,
+    "research": 45,
+    "customer_contact": 15
+   },
+   "summary": "Integrating and fine-tuning vision-language and audio models into applications, building image and audio processing and embedding pipelines, and testing multimodal search, generation and understanding features."
+  },
+  "ai-automation-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 40,
+    "math": 10,
+    "design": 15,
+    "operate": 40,
+    "people": 45,
+    "ambiguity": 55,
+    "interruptions": 45,
+    "collaboration": 60,
+    "research": 35,
+    "customer_contact": 25
+   },
+   "summary": "Mapping a manual business process with the ops team, then wiring LLM calls, APIs, webhooks and n8n/Zapier flows into a pipeline, tuning prompts, and fixing the runs that break when inputs get messy."
+  },
+  "ai-solutions-eng": {
+   "scores": {
+    "build": 50,
+    "analyze": 40,
+    "math": 10,
+    "design": 20,
+    "operate": 10,
+    "people": 85,
+    "ambiguity": 60,
+    "interruptions": 60,
+    "collaboration": 80,
+    "research": 30,
+    "customer_contact": 90
+   },
+   "summary": "Customer calls to scope GenAI use cases, building quick demos and proofs of concept in Python against the LLM platform's APIs, answering technical questions for sales, and helping customers get integrations live."
+  },
+  "data-analyst": {
+   "scores": {
+    "build": 20,
+    "analyze": 90,
+    "math": 45,
+    "design": 30,
+    "operate": 10,
+    "people": 55,
+    "ambiguity": 50,
+    "interruptions": 55,
+    "collaboration": 60,
+    "research": 30,
+    "customer_contact": 10
+   },
+   "summary": "Writing SQL against business tables, cleaning messy data in spreadsheets or Python, building dashboards and recurring reports, and fielding ad-hoc stakeholder questions that need turning into a clear metric and answer."
+  },
+  "bi-analyst": {
+   "scores": {
+    "build": 30,
+    "analyze": 80,
+    "math": 30,
+    "design": 40,
+    "operate": 20,
+    "people": 65,
+    "ambiguity": 40,
+    "interruptions": 45,
+    "collaboration": 65,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Agreeing metric definitions with business leaders, modeling data inside Power BI/Tableau/Looker, building governed dashboards, and chasing down why a KPI does not match what someone expected."
+  },
+  "bi-developer": {
+   "scores": {
+    "build": 65,
+    "analyze": 55,
+    "math": 20,
+    "design": 20,
+    "operate": 35,
+    "people": 25,
+    "ambiguity": 30,
+    "interruptions": 35,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Building ETL jobs and warehouse tables, designing semantic models and DAX/MDX measures, tuning slow queries and refreshes, and fixing pipelines that feed the dashboards analysts and leaders rely on."
+  },
+  "product-analyst": {
+   "scores": {
+    "build": 15,
+    "analyze": 90,
+    "math": 55,
+    "design": 25,
+    "operate": 5,
+    "people": 65,
+    "ambiguity": 60,
+    "interruptions": 40,
+    "collaboration": 75,
+    "research": 45,
+    "customer_contact": 10
+   },
+   "summary": "Analyzing funnels, retention and feature adoption in SQL and Amplitude/Mixpanel, designing and reading A/B tests, specifying event tracking with engineers, and walking PMs through what the behavior data means."
+  },
+  "marketing-analyst": {
+   "scores": {
+    "build": 10,
+    "analyze": 85,
+    "math": 40,
+    "design": 25,
+    "operate": 10,
+    "people": 60,
+    "ambiguity": 45,
+    "interruptions": 50,
+    "collaboration": 65,
+    "research": 30,
+    "customer_contact": 10
+   },
+   "summary": "Pulling data from GA4, ad platforms and the CRM, calculating campaign ROI, CAC and attribution, maintaining marketing performance reports, and advising marketers on where to shift budget."
+  },
+  "growth-analyst": {
+   "scores": {
+    "build": 15,
+    "analyze": 90,
+    "math": 55,
+    "design": 20,
+    "operate": 5,
+    "people": 55,
+    "ambiguity": 65,
+    "interruptions": 45,
+    "collaboration": 70,
+    "research": 50,
+    "customer_contact": 10
+   },
+   "summary": "Forming hypotheses about acquisition, activation and retention, sizing opportunities, designing and analyzing experiments, and digging through cohort and conversion data with the growth team to find the next lever."
+  },
+  "business-analyst": {
+   "scores": {
+    "build": 15,
+    "analyze": 65,
+    "math": 15,
+    "design": 25,
+    "operate": 15,
+    "people": 85,
+    "ambiguity": 50,
+    "interruptions": 50,
+    "collaboration": 85,
+    "research": 15,
+    "customer_contact": 25
+   },
+   "summary": "Running stakeholder workshops, mapping current and future processes, writing requirements and user stories in Jira, pulling supporting data with SQL or Excel, and clarifying open questions between business and delivery teams."
+  },
+  "financial-analyst-tech": {
+   "scores": {
+    "build": 15,
+    "analyze": 85,
+    "math": 55,
+    "design": 10,
+    "operate": 10,
+    "people": 55,
+    "ambiguity": 40,
+    "interruptions": 50,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Building and updating forecast and budget models in Excel, explaining variances against plan, pulling revenue and spend data with SQL/BI, and preparing burn and unit-economics reporting for finance leaders."
+  },
+  "reporting-analyst": {
+   "scores": {
+    "build": 25,
+    "analyze": 60,
+    "math": 20,
+    "design": 25,
+    "operate": 35,
+    "people": 35,
+    "ambiguity": 15,
+    "interruptions": 45,
+    "collaboration": 40,
+    "research": 5,
+    "customer_contact": 5
+   },
+   "summary": "Running and validating the standard weekly, monthly and regulatory reports, maintaining SQL and BI templates, automating manual report steps, and tracking down discrepancies before numbers go out."
+  },
+  "analytics-manager": {
+   "scores": {
+    "build": 10,
+    "analyze": 65,
+    "math": 30,
+    "design": 15,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 70,
+    "interruptions": 75,
+    "collaboration": 90,
+    "research": 25,
+    "customer_contact": 15
+   },
+   "summary": "Prioritizing incoming analytics requests, meeting with business leaders, reviewing analysts' work, coaching and hiring the team, and setting the analytics roadmap so the team's output feeds real decisions."
+  },
+  "tableau-developer": {
+   "scores": {
+    "build": 60,
+    "analyze": 50,
+    "math": 15,
+    "design": 55,
+    "operate": 25,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 35,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Building Tableau dashboards and data sources, writing LOD calculations and SQL, publishing and managing content on Tableau Server/Cloud, and tuning slow workbooks and extracts."
+  },
+  "power-bi-developer": {
+   "scores": {
+    "build": 65,
+    "analyze": 50,
+    "math": 20,
+    "design": 45,
+    "operate": 25,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 35,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Shaping data in Power Query, building star-schema semantic models, writing and debugging DAX measures, designing Power BI reports, and managing refreshes and workspaces in the Azure/Fabric environment."
+  },
+  "data-viz-specialist": {
+   "scores": {
+    "build": 45,
+    "analyze": 55,
+    "math": 15,
+    "design": 85,
+    "operate": 5,
+    "people": 55,
+    "ambiguity": 50,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 30,
+    "customer_contact": 20
+   },
+   "summary": "Designing dashboards, charts and infographics in Tableau, Power BI or D3, iterating layouts with stakeholders, shaping the data narrative, and polishing executive and public-facing visuals so non-analysts get the point."
+  },
+  "revenue-operations-analyst": {
+   "scores": {
+    "build": 20,
+    "analyze": 75,
+    "math": 30,
+    "design": 15,
+    "operate": 40,
+    "people": 70,
+    "ambiguity": 40,
+    "interruptions": 65,
+    "collaboration": 75,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Cleaning and auditing Salesforce data, building pipeline and forecast dashboards, reporting on quota attainment and funnel conversion, and answering urgent numbers questions from sales and marketing leaders."
+  },
+  "web-analyst": {
+   "scores": {
+    "build": 35,
+    "analyze": 80,
+    "math": 30,
+    "design": 20,
+    "operate": 30,
+    "people": 50,
+    "ambiguity": 40,
+    "interruptions": 45,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Setting up and debugging tags in Google Tag Manager, auditing GA4 tracking and consent, analyzing traffic and conversion paths, and reporting on site tests and attribution for digital and e-commerce teams."
+  },
+  "operations-analyst": {
+   "scores": {
+    "build": 10,
+    "analyze": 80,
+    "math": 35,
+    "design": 10,
+    "operate": 35,
+    "people": 60,
+    "ambiguity": 45,
+    "interruptions": 55,
+    "collaboration": 70,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Tracking throughput, SLA, capacity and cost metrics in SQL and spreadsheets, spotting bottlenecks in operational data, and working with ops managers to test and roll out process fixes."
+  },
+  "insights-analyst": {
+   "scores": {
+    "build": 5,
+    "analyze": 85,
+    "math": 40,
+    "design": 30,
+    "operate": 5,
+    "people": 65,
+    "ambiguity": 65,
+    "interruptions": 30,
+    "collaboration": 65,
+    "research": 60,
+    "customer_contact": 35
+   },
+   "summary": "Designing and analyzing surveys and market research, combining them with behavioral data in SQL, and turning the findings into 'so what' presentations and recommendations for strategy and consumer teams."
+  },
+  "devops": {
+   "scores": {
+    "build": 60,
+    "analyze": 45,
+    "math": 10,
+    "design": 5,
+    "operate": 85,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 75,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Building and debugging CI/CD pipelines, containerizing services, writing Terraform for cloud resources, scripting away deploy toil, and taking on-call shifts when a deployment or environment breaks."
+  },
+  "sre": {
+   "scores": {
+    "build": 50,
+    "analyze": 55,
+    "math": 20,
+    "design": 5,
+    "operate": 95,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 90,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Running on-call for large production systems, defining SLOs and alerts, investigating incidents and writing postmortems, and coding automation that removes the toil and failure modes behind outages."
+  },
+  "platform-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 40,
+    "math": 15,
+    "design": 25,
+    "operate": 65,
+    "people": 45,
+    "ambiguity": 55,
+    "interruptions": 45,
+    "collaboration": 65,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Writing Go/Python and Terraform to build self-service infrastructure, golden-path templates and GitOps workflows on Kubernetes, supporting the internal teams who use the platform, and handling platform incidents."
+  },
+  "build-release-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 45,
+    "math": 10,
+    "design": 5,
+    "operate": 60,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Maintaining Bazel/Gradle build configs, speeding up and de-flaking builds, managing versioning, branching and artifact repositories, and running the scripted pipeline that packages, signs and ships each release."
+  },
+  "cicd-eng": {
+   "scores": {
+    "build": 60,
+    "analyze": 45,
+    "math": 5,
+    "design": 5,
+    "operate": 65,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 60,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Writing pipeline-as-code in Jenkins, GitHub Actions or GitLab CI, wiring automated tests and security scans into builds, chasing flaky and slow pipelines, and unblocking teams whose merges or deploys are stuck."
+  },
+  "observability-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 70,
+    "math": 25,
+    "design": 25,
+    "operate": 80,
+    "people": 40,
+    "ambiguity": 45,
+    "interruptions": 65,
+    "collaboration": 60,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Instrumenting services with OpenTelemetry, running the Prometheus/Grafana and logging stack, writing PromQL queries, building dashboards and alerts, and helping engineers read telemetry during incidents."
+  },
+  "infra-eng": {
+   "scores": {
+    "build": 50,
+    "analyze": 40,
+    "math": 10,
+    "design": 5,
+    "operate": 85,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 65,
+    "collaboration": 50,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Provisioning compute, networking and storage with Terraform, maintaining Linux hosts and Kubernetes clusters, patching and hardening systems, watching cost and capacity, and responding when the underlying infrastructure misbehaves."
+  },
+  "devex-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 45,
+    "math": 10,
+    "design": 40,
+    "operate": 40,
+    "people": 60,
+    "ambiguity": 55,
+    "interruptions": 40,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Interviewing engineers about workflow pain, building internal CLIs, local dev setups and portal plugins, speeding up CI, writing internal docs, and tracking DORA and productivity metrics to see what helped."
+  },
+  "cloud-arch": {
+   "scores": {
+    "build": 35,
+    "analyze": 60,
+    "math": 15,
+    "design": 25,
+    "operate": 35,
+    "people": 75,
+    "ambiguity": 75,
+    "interruptions": 50,
+    "collaboration": 85,
+    "research": 35,
+    "customer_contact": 40
+   },
+   "summary": "Designing cloud architectures and diagrams, weighing cost, security and scale trade-offs, reviewing teams' designs, planning migrations, and presenting recommendations to engineering leads and often clients."
+  },
+  "cloud-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 35,
+    "math": 10,
+    "design": 5,
+    "operate": 80,
+    "people": 30,
+    "ambiguity": 35,
+    "interruptions": 60,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Provisioning AWS/Azure/GCP services with Terraform, configuring networking, IAM and containers, scripting automation, setting up monitoring, and troubleshooting cloud workloads when they fail or overspend."
+  },
+  "kubernetes-eng": {
+   "scores": {
+    "build": 50,
+    "analyze": 50,
+    "math": 10,
+    "design": 5,
+    "operate": 90,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 70,
+    "collaboration": 45,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Operating and upgrading production Kubernetes clusters, writing Helm charts and GitOps configs, debugging pod scheduling, networking and service-mesh issues, and hardening cluster security."
+  },
+  "devsecops-eng": {
+   "scores": {
+    "build": 50,
+    "analyze": 60,
+    "math": 15,
+    "design": 5,
+    "operate": 75,
+    "people": 45,
+    "ambiguity": 45,
+    "interruptions": 60,
+    "collaboration": 65,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Adding SAST, DAST and dependency scans to pipelines, triaging findings with dev teams, managing secrets in Vault, writing policy-as-code for containers and IaC, and gathering evidence for SOC2/ISO audits."
+  },
+  "production-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 65,
+    "math": 20,
+    "design": 5,
+    "operate": 90,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 85,
+    "collaboration": 55,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Embedded with a product team, debugging performance and failures deep in Linux and distributed systems, coding in Python/C++/Go to automate fixes, planning capacity, and carrying the service's on-call pager."
+  },
+  "sysadmin": {
+   "scores": {
+    "build": 15,
+    "analyze": 35,
+    "math": 5,
+    "design": 5,
+    "operate": 90,
+    "people": 50,
+    "ambiguity": 20,
+    "interruptions": 85,
+    "collaboration": 45,
+    "research": 5,
+    "customer_contact": 20
+   },
+   "summary": "Managing user accounts and access, patching Linux and Windows servers, running backups and VMware hosts, fixing network and service problems as tickets arrive, and scripting repetitive admin tasks."
+  },
+  "linux-eng": {
+   "scores": {
+    "build": 40,
+    "analyze": 60,
+    "math": 15,
+    "design": 0,
+    "operate": 90,
+    "people": 20,
+    "ambiguity": 40,
+    "interruptions": 60,
+    "collaboration": 35,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Tuning kernels and systemd services, profiling and debugging host performance, writing shell scripts and Ansible to manage large fleets, and handling storage, networking and hardening issues across thousands of machines."
+  },
+  "release-manager": {
+   "scores": {
+    "build": 20,
+    "analyze": 40,
+    "math": 5,
+    "design": 5,
+    "operate": 50,
+    "people": 85,
+    "ambiguity": 35,
+    "interruptions": 75,
+    "collaboration": 90,
+    "research": 5,
+    "customer_contact": 10
+   },
+   "summary": "Planning release schedules across teams, chasing readiness and test sign-offs, managing branches and change risk, running go/no-go meetings, and coordinating rollbacks and communication when a release goes wrong."
+  },
+  "infra-automation-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 35,
+    "math": 10,
+    "design": 5,
+    "operate": 65,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Writing Terraform modules, Ansible playbooks and Python/Go scripts that replace manual provisioning, testing that infra code in CI, and fixing pipelines when automation breaks."
+  },
+  "chaos-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 75,
+    "math": 25,
+    "design": 5,
+    "operate": 80,
+    "people": 35,
+    "ambiguity": 65,
+    "interruptions": 50,
+    "collaboration": 60,
+    "research": 60,
+    "customer_contact": 5
+   },
+   "summary": "Designing fault-injection experiments, running game days with service teams, watching observability dashboards during controlled failures, and writing up the weaknesses found."
+  },
+  "internal-tools-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 30,
+    "math": 10,
+    "design": 40,
+    "operate": 25,
+    "people": 50,
+    "ambiguity": 45,
+    "interruptions": 45,
+    "collaboration": 65,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "Building full-stack admin dashboards and integrations for colleagues, gathering requests from ops, finance or support teams, and iterating quickly on tools people use every day."
+  },
+  "platform-architect": {
+   "scores": {
+    "build": 45,
+    "analyze": 65,
+    "math": 20,
+    "design": 15,
+    "operate": 45,
+    "people": 70,
+    "ambiguity": 80,
+    "interruptions": 45,
+    "collaboration": 85,
+    "research": 45,
+    "customer_contact": 10
+   },
+   "summary": "Writing architecture proposals and standards for the internal platform, weighing tradeoffs in design reviews, prototyping key pieces, and aligning many engineering teams on a roadmap."
+  },
+  "cloudops-eng": {
+   "scores": {
+    "build": 25,
+    "analyze": 50,
+    "math": 10,
+    "design": 5,
+    "operate": 90,
+    "people": 30,
+    "ambiguity": 25,
+    "interruptions": 85,
+    "collaboration": 50,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Watching cloud dashboards, responding to alerts and tickets, right-sizing resources to control cost, and running routine operational tasks to keep workloads healthy."
+  },
+  "cloud-engineer": {
+   "scores": {
+    "build": 60,
+    "analyze": 40,
+    "math": 10,
+    "design": 5,
+    "operate": 70,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Provisioning cloud resources with Terraform, setting up networking and IAM, automating deploys with scripts and CI/CD, and troubleshooting whatever breaks in the environment."
+  },
+  "solutions-architect": {
+   "scores": {
+    "build": 40,
+    "analyze": 55,
+    "math": 15,
+    "design": 25,
+    "operate": 15,
+    "people": 90,
+    "ambiguity": 70,
+    "interruptions": 60,
+    "collaboration": 85,
+    "research": 30,
+    "customer_contact": 90
+   },
+   "summary": "Meeting customers to understand requirements, whiteboarding cloud designs, building proofs of concept, estimating costs and writing proposals as the technical voice in sales and delivery."
+  },
+  "systems-architect": {
+   "scores": {
+    "build": 35,
+    "analyze": 65,
+    "math": 25,
+    "design": 10,
+    "operate": 60,
+    "people": 50,
+    "ambiguity": 65,
+    "interruptions": 35,
+    "collaboration": 65,
+    "research": 35,
+    "customer_contact": 15
+   },
+   "summary": "Designing how hardware, OS, virtualization and network layers fit together, writing design docs and standards, and analyzing availability, capacity and performance of the platform."
+  },
+  "infrastructure-architect": {
+   "scores": {
+    "build": 35,
+    "analyze": 60,
+    "math": 20,
+    "design": 10,
+    "operate": 55,
+    "people": 60,
+    "ambiguity": 70,
+    "interruptions": 40,
+    "collaboration": 75,
+    "research": 35,
+    "customer_contact": 15
+   },
+   "summary": "Producing reference designs for compute, storage and network, planning DR strategy, running design reviews and checking that builds across the estate conform to standards."
+  },
+  "finops-engineer": {
+   "scores": {
+    "build": 40,
+    "analyze": 85,
+    "math": 45,
+    "design": 15,
+    "operate": 40,
+    "people": 65,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 75,
+    "research": 25,
+    "customer_contact": 10
+   },
+   "summary": "Querying billing data with SQL and Python, building cost dashboards, chasing untagged or wasted resources, forecasting spend, and walking engineering and finance teams through the numbers."
+  },
+  "virtualization-engineer": {
+   "scores": {
+    "build": 25,
+    "analyze": 40,
+    "math": 10,
+    "design": 5,
+    "operate": 90,
+    "people": 25,
+    "ambiguity": 25,
+    "interruptions": 65,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Building and patching vSphere/ESXi or Hyper-V clusters, provisioning and tuning VMs, managing HA, resource pools and backups, and scripting routine tasks with PowerCLI."
+  },
+  "storage-engineer": {
+   "scores": {
+    "build": 25,
+    "analyze": 50,
+    "math": 20,
+    "design": 5,
+    "operate": 90,
+    "people": 25,
+    "ambiguity": 30,
+    "interruptions": 60,
+    "collaboration": 45,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Provisioning LUNs and shares on SAN/NAS arrays, monitoring capacity and IOPS, managing replication and backup jobs, and troubleshooting performance or fibre channel issues."
+  },
+  "aws-solutions-architect": {
+   "scores": {
+    "build": 50,
+    "analyze": 55,
+    "math": 15,
+    "design": 20,
+    "operate": 25,
+    "people": 80,
+    "ambiguity": 65,
+    "interruptions": 50,
+    "collaboration": 80,
+    "research": 30,
+    "customer_contact": 75
+   },
+   "summary": "Designing AWS workloads against the Well-Architected Framework, building reference architectures and IaC templates, and advising teams or customers on AWS-native choices."
+  },
+  "azure-cloud-engineer": {
+   "scores": {
+    "build": 60,
+    "analyze": 35,
+    "math": 10,
+    "design": 5,
+    "operate": 70,
+    "people": 30,
+    "ambiguity": 35,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Deploying Azure resources with Bicep or Terraform, configuring VNets, Entra ID and AKS, scripting in PowerShell, and integrating workloads with the wider Microsoft stack."
+  },
+  "gcp-cloud-architect": {
+   "scores": {
+    "build": 50,
+    "analyze": 65,
+    "math": 20,
+    "design": 15,
+    "operate": 30,
+    "people": 70,
+    "ambiguity": 70,
+    "interruptions": 40,
+    "collaboration": 75,
+    "research": 40,
+    "customer_contact": 45
+   },
+   "summary": "Designing GCP architectures around GKE, BigQuery and Cloud Run, reviewing designs for security and cost, and guiding data- and Kubernetes-heavy teams on Google Cloud patterns."
+  },
+  "enterprise-architect": {
+   "scores": {
+    "build": 15,
+    "analyze": 65,
+    "math": 15,
+    "design": 20,
+    "operate": 20,
+    "people": 95,
+    "ambiguity": 90,
+    "interruptions": 60,
+    "collaboration": 95,
+    "research": 35,
+    "customer_contact": 25
+   },
+   "summary": "Mapping business goals to application, data and infrastructure roadmaps, setting standards and governance, and spending much of the week in meetings with executives and architecture boards."
+  },
+  "cloud-infrastructure-engineer": {
+   "scores": {
+    "build": 70,
+    "analyze": 40,
+    "math": 10,
+    "design": 5,
+    "operate": 75,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Building reusable Terraform modules and pipelines for networking, compute, IAM and Kubernetes, offering them as self-service, and keeping the underlying cloud plumbing reliable."
+  },
+  "cloud-security-architect": {
+   "scores": {
+    "build": 35,
+    "analyze": 75,
+    "math": 25,
+    "design": 10,
+    "operate": 45,
+    "people": 70,
+    "ambiguity": 70,
+    "interruptions": 45,
+    "collaboration": 80,
+    "research": 40,
+    "customer_contact": 15
+   },
+   "summary": "Defining IAM, segmentation, encryption and guardrail patterns for the cloud estate, reviewing designs against them, and mapping controls to compliance requirements with engineering teams."
+  },
+  "cloud-network-engineer": {
+   "scores": {
+    "build": 45,
+    "analyze": 55,
+    "math": 20,
+    "design": 5,
+    "operate": 80,
+    "people": 30,
+    "ambiguity": 35,
+    "interruptions": 60,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Designing VPC layouts, configuring routing, peering, transit gateways, firewalls and VPNs in Terraform, and troubleshooting connectivity between cloud and on-prem networks."
+  },
+  "cloud-migration-engineer": {
+   "scores": {
+    "build": 55,
+    "analyze": 55,
+    "math": 10,
+    "design": 5,
+    "operate": 60,
+    "people": 50,
+    "ambiguity": 50,
+    "interruptions": 60,
+    "collaboration": 70,
+    "research": 15,
+    "customer_contact": 30
+   },
+   "summary": "Assessing on-prem estates, planning migration waves, rehosting apps and databases with migration tools and scripts, and coordinating cutover windows with app owners."
+  },
+  "cloud-consultant": {
+   "scores": {
+    "build": 30,
+    "analyze": 60,
+    "math": 15,
+    "design": 20,
+    "operate": 20,
+    "people": 90,
+    "ambiguity": 70,
+    "interruptions": 60,
+    "collaboration": 85,
+    "research": 30,
+    "customer_contact": 90
+   },
+   "summary": "Running client workshops, assessing cloud setups, writing recommendations on architecture, migration and cost, and supporting delivery across short engagements with different clients."
+  },
+  "datacenter-engineer": {
+   "scores": {
+    "build": 15,
+    "analyze": 30,
+    "math": 10,
+    "design": 0,
+    "operate": 95,
+    "people": 30,
+    "ambiguity": 15,
+    "interruptions": 80,
+    "collaboration": 50,
+    "research": 5,
+    "customer_contact": 15
+   },
+   "summary": "Racking and cabling servers, replacing failed hardware, checking power and cooling, and working tickets on the data center floor in shifts."
+  },
+  "hybrid-cloud-engineer": {
+   "scores": {
+    "build": 50,
+    "analyze": 45,
+    "math": 10,
+    "design": 5,
+    "operate": 75,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 55,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Connecting on-prem VMware estates to AWS or Azure, managing hybrid networking and identity, deciding where workloads run, and automating operations across both environments."
+  },
+  "cloudops-engineer": {
+   "scores": {
+    "build": 35,
+    "analyze": 50,
+    "math": 10,
+    "design": 5,
+    "operate": 90,
+    "people": 30,
+    "ambiguity": 30,
+    "interruptions": 90,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Working on-call for production cloud environments, handling incidents and alerts, patching systems, tuning monitoring, and keeping operational automation and pipelines running."
+  },
+  "security": {
+   "scores": {
+    "build": 55,
+    "analyze": 75,
+    "math": 20,
+    "design": 5,
+    "operate": 65,
+    "people": 40,
+    "ambiguity": 60,
+    "interruptions": 55,
+    "collaboration": 55,
+    "research": 40,
+    "customer_contact": 10
+   },
+   "summary": "Hardening systems and deploying security controls, triaging vulnerability scans, digging through SIEM logs, reviewing architectures for weaknesses, and helping respond to incidents."
+  },
+  "appsec-eng": {
+   "scores": {
+    "build": 50,
+    "analyze": 80,
+    "math": 15,
+    "design": 5,
+    "operate": 25,
+    "people": 60,
+    "ambiguity": 55,
+    "interruptions": 45,
+    "collaboration": 70,
+    "research": 45,
+    "customer_contact": 20
+   },
+   "summary": "Reviewing code and designs for security flaws, tuning SAST/DAST in CI, triaging bug-bounty reports, testing web apps with Burp, and coaching developers on secure fixes."
+  },
+  "product-security-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 80,
+    "math": 25,
+    "design": 10,
+    "operate": 25,
+    "people": 60,
+    "ambiguity": 65,
+    "interruptions": 40,
+    "collaboration": 75,
+    "research": 50,
+    "customer_contact": 10
+   },
+   "summary": "Threat-modeling new features with a product team, hunting for vulnerabilities in its codebase, building secure-by-default libraries, and tracking fixes through the SDLC."
+  },
+  "pentester": {
+   "scores": {
+    "build": 35,
+    "analyze": 80,
+    "math": 20,
+    "design": 5,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 70,
+    "interruptions": 30,
+    "collaboration": 35,
+    "research": 55,
+    "customer_contact": 40
+   },
+   "summary": "Running time-boxed assessments of client web apps, networks and cloud, chaining vulnerabilities into proof of impact with Burp and Metasploit, and writing clear findings reports."
+  },
+  "red-team-operator": {
+   "scores": {
+    "build": 55,
+    "analyze": 80,
+    "math": 20,
+    "design": 5,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 85,
+    "interruptions": 20,
+    "collaboration": 45,
+    "research": 70,
+    "customer_contact": 25
+   },
+   "summary": "Building custom tooling and C2 infrastructure, evading EDR, moving laterally through Active Directory over long stealthy engagements, and debriefing defenders on what they missed."
+  },
+  "soc-analyst": {
+   "scores": {
+    "build": 10,
+    "analyze": 80,
+    "math": 10,
+    "design": 0,
+    "operate": 70,
+    "people": 35,
+    "ambiguity": 30,
+    "interruptions": 90,
+    "collaboration": 55,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "Working shifts triaging SIEM and EDR alerts, investigating suspicious activity in logs, following playbooks, and escalating real incidents to responders through tickets."
+  },
+  "grc-analyst": {
+   "scores": {
+    "build": 5,
+    "analyze": 60,
+    "math": 10,
+    "design": 5,
+    "operate": 25,
+    "people": 85,
+    "ambiguity": 40,
+    "interruptions": 45,
+    "collaboration": 80,
+    "research": 20,
+    "customer_contact": 35
+   },
+   "summary": "Mapping controls to ISO 27001 and SOC 2, running risk and vendor assessments, writing policies, and chasing teams for audit evidence ahead of certifications."
+  },
+  "cloud-security-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 65,
+    "math": 15,
+    "design": 5,
+    "operate": 65,
+    "people": 40,
+    "ambiguity": 50,
+    "interruptions": 50,
+    "collaboration": 60,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Hardening cloud IAM and network config, deploying CSPM guardrails, writing security checks into Terraform and Kubernetes pipelines, and fixing misconfigurations as they surface."
+  },
+  "dfir-analyst": {
+   "scores": {
+    "build": 15,
+    "analyze": 95,
+    "math": 15,
+    "design": 0,
+    "operate": 50,
+    "people": 45,
+    "ambiguity": 70,
+    "interruptions": 85,
+    "collaboration": 60,
+    "research": 50,
+    "customer_contact": 45
+   },
+   "summary": "Scoping breaches, collecting and analyzing memory, disk and log evidence, reconstructing attacker timelines, and driving containment under deadline pressure."
+  },
+  "security-architect": {
+   "scores": {
+    "build": 25,
+    "analyze": 75,
+    "math": 20,
+    "design": 10,
+    "operate": 35,
+    "people": 80,
+    "ambiguity": 75,
+    "interruptions": 45,
+    "collaboration": 85,
+    "research": 40,
+    "customer_contact": 15
+   },
+   "summary": "Setting security standards and zero-trust and IAM patterns, reviewing major system designs, threat-modeling, and negotiating risk tradeoffs with business and engineering leaders."
+  },
+  "iam-eng": {
+   "scores": {
+    "build": 50,
+    "analyze": 45,
+    "math": 10,
+    "design": 10,
+    "operate": 75,
+    "people": 50,
+    "ambiguity": 30,
+    "interruptions": 65,
+    "collaboration": 65,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Integrating apps with SSO via SAML/OIDC, automating joiner-mover-leaver provisioning, managing privileged access, and fixing access issues for users across the organization."
+  },
+  "malware-analyst": {
+   "scores": {
+    "build": 30,
+    "analyze": 95,
+    "math": 25,
+    "design": 0,
+    "operate": 20,
+    "people": 15,
+    "ambiguity": 70,
+    "interruptions": 30,
+    "collaboration": 25,
+    "research": 75,
+    "customer_contact": 5
+   },
+   "summary": "Long stretches in IDA or Ghidra and a debugger picking apart malicious samples, unpacking and deobfuscating code, detonating it in sandboxes, then writing up behavior and YARA signatures for the detection team."
+  },
+  "threat-intel-analyst": {
+   "scores": {
+    "build": 10,
+    "analyze": 90,
+    "math": 15,
+    "design": 5,
+    "operate": 15,
+    "people": 50,
+    "ambiguity": 70,
+    "interruptions": 35,
+    "collaboration": 55,
+    "research": 70,
+    "customer_contact": 20
+   },
+   "summary": "Mining OSINT, feeds and dark-web sources for adversary activity, mapping campaigns to MITRE ATT&CK, extracting IOCs, and writing reports and briefings that tell defenders and leadership what threats to prepare for."
+  },
+  "infosec-analyst": {
+   "scores": {
+    "build": 15,
+    "analyze": 70,
+    "math": 10,
+    "design": 0,
+    "operate": 65,
+    "people": 45,
+    "ambiguity": 40,
+    "interruptions": 60,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 15
+   },
+   "summary": "Triaging SIEM alerts, running and chasing vulnerability scans, gathering evidence for audits and compliance checks, helping on incidents, and nudging teams to patch, all across a broad mix of security tasks."
+  },
+  "ciso": {
+   "scores": {
+    "build": 5,
+    "analyze": 50,
+    "math": 10,
+    "design": 5,
+    "operate": 40,
+    "people": 100,
+    "ambiguity": 90,
+    "interruptions": 80,
+    "collaboration": 95,
+    "research": 15,
+    "customer_contact": 40
+   },
+   "summary": "Meetings with executives, the board, regulators and key customers; setting security strategy and budget; leading the security org's leaders; and taking command when a serious incident or breach hits."
+  },
+  "security-consultant": {
+   "scores": {
+    "build": 10,
+    "analyze": 75,
+    "math": 10,
+    "design": 5,
+    "operate": 15,
+    "people": 75,
+    "ambiguity": 60,
+    "interruptions": 50,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 95
+   },
+   "summary": "Rotating between client engagements: interviewing stakeholders, assessing controls against frameworks like ISO 27001 or NIST, running light technical testing, and writing and presenting findings and remediation roadmaps."
+  },
+  "network-security-eng": {
+   "scores": {
+    "build": 25,
+    "analyze": 55,
+    "math": 10,
+    "design": 0,
+    "operate": 85,
+    "people": 25,
+    "ambiguity": 35,
+    "interruptions": 65,
+    "collaboration": 45,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Writing and reviewing firewall rules, managing VPNs and IDS/IPS, implementing segmentation and zero-trust access changes in maintenance windows, and troubleshooting blocked traffic tickets from other teams."
+  },
+  "vuln-researcher": {
+   "scores": {
+    "build": 50,
+    "analyze": 90,
+    "math": 35,
+    "design": 0,
+    "operate": 5,
+    "people": 10,
+    "ambiguity": 90,
+    "interruptions": 10,
+    "collaboration": 20,
+    "research": 95,
+    "customer_contact": 5
+   },
+   "summary": "Deep solo work reverse engineering targets, building and running fuzzers, triaging crashes, and turning promising bugs into proof-of-concept exploits and disclosure write-ups, often for weeks without a guaranteed result."
+  },
+  "detection-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 75,
+    "math": 25,
+    "design": 5,
+    "operate": 55,
+    "people": 30,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 50,
+    "research": 40,
+    "customer_contact": 5
+   },
+   "summary": "Writing and testing Sigma, YARA and SIEM detection rules as code, tuning noisy alerts with SOC feedback, mapping coverage gaps to ATT&CK, and fixing the log pipelines that feed the detections."
+  },
+  "threat-hunter": {
+   "scores": {
+    "build": 25,
+    "analyze": 95,
+    "math": 30,
+    "design": 0,
+    "operate": 35,
+    "people": 25,
+    "ambiguity": 85,
+    "interruptions": 35,
+    "collaboration": 40,
+    "research": 70,
+    "customer_contact": 5
+   },
+   "summary": "Forming hypotheses about how an attacker could be hiding, querying EDR and log telemetry to test them, chasing anomalies down to root cause, and converting what is found into new detections and hunt reports."
+  },
+  "crypto-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 60,
+    "math": 90,
+    "design": 5,
+    "operate": 20,
+    "people": 25,
+    "ambiguity": 60,
+    "interruptions": 15,
+    "collaboration": 40,
+    "research": 60,
+    "customer_contact": 5
+   },
+   "summary": "Implementing and reviewing cryptographic code and protocols in C, C++ or Rust, designing key management and PKI, reading papers and standards, and carefully testing for correctness and side channels."
+  },
+  "ot-security-eng": {
+   "scores": {
+    "build": 15,
+    "analyze": 60,
+    "math": 15,
+    "design": 5,
+    "operate": 85,
+    "people": 50,
+    "ambiguity": 50,
+    "interruptions": 45,
+    "collaboration": 65,
+    "research": 25,
+    "customer_contact": 25
+   },
+   "summary": "Inventorying plant assets, monitoring OT networks for anomalies, designing segmentation that will not disrupt production, and working with plant engineers to apply IEC 62443 controls where patching is rarely an option."
+  },
+  "security-mgr": {
+   "scores": {
+    "build": 15,
+    "analyze": 45,
+    "math": 10,
+    "design": 5,
+    "operate": 40,
+    "people": 95,
+    "ambiguity": 75,
+    "interruptions": 75,
+    "collaboration": 95,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "One-on-ones, hiring loops, roadmap and prioritization meetings, reviewing designs and incident responses with engineers, and translating security risk into plans other teams and leadership will fund."
+  },
+  "network-engineer": {
+   "scores": {
+    "build": 20,
+    "analyze": 50,
+    "math": 15,
+    "design": 0,
+    "operate": 90,
+    "people": 25,
+    "ambiguity": 30,
+    "interruptions": 70,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Configuring routers, switches and firewalls, executing changes in maintenance windows, troubleshooting outages by tracing packets and BGP/OSPF state, and handling capacity and hardware lifecycle tickets."
+  },
+  "network-architect": {
+   "scores": {
+    "build": 35,
+    "analyze": 60,
+    "math": 20,
+    "design": 15,
+    "operate": 55,
+    "people": 65,
+    "ambiguity": 70,
+    "interruptions": 35,
+    "collaboration": 75,
+    "research": 30,
+    "customer_contact": 20
+   },
+   "summary": "Whiteboarding topologies and routing strategy, evaluating vendors, writing design documents and standards, and meeting stakeholders to turn business needs into networks that engineers then build."
+  },
+  "it-support": {
+   "scores": {
+    "build": 5,
+    "analyze": 35,
+    "math": 0,
+    "design": 0,
+    "operate": 45,
+    "people": 80,
+    "ambiguity": 15,
+    "interruptions": 95,
+    "collaboration": 50,
+    "research": 0,
+    "customer_contact": 90
+   },
+   "summary": "A steady queue of tickets, calls and chats: resetting passwords and accounts, walking users through fixes over remote sessions, documenting steps, and escalating anything that cannot be solved at the desk."
+  },
+  "desktop-support": {
+   "scores": {
+    "build": 5,
+    "analyze": 30,
+    "math": 0,
+    "design": 0,
+    "operate": 55,
+    "people": 70,
+    "ambiguity": 15,
+    "interruptions": 85,
+    "collaboration": 45,
+    "research": 0,
+    "customer_contact": 80
+   },
+   "summary": "Walking between desks and the IT room imaging laptops, swapping failed hardware, deploying software and setting up new hires, while working through a ticket queue of in-person user problems."
+  },
+  "endpoint-engineer": {
+   "scores": {
+    "build": 40,
+    "analyze": 40,
+    "math": 5,
+    "design": 5,
+    "operate": 85,
+    "people": 30,
+    "ambiguity": 30,
+    "interruptions": 50,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Building Intune, SCCM and Jamf policies, packaging apps, managing patch rings and Autopilot provisioning, scripting fixes in PowerShell, and investigating why a slice of the device fleet is out of compliance."
+  },
+  "telecom-engineer": {
+   "scores": {
+    "build": 10,
+    "analyze": 40,
+    "math": 15,
+    "design": 0,
+    "operate": 85,
+    "people": 35,
+    "ambiguity": 25,
+    "interruptions": 60,
+    "collaboration": 50,
+    "research": 5,
+    "customer_contact": 25
+   },
+   "summary": "Provisioning circuits and SIP trunks, maintaining PBXs and cabling, coordinating with carriers on orders and outages, and troubleshooting call and line faults across provider boundaries."
+  },
+  "voip-engineer": {
+   "scores": {
+    "build": 15,
+    "analyze": 60,
+    "math": 15,
+    "design": 0,
+    "operate": 85,
+    "people": 30,
+    "ambiguity": 35,
+    "interruptions": 65,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 20
+   },
+   "summary": "Administering CUCM or Asterisk and session border controllers, tuning QoS and codecs, and digging through packet captures to fix dropped calls, one-way audio and call-quality complaints."
+  },
+  "uc-engineer": {
+   "scores": {
+    "build": 20,
+    "analyze": 40,
+    "math": 5,
+    "design": 15,
+    "operate": 80,
+    "people": 45,
+    "ambiguity": 30,
+    "interruptions": 65,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 30
+   },
+   "summary": "Administering Teams voice, Cisco UC, meeting rooms and contact-center telephony, scripting changes in PowerShell, and fixing call routing, video and meeting-quality issues raised by users."
+  },
+  "wireless-engineer": {
+   "scores": {
+    "build": 15,
+    "analyze": 60,
+    "math": 35,
+    "design": 10,
+    "operate": 75,
+    "people": 30,
+    "ambiguity": 40,
+    "interruptions": 50,
+    "collaboration": 45,
+    "research": 20,
+    "customer_contact": 25
+   },
+   "summary": "Running on-site RF surveys with Ekahau, planning AP placement, channels and power, configuring Cisco or Aruba controllers, and chasing roaming, interference and coverage complaints."
+  },
+  "rf-engineer": {
+   "scores": {
+    "build": 25,
+    "analyze": 75,
+    "math": 75,
+    "design": 5,
+    "operate": 50,
+    "people": 25,
+    "ambiguity": 50,
+    "interruptions": 30,
+    "collaboration": 45,
+    "research": 45,
+    "customer_contact": 15
+   },
+   "summary": "Modeling propagation and link budgets in planning tools and MATLAB, designing antenna configurations, analyzing drive-test and spectrum data, and optimizing cellular or satellite network performance."
+  },
+  "datacenter-tech": {
+   "scores": {
+    "build": 5,
+    "analyze": 20,
+    "math": 0,
+    "design": 0,
+    "operate": 85,
+    "people": 25,
+    "ambiguity": 10,
+    "interruptions": 75,
+    "collaboration": 45,
+    "research": 0,
+    "customer_contact": 20
+   },
+   "summary": "On the datacenter floor racking and cabling servers, replacing failed drives, DIMMs and PSUs, working smart-hands tickets, and keeping inventory, DCIM records and cable runs accurate, often on shifts."
+  },
+  "noc-engineer": {
+   "scores": {
+    "build": 5,
+    "analyze": 45,
+    "math": 5,
+    "design": 0,
+    "operate": 90,
+    "people": 40,
+    "ambiguity": 20,
+    "interruptions": 95,
+    "collaboration": 60,
+    "research": 5,
+    "customer_contact": 30
+   },
+   "summary": "Shift work watching monitoring dashboards, triaging alerts, running first-level troubleshooting, opening carrier tickets, and coordinating incident bridges and escalations until service is restored."
+  },
+  "network-automation-engineer": {
+   "scores": {
+    "build": 80,
+    "analyze": 45,
+    "math": 15,
+    "design": 5,
+    "operate": 70,
+    "people": 30,
+    "ambiguity": 45,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Writing Python and Ansible to generate, push and validate network config, building CI/CD pipelines and source-of-truth tooling, and working with network engineers to turn manual changes into code."
+  },
+  "field-service-tech": {
+   "scores": {
+    "build": 5,
+    "analyze": 25,
+    "math": 0,
+    "design": 0,
+    "operate": 60,
+    "people": 55,
+    "ambiguity": 20,
+    "interruptions": 70,
+    "collaboration": 20,
+    "research": 0,
+    "customer_contact": 90
+   },
+   "summary": "Driving between client sites to install, repair and swap IT and network hardware, running cable, troubleshooting on location, and closing out tickets with notes for the dispatcher and customer."
+  },
+  "it-ops-manager": {
+   "scores": {
+    "build": 5,
+    "analyze": 40,
+    "math": 10,
+    "design": 5,
+    "operate": 75,
+    "people": 95,
+    "ambiguity": 60,
+    "interruptions": 85,
+    "collaboration": 90,
+    "research": 5,
+    "customer_contact": 35
+   },
+   "summary": "Managing support and infrastructure teams, reviewing SLA and ticket metrics, running change and incident processes, handling vendors and budgets, and fielding escalations from business stakeholders."
+  },
+  "network-security-engineer": {
+   "scores": {
+    "build": 25,
+    "analyze": 60,
+    "math": 10,
+    "design": 0,
+    "operate": 85,
+    "people": 25,
+    "ambiguity": 40,
+    "interruptions": 65,
+    "collaboration": 45,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Managing firewall policy, VPNs and IDS/IPS, rolling out segmentation and zero-trust access, reviewing SIEM alerts for traffic that slipped through, and troubleshooting connectivity blocked by security controls."
+  },
+  "qa": {
+   "scores": {
+    "build": 40,
+    "analyze": 60,
+    "math": 10,
+    "design": 25,
+    "operate": 15,
+    "people": 45,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 70,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Writing and running test cases for new features, exploratory testing, filing and verifying bugs in Jira, automating some regression and API checks, and joining sprint ceremonies with developers and PMs."
+  },
+  "sdet": {
+   "scores": {
+    "build": 80,
+    "analyze": 50,
+    "math": 20,
+    "design": 10,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 40,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Writing production-quality code for test frameworks, harnesses and end-to-end suites, wiring them into CI, reviewing developers' code for testability, and debugging failures across services."
+  },
+  "test-automation-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 45,
+    "math": 10,
+    "design": 10,
+    "operate": 30,
+    "people": 30,
+    "ambiguity": 30,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Scripting UI and API tests in Selenium, Cypress or Playwright, maintaining the framework, hooking suites into CI pipelines, and spending real time chasing down flaky tests and reporting results."
+  },
+  "performance-test-eng": {
+   "scores": {
+    "build": 45,
+    "analyze": 85,
+    "math": 40,
+    "design": 0,
+    "operate": 45,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 35,
+    "customer_contact": 5
+   },
+   "summary": "Scripting load, stress and soak tests in JMeter, Gatling or k6, running them against staging, reading APM traces and metrics to find bottlenecks, and working with engineers to tune latency and throughput."
+  },
+  "manual-qa": {
+   "scores": {
+    "build": 5,
+    "analyze": 50,
+    "math": 5,
+    "design": 25,
+    "operate": 10,
+    "people": 40,
+    "ambiguity": 20,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 5,
+    "customer_contact": 10
+   },
+   "summary": "Executing test cases by hand across builds and devices, exploring features for edge-case bugs, writing clear reproduction steps in Jira or TestRail, and re-running regression before each release."
+  },
+  "qa-lead": {
+   "scores": {
+    "build": 35,
+    "analyze": 60,
+    "math": 10,
+    "design": 15,
+    "operate": 20,
+    "people": 80,
+    "ambiguity": 55,
+    "interruptions": 60,
+    "collaboration": 85,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Planning test strategy for releases, reviewing test plans and automation code, running release quality gates, mentoring testers, and reporting quality risks to product and engineering leads, plus some hands-on testing."
+  },
+  "qa-manager": {
+   "scores": {
+    "build": 10,
+    "analyze": 50,
+    "math": 10,
+    "design": 10,
+    "operate": 20,
+    "people": 95,
+    "ambiguity": 65,
+    "interruptions": 70,
+    "collaboration": 90,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Managing QA leads and testers, setting process, tooling and automation strategy, tracking quality metrics across teams, handling hiring and budget, and answering to leadership for release quality."
+  },
+  "game-qa": {
+   "scores": {
+    "build": 15,
+    "analyze": 55,
+    "math": 5,
+    "design": 15,
+    "operate": 20,
+    "people": 25,
+    "ambiguity": 25,
+    "interruptions": 55,
+    "collaboration": 50,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Playing the same builds over and over to find crashes and gameplay bugs, writing exact repro steps in Jira or DevTrack, and running regression and console-compliance passes on a tight, often crunch-driven schedule."
+  },
+  "qa-analyst": {
+   "scores": {
+    "build": 15,
+    "analyze": 70,
+    "math": 10,
+    "design": 10,
+    "operate": 15,
+    "people": 55,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 70,
+    "research": 15,
+    "customer_contact": 25
+   },
+   "summary": "Reading specs and requirements, writing functional test cases, running manual tests and SQL checks, logging and chasing defects, and coordinating UAT sign-off with business users."
+  },
+  "mobile-qa": {
+   "scores": {
+    "build": 50,
+    "analyze": 65,
+    "math": 10,
+    "design": 15,
+    "operate": 20,
+    "people": 25,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Testing iOS and Android builds across real devices and emulators, writing and fixing Appium/Espresso/XCUITest scripts in CI, and tracking down device-specific, OS-version and network-condition bugs."
+  },
+  "api-test-eng": {
+   "scores": {
+    "build": 60,
+    "analyze": 65,
+    "math": 10,
+    "design": 5,
+    "operate": 25,
+    "people": 20,
+    "ambiguity": 35,
+    "interruptions": 35,
+    "collaboration": 50,
+    "research": 15,
+    "customer_contact": 5
+   },
+   "summary": "Writing automated checks against REST/GraphQL endpoints in Postman, RestAssured or code, validating contracts and integration flows, checking data with SQL, and keeping the suites green in CI."
+  },
+  "test-architect": {
+   "scores": {
+    "build": 75,
+    "analyze": 65,
+    "math": 15,
+    "design": 10,
+    "operate": 35,
+    "people": 55,
+    "ambiguity": 70,
+    "interruptions": 45,
+    "collaboration": 75,
+    "research": 40,
+    "customer_contact": 5
+   },
+   "summary": "Designing automation frameworks and test strategy used across many teams, building CI and test-data tooling, reviewing other teams' approaches, setting coverage standards, and mentoring QA engineers."
+  },
+  "accessibility-tester": {
+   "scores": {
+    "build": 20,
+    "analyze": 70,
+    "math": 5,
+    "design": 50,
+    "operate": 10,
+    "people": 40,
+    "ambiguity": 40,
+    "interruptions": 30,
+    "collaboration": 55,
+    "research": 25,
+    "customer_contact": 20
+   },
+   "summary": "Auditing screens against WCAG with screen readers and keyboard-only navigation, running axe/WAVE scans, checking ARIA and semantic HTML, and writing up issues with fixes for designers and developers."
+  },
+  "game-qa-lead": {
+   "scores": {
+    "build": 15,
+    "analyze": 55,
+    "math": 10,
+    "design": 15,
+    "operate": 25,
+    "people": 85,
+    "ambiguity": 50,
+    "interruptions": 80,
+    "collaboration": 90,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Planning test coverage for a title, assigning and managing a team of testers, triaging the bug database with producers and developers, and steering console certification passes toward ship."
+  },
+  "localization-qa": {
+   "scores": {
+    "build": 5,
+    "analyze": 50,
+    "math": 0,
+    "design": 20,
+    "operate": 10,
+    "people": 25,
+    "ambiguity": 25,
+    "interruptions": 40,
+    "collaboration": 45,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Going through localized builds in your native language to flag mistranslations, truncated text, layout breaks and cultural issues, and filing in-context bug reports with screenshots."
+  },
+  "pm": {
+   "scores": {
+    "build": 25,
+    "analyze": 55,
+    "math": 15,
+    "design": 40,
+    "operate": 15,
+    "people": 95,
+    "ambiguity": 85,
+    "interruptions": 60,
+    "collaboration": 95,
+    "research": 35,
+    "customer_contact": 60
+   },
+   "summary": "Talking to users, writing specs, prioritizing the roadmap, and running meetings with engineering, design and go-to-market to decide what gets built next and unblock the team."
+  },
+  "associate-pm": {
+   "scores": {
+    "build": 30,
+    "analyze": 60,
+    "math": 15,
+    "design": 40,
+    "operate": 10,
+    "people": 85,
+    "ambiguity": 65,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 40,
+    "customer_contact": 55
+   },
+   "summary": "Owning small features end to end: running user interviews, pulling data, writing specs and tickets, sketching wireframes, and working through standups and reviews with engineers and a senior PM."
+  },
+  "senior-pm": {
+   "scores": {
+    "build": 20,
+    "analyze": 60,
+    "math": 15,
+    "design": 35,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 90,
+    "interruptions": 65,
+    "collaboration": 95,
+    "research": 35,
+    "customer_contact": 60
+   },
+   "summary": "Setting strategy for a product area, framing which problems to solve, reviewing metrics and experiments, and influencing leaders and partner teams to back bets measured on business outcomes."
+  },
+  "technical-pm": {
+   "scores": {
+    "build": 40,
+    "analyze": 60,
+    "math": 20,
+    "design": 25,
+    "operate": 25,
+    "people": 85,
+    "ambiguity": 80,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 35,
+    "customer_contact": 40
+   },
+   "summary": "Working closely with engineers on architecture and API tradeoffs, writing technical specs, querying usage data, and turning developer or infrastructure needs into a prioritized roadmap."
+  },
+  "group-pm": {
+   "scores": {
+    "build": 15,
+    "analyze": 55,
+    "math": 15,
+    "design": 30,
+    "operate": 10,
+    "people": 100,
+    "ambiguity": 90,
+    "interruptions": 75,
+    "collaboration": 100,
+    "research": 25,
+    "customer_contact": 50
+   },
+   "summary": "Coaching and managing a team of PMs, setting strategy across their areas, balancing a roadmap portfolio, building business cases, and aligning leaders across engineering, design and sales."
+  },
+  "principal-pm": {
+   "scores": {
+    "build": 20,
+    "analyze": 70,
+    "math": 20,
+    "design": 35,
+    "operate": 10,
+    "people": 90,
+    "ambiguity": 100,
+    "interruptions": 50,
+    "collaboration": 90,
+    "research": 50,
+    "customer_contact": 50
+   },
+   "summary": "Taking on the hardest cross-org product problems without direct reports: analyzing markets and systems, writing strategy docs, and building alignment through influence across many teams."
+  },
+  "director-product": {
+   "scores": {
+    "build": 10,
+    "analyze": 50,
+    "math": 15,
+    "design": 25,
+    "operate": 15,
+    "people": 100,
+    "ambiguity": 90,
+    "interruptions": 85,
+    "collaboration": 100,
+    "research": 20,
+    "customer_contact": 50
+   },
+   "summary": "Managing PMs and group PMs, hiring, prioritizing across a product line's portfolio, owning OKRs and P&L outcomes, and presenting product bets to executives."
+  },
+  "vp-product": {
+   "scores": {
+    "build": 5,
+    "analyze": 50,
+    "math": 15,
+    "design": 20,
+    "operate": 15,
+    "people": 100,
+    "ambiguity": 95,
+    "interruptions": 90,
+    "collaboration": 100,
+    "research": 20,
+    "customer_contact": 55
+   },
+   "summary": "Setting multi-year product vision, building and leading the PM org, and spending the day in leadership, planning and go-to-market meetings shaping company strategy."
+  },
+  "cpo": {
+   "scores": {
+    "build": 5,
+    "analyze": 45,
+    "math": 10,
+    "design": 20,
+    "operate": 15,
+    "people": 100,
+    "ambiguity": 100,
+    "interruptions": 90,
+    "collaboration": 100,
+    "research": 20,
+    "customer_contact": 60
+   },
+   "summary": "Owning the whole product function at the C-suite: setting vision, designing and scaling the org, meeting key customers, and answering to the CEO and board for product results."
+  },
+  "product-owner": {
+   "scores": {
+    "build": 25,
+    "analyze": 45,
+    "math": 10,
+    "design": 30,
+    "operate": 20,
+    "people": 85,
+    "ambiguity": 45,
+    "interruptions": 65,
+    "collaboration": 95,
+    "research": 10,
+    "customer_contact": 40
+   },
+   "summary": "Grooming the backlog, writing user stories and acceptance criteria in Jira, running sprint planning and reviews, and answering the scrum team's questions on behalf of business stakeholders."
+  },
+  "growth-pm": {
+   "scores": {
+    "build": 30,
+    "analyze": 85,
+    "math": 45,
+    "design": 40,
+    "operate": 10,
+    "people": 85,
+    "ambiguity": 75,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 55,
+    "customer_contact": 40
+   },
+   "summary": "Digging through funnel and retention data in SQL and analytics tools, designing and reading A/B tests, and shipping a steady stream of experiments with engineering, data and marketing."
+  },
+  "platform-pm": {
+   "scores": {
+    "build": 35,
+    "analyze": 55,
+    "math": 15,
+    "design": 20,
+    "operate": 35,
+    "people": 90,
+    "ambiguity": 80,
+    "interruptions": 55,
+    "collaboration": 95,
+    "research": 35,
+    "customer_contact": 25
+   },
+   "summary": "Gathering needs from the engineering teams that build on shared services and SDKs, negotiating cross-team dependencies, and weighing long-term platform investments against adoption."
+  },
+  "data-pm": {
+   "scores": {
+    "build": 30,
+    "analyze": 80,
+    "math": 35,
+    "design": 20,
+    "operate": 25,
+    "people": 85,
+    "ambiguity": 75,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 35,
+    "customer_contact": 35
+   },
+   "summary": "Defining metrics layers, pipelines and data platforms with data engineers, writing SQL to check quality and usage, and settling governance and modeling tradeoffs with analysts and business users."
+  },
+  "ai-pm": {
+   "scores": {
+    "build": 35,
+    "analyze": 75,
+    "math": 40,
+    "design": 35,
+    "operate": 10,
+    "people": 85,
+    "ambiguity": 90,
+    "interruptions": 50,
+    "collaboration": 90,
+    "research": 65,
+    "customer_contact": 50
+   },
+   "summary": "Choosing where ML and LLMs fit, curating data and eval sets, iterating on prompts and model behavior with engineers, and deciding when a non-deterministic feature is good enough to ship."
+  },
+  "product-ops": {
+   "scores": {
+    "build": 25,
+    "analyze": 65,
+    "math": 15,
+    "design": 25,
+    "operate": 45,
+    "people": 90,
+    "ambiguity": 55,
+    "interruptions": 70,
+    "collaboration": 95,
+    "research": 10,
+    "customer_contact": 20
+   },
+   "summary": "Running planning cadences and OKR cycles, maintaining Jira/Productboard and metrics dashboards, routing customer feedback to PMs, and keeping communication flowing across product teams."
+  },
+  "api-pm": {
+   "scores": {
+    "build": 40,
+    "analyze": 55,
+    "math": 10,
+    "design": 35,
+    "operate": 20,
+    "people": 85,
+    "ambiguity": 75,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 30,
+    "customer_contact": 70
+   },
+   "summary": "Shaping API design, versioning and docs with engineers, talking to external developers and partners about their integrations, and tracking usage analytics to grow adoption."
+  },
+  "payments-pm": {
+   "scores": {
+    "build": 25,
+    "analyze": 65,
+    "math": 25,
+    "design": 30,
+    "operate": 30,
+    "people": 90,
+    "ambiguity": 75,
+    "interruptions": 65,
+    "collaboration": 95,
+    "research": 25,
+    "customer_contact": 50
+   },
+   "summary": "Specifying checkout, payout and ledger features where correctness matters, working through compliance, fraud and risk requirements with legal and engineering, and analyzing payment conversion data."
+  },
+  "security-pm": {
+   "scores": {
+    "build": 30,
+    "analyze": 65,
+    "math": 15,
+    "design": 25,
+    "operate": 35,
+    "people": 85,
+    "ambiguity": 80,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 35,
+    "customer_contact": 55
+   },
+   "summary": "Turning threat trends and enterprise buyer requirements into a roadmap for auth, access control and detection features, working closely with security engineers and talking to customers about trust needs."
+  },
+  "product-designer": {
+   "scores": {
+    "build": 40,
+    "analyze": 35,
+    "math": 5,
+    "design": 95,
+    "operate": 5,
+    "people": 65,
+    "ambiguity": 65,
+    "interruptions": 35,
+    "collaboration": 80,
+    "research": 40,
+    "customer_contact": 35
+   },
+   "summary": "Framing problems with a PM, sketching flows, building Figma prototypes and polished UI, testing with users, and working with engineers to get the designs shipped as intended."
+  },
+  "ux": {
+   "scores": {
+    "build": 30,
+    "analyze": 35,
+    "math": 5,
+    "design": 95,
+    "operate": 5,
+    "people": 70,
+    "ambiguity": 60,
+    "interruptions": 25,
+    "collaboration": 75,
+    "research": 50,
+    "customer_contact": 45
+   },
+   "summary": "Turning research and requirements into user flows, information architecture, wireframes and testable prototypes, then running usability tests to check the structure makes sense before it is built."
+  },
+  "ui-designer": {
+   "scores": {
+    "build": 35,
+    "analyze": 15,
+    "math": 5,
+    "design": 100,
+    "operate": 5,
+    "people": 40,
+    "ambiguity": 35,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 20
+   },
+   "summary": "Taking defined flows and making them look right in Figma: layout, typography, color, spacing, component states and responsive variants, polished to the pixel and handed off to engineers."
+  },
+  "ux-researcher": {
+   "scores": {
+    "build": 5,
+    "analyze": 80,
+    "math": 35,
+    "design": 50,
+    "operate": 0,
+    "people": 80,
+    "ambiguity": 70,
+    "interruptions": 25,
+    "collaboration": 75,
+    "research": 85,
+    "customer_contact": 80
+   },
+   "summary": "Planning studies, recruiting and interviewing users, running usability tests and surveys, synthesizing findings, and presenting insights that change what product teams build."
+  },
+  "design-systems-designer": {
+   "scores": {
+    "build": 55,
+    "analyze": 30,
+    "math": 5,
+    "design": 90,
+    "operate": 15,
+    "people": 55,
+    "ambiguity": 45,
+    "interruptions": 40,
+    "collaboration": 80,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Building and versioning shared components and design tokens in Figma, documenting usage, checking accessibility, and working with front-end engineers and many product teams to keep the UI consistent."
+  },
+  "interaction-designer": {
+   "scores": {
+    "build": 45,
+    "analyze": 25,
+    "math": 15,
+    "design": 95,
+    "operate": 5,
+    "people": 45,
+    "ambiguity": 55,
+    "interruptions": 25,
+    "collaboration": 70,
+    "research": 45,
+    "customer_contact": 25
+   },
+   "summary": "Prototyping how an interface behaves (transitions, states, gestures, motion timing) and refining the moment-to-moment feel with engineers through iteration and usability testing."
+  },
+  "service-designer": {
+   "scores": {
+    "build": 10,
+    "analyze": 55,
+    "math": 5,
+    "design": 85,
+    "operate": 10,
+    "people": 90,
+    "ambiguity": 80,
+    "interruptions": 35,
+    "collaboration": 90,
+    "research": 60,
+    "customer_contact": 60
+   },
+   "summary": "Mapping end-to-end services across apps, call centers and staff processes with journey maps and blueprints, running stakeholder workshops, and researching with users to redesign how a service works."
+  },
+  "content-designer": {
+   "scores": {
+    "build": 15,
+    "analyze": 30,
+    "math": 0,
+    "design": 80,
+    "operate": 5,
+    "people": 60,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 75,
+    "research": 30,
+    "customer_contact": 25
+   },
+   "summary": "Writing and editing interface text (labels, errors, onboarding, empty states) in Figma alongside designers and PMs, keeping voice and terminology consistent, and shaping content structure for a product area."
+  },
+  "design-manager": {
+   "scores": {
+    "build": 10,
+    "analyze": 30,
+    "math": 5,
+    "design": 65,
+    "operate": 10,
+    "people": 100,
+    "ambiguity": 70,
+    "interruptions": 80,
+    "collaboration": 95,
+    "research": 20,
+    "customer_contact": 25
+   },
+   "summary": "Running 1:1s and critiques, hiring and coaching designers, setting team priorities with product and engineering leads, and reviewing work to hold the craft bar rather than designing directly."
+  },
+  "motion-designer": {
+   "scores": {
+    "build": 35,
+    "analyze": 10,
+    "math": 10,
+    "design": 90,
+    "operate": 5,
+    "people": 40,
+    "ambiguity": 45,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 25,
+    "customer_contact": 15
+   },
+   "summary": "Animating transitions, loading states and product videos in After Effects, exporting Lottie files, and reviewing with engineers that the motion is implemented faithfully."
+  },
+  "visual-designer": {
+   "scores": {
+    "build": 20,
+    "analyze": 10,
+    "math": 5,
+    "design": 95,
+    "operate": 5,
+    "people": 45,
+    "ambiguity": 50,
+    "interruptions": 35,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 20
+   },
+   "summary": "Composing layouts, choosing type, color and imagery for product screens, campaigns and brand assets in Figma and Adobe tools, then iterating through critiques and stakeholder feedback."
+  },
+  "ux-engineer": {
+   "scores": {
+    "build": 85,
+    "analyze": 30,
+    "math": 15,
+    "design": 75,
+    "operate": 20,
+    "people": 45,
+    "ambiguity": 45,
+    "interruptions": 35,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 15
+   },
+   "summary": "Building React components and design-system pieces, coding interactive prototypes from Figma files, and pairing with designers and engineers on polish and accessibility."
+  },
+  "design-lead": {
+   "scores": {
+    "build": 25,
+    "analyze": 45,
+    "math": 5,
+    "design": 90,
+    "operate": 5,
+    "people": 85,
+    "ambiguity": 85,
+    "interruptions": 50,
+    "collaboration": 90,
+    "research": 50,
+    "customer_contact": 40
+   },
+   "summary": "Framing ambiguous product problems, designing and prototyping the hardest flows, running critiques, mentoring designers, and aligning PMs and engineers on a shared design direction."
+  },
+  "design-director": {
+   "scores": {
+    "build": 10,
+    "analyze": 45,
+    "math": 10,
+    "design": 70,
+    "operate": 15,
+    "people": 95,
+    "ambiguity": 85,
+    "interruptions": 75,
+    "collaboration": 95,
+    "research": 30,
+    "customer_contact": 30
+   },
+   "summary": "Managing design managers, setting quality bars and vision, hiring and staffing teams, reviewing work, and presenting design strategy to product and business executives."
+  },
+  "brand-designer": {
+   "scores": {
+    "build": 20,
+    "analyze": 10,
+    "math": 5,
+    "design": 92,
+    "operate": 5,
+    "people": 50,
+    "ambiguity": 55,
+    "interruptions": 40,
+    "collaboration": 65,
+    "research": 25,
+    "customer_contact": 25
+   },
+   "summary": "Designing logos, identity systems, illustrations and marketing assets, art-directing campaigns, and maintaining brand guidelines that marketing and product teams can apply consistently."
+  },
+  "accessibility-designer": {
+   "scores": {
+    "build": 35,
+    "analyze": 75,
+    "math": 5,
+    "design": 60,
+    "operate": 25,
+    "people": 65,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 70,
+    "research": 30,
+    "customer_contact": 35
+   },
+   "summary": "Auditing screens and code against WCAG, testing with screen readers, filing and triaging accessibility issues, and coaching designers and engineers on inclusive, ARIA-correct patterns."
+  },
+  "design-ops": {
+   "scores": {
+    "build": 15,
+    "analyze": 45,
+    "math": 10,
+    "design": 30,
+    "operate": 35,
+    "people": 90,
+    "ambiguity": 55,
+    "interruptions": 70,
+    "collaboration": 90,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Running design team rituals, onboarding, Figma licensing and tooling, workflows and metrics, coordinating across teams, and tracking budgets and hiring pipelines for the design org."
+  },
+  "conversation-designer": {
+   "scores": {
+    "build": 40,
+    "analyze": 45,
+    "math": 10,
+    "design": 85,
+    "operate": 10,
+    "people": 55,
+    "ambiguity": 60,
+    "interruptions": 30,
+    "collaboration": 65,
+    "research": 50,
+    "customer_contact": 35
+   },
+   "summary": "Writing dialogue flows, intents and error-recovery paths for chatbots, voice assistants and LLM agents, prototyping in Voiceflow, tuning prompts, and reviewing transcripts of real conversations."
+  },
+  "information-architect": {
+   "scores": {
+    "build": 20,
+    "analyze": 70,
+    "math": 15,
+    "design": 75,
+    "operate": 5,
+    "people": 55,
+    "ambiguity": 60,
+    "interruptions": 25,
+    "collaboration": 60,
+    "research": 55,
+    "customer_contact": 35
+   },
+   "summary": "Building taxonomies, sitemaps, navigation and content models, running card sorts and tree tests with users, and working with content and product teams to make large sites findable."
+  },
+  "vp-design": {
+   "scores": {
+    "build": 5,
+    "analyze": 45,
+    "math": 10,
+    "design": 55,
+    "operate": 15,
+    "people": 100,
+    "ambiguity": 90,
+    "interruptions": 80,
+    "collaboration": 95,
+    "research": 25,
+    "customer_contact": 35
+   },
+   "summary": "Setting company-wide design vision, structuring and hiring the design leadership team, owning budget, and representing design in executive and board strategy discussions."
+  },
+  "eng-mgr": {
+   "scores": {
+    "build": 30,
+    "analyze": 45,
+    "math": 15,
+    "design": 15,
+    "operate": 35,
+    "people": 95,
+    "ambiguity": 60,
+    "interruptions": 80,
+    "collaboration": 95,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "Running 1:1s, sprint planning and standups, unblocking engineers, interviewing candidates, writing performance reviews, and negotiating scope and deadlines with product and leadership."
+  },
+  "senior-eng-mgr": {
+   "scores": {
+    "build": 20,
+    "analyze": 50,
+    "math": 15,
+    "design": 10,
+    "operate": 35,
+    "people": 95,
+    "ambiguity": 70,
+    "interruptions": 80,
+    "collaboration": 95,
+    "research": 15,
+    "customer_contact": 15
+   },
+   "summary": "Coaching team leads, coordinating delivery across several teams, planning headcount and budget, shaping org structure, and keeping stakeholders aligned on cross-team roadmaps."
+  },
+  "director-eng": {
+   "scores": {
+    "build": 10,
+    "analyze": 55,
+    "math": 20,
+    "design": 10,
+    "operate": 30,
+    "people": 95,
+    "ambiguity": 80,
+    "interruptions": 85,
+    "collaboration": 95,
+    "research": 20,
+    "customer_contact": 20
+   },
+   "summary": "Managing engineering managers, designing the org, hiring leaders, setting department strategy and OKRs, owning budget, and aligning with product and executive peers."
+  },
+  "vp-eng": {
+   "scores": {
+    "build": 5,
+    "analyze": 55,
+    "math": 20,
+    "design": 10,
+    "operate": 30,
+    "people": 100,
+    "ambiguity": 90,
+    "interruptions": 85,
+    "collaboration": 100,
+    "research": 20,
+    "customer_contact": 35
+   },
+   "summary": "Leading the whole engineering org: exec meetings with product and sales, senior hiring, budget and headcount decisions, org restructuring, and accountability for delivery at scale."
+  },
+  "cto": {
+   "scores": {
+    "build": 35,
+    "analyze": 60,
+    "math": 25,
+    "design": 15,
+    "operate": 35,
+    "people": 90,
+    "ambiguity": 95,
+    "interruptions": 80,
+    "collaboration": 90,
+    "research": 50,
+    "customer_contact": 50
+   },
+   "summary": "Setting technology strategy, making major architecture and vendor calls, building the engineering org, evaluating emerging tech, and representing engineering to the board, investors and customers."
+  },
+  "lead-swe": {
+   "scores": {
+    "build": 85,
+    "analyze": 50,
+    "math": 25,
+    "design": 20,
+    "operate": 40,
+    "people": 60,
+    "ambiguity": 55,
+    "interruptions": 55,
+    "collaboration": 75,
+    "research": 25,
+    "customer_contact": 15
+   },
+   "summary": "Writing code for a service you own, designing its architecture, reviewing teammates' pull requests, breaking down work for a small group, and mentoring while keeping delivery on track."
+  },
+  "staff-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 70,
+    "math": 30,
+    "design": 15,
+    "operate": 40,
+    "people": 65,
+    "ambiguity": 80,
+    "interruptions": 45,
+    "collaboration": 80,
+    "research": 45,
+    "customer_contact": 10
+   },
+   "summary": "Writing RFCs and design docs, reviewing architecture across teams, prototyping critical pieces of code, mentoring engineers, and steering multiple teams toward a shared technical direction."
+  },
+  "principal-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 75,
+    "math": 35,
+    "design": 15,
+    "operate": 40,
+    "people": 75,
+    "ambiguity": 85,
+    "interruptions": 45,
+    "collaboration": 85,
+    "research": 55,
+    "customer_contact": 15
+   },
+   "summary": "Owning the hardest distributed-systems problems in an org, setting technical vision, leading design reviews, and building consensus across many teams and their leaders."
+  },
+  "distinguished-eng": {
+   "scores": {
+    "build": 40,
+    "analyze": 75,
+    "math": 45,
+    "design": 10,
+    "operate": 30,
+    "people": 75,
+    "ambiguity": 90,
+    "interruptions": 40,
+    "collaboration": 80,
+    "research": 75,
+    "customer_contact": 35
+   },
+   "summary": "Shaping multi-year architecture bets for the company, advising executives and principals, exploring new technical directions, and representing the company's engineering at conferences."
+  },
+  "eng-fellow": {
+   "scores": {
+    "build": 35,
+    "analyze": 80,
+    "math": 55,
+    "design": 10,
+    "operate": 20,
+    "people": 70,
+    "ambiguity": 95,
+    "interruptions": 30,
+    "collaboration": 70,
+    "research": 90,
+    "customer_contact": 40
+   },
+   "summary": "Driving deep research and long-range technical agendas for the whole firm, publishing and patenting, advising executives, and acting as an industry-recognized voice in the field."
+  },
+  "head-of-platform": {
+   "scores": {
+    "build": 40,
+    "analyze": 55,
+    "math": 15,
+    "design": 10,
+    "operate": 80,
+    "people": 90,
+    "ambiguity": 70,
+    "interruptions": 80,
+    "collaboration": 90,
+    "research": 20,
+    "customer_contact": 10
+   },
+   "summary": "Leading the teams behind CI/CD, cloud infrastructure and developer tooling, balancing reliability, cost and velocity, handling escalations, and setting the platform roadmap with product teams."
+  },
+  "head-of-eng": {
+   "scores": {
+    "build": 40,
+    "analyze": 50,
+    "math": 15,
+    "design": 15,
+    "operate": 40,
+    "people": 95,
+    "ambiguity": 80,
+    "interruptions": 85,
+    "collaboration": 95,
+    "research": 20,
+    "customer_contact": 25
+   },
+   "summary": "Hiring and scaling a startup engineering team, setting process, owning delivery against the roadmap, making key technical calls, and occasionally jumping into code or incidents."
+  },
+  "tpm": {
+   "scores": {
+    "build": 15,
+    "analyze": 55,
+    "math": 15,
+    "design": 10,
+    "operate": 30,
+    "people": 90,
+    "ambiguity": 60,
+    "interruptions": 75,
+    "collaboration": 98,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Running cross-team program meetings, tracking schedules, dependencies and risks, writing status updates, and pushing engineering teams to resolve trade-offs that block delivery."
+  },
+  "chief-architect": {
+   "scores": {
+    "build": 35,
+    "analyze": 75,
+    "math": 25,
+    "design": 20,
+    "operate": 35,
+    "people": 80,
+    "ambiguity": 85,
+    "interruptions": 55,
+    "collaboration": 90,
+    "research": 45,
+    "customer_contact": 25
+   },
+   "summary": "Defining reference architectures and technology standards, chairing architecture review boards, evaluating platforms, and aligning teams and architects across the enterprise on one coherent design."
+  },
+  "embedded-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 60,
+    "math": 40,
+    "design": 5,
+    "operate": 20,
+    "people": 20,
+    "ambiguity": 45,
+    "interruptions": 25,
+    "collaboration": 45,
+    "research": 25,
+    "customer_contact": 5
+   },
+   "summary": "Writing C for microcontrollers and RTOS tasks, reading datasheets, bringing up peripherals over I2C/SPI, and debugging timing and memory issues at the bench with scopes and logic analyzers."
+  },
+  "firmware-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 55,
+    "math": 35,
+    "design": 5,
+    "operate": 35,
+    "people": 20,
+    "ambiguity": 40,
+    "interruptions": 30,
+    "collaboration": 45,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Writing bootloaders, device drivers and power-management code in C, manipulating registers, debugging over JTAG, and hardening OTA update paths so devices never brick in the field."
+  },
+  "robotics-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 65,
+    "math": 70,
+    "design": 10,
+    "operate": 20,
+    "people": 30,
+    "ambiguity": 60,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 50,
+    "customer_contact": 10
+   },
+   "summary": "Writing C++ and Python ROS nodes for motion planning, control and sensor fusion, testing in simulation, then debugging behavior on real robots where reality differs from the sim."
+  },
+  "controls-eng": {
+   "scores": {
+    "build": 65,
+    "analyze": 75,
+    "math": 85,
+    "design": 5,
+    "operate": 25,
+    "people": 25,
+    "ambiguity": 50,
+    "interruptions": 25,
+    "collaboration": 50,
+    "research": 45,
+    "customer_contact": 10
+   },
+   "summary": "Modeling systems in MATLAB/Simulink, designing and tuning PID and state-space controllers, implementing them in real-time C, and bench-testing motors to chase latency and resonance."
+  },
+  "game-engine-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 60,
+    "math": 60,
+    "design": 15,
+    "operate": 15,
+    "people": 25,
+    "ambiguity": 45,
+    "interruptions": 30,
+    "collaboration": 50,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Writing C++ engine systems for rendering, physics, memory and threading, profiling frames to hit millisecond budgets, and supporting gameplay teams who build on the engine."
+  },
+  "graphics-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 55,
+    "math": 80,
+    "design": 35,
+    "operate": 10,
+    "people": 20,
+    "ambiguity": 50,
+    "interruptions": 20,
+    "collaboration": 45,
+    "research": 45,
+    "customer_contact": 5
+   },
+   "summary": "Writing shaders and rendering pipeline code on Vulkan, DirectX or Metal, implementing lighting and materials, and profiling GPU captures to shave microseconds off each frame."
+  },
+  "blockchain-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 55,
+    "math": 50,
+    "design": 10,
+    "operate": 45,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 45,
+    "collaboration": 50,
+    "research": 35,
+    "customer_contact": 15
+   },
+   "summary": "Building smart contracts, node infrastructure and wallet or app backends in Solidity, Rust or Go, reasoning about consensus and cryptography, and watching deployed systems for exploits."
+  },
+  "smart-contract-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 70,
+    "math": 45,
+    "design": 5,
+    "operate": 30,
+    "people": 25,
+    "ambiguity": 45,
+    "interruptions": 35,
+    "collaboration": 45,
+    "research": 30,
+    "customer_contact": 15
+   },
+   "summary": "Writing and testing Solidity contracts in Foundry or Hardhat, optimizing gas, hunting reentrancy and logic bugs, and preparing code for audits before immutable deployment."
+  },
+  "arvr-eng": {
+   "scores": {
+    "build": 90,
+    "analyze": 35,
+    "math": 55,
+    "design": 55,
+    "operate": 10,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 25,
+    "collaboration": 60,
+    "research": 45,
+    "customer_contact": 15
+   },
+   "summary": "Building immersive scenes in Unity or Unreal with XR SDKs, implementing hand and eye input, and optimizing rendering to hold 90fps while testing comfort on headsets."
+  },
+  "quantum-eng": {
+   "scores": {
+    "build": 55,
+    "analyze": 70,
+    "math": 95,
+    "design": 5,
+    "operate": 10,
+    "people": 20,
+    "ambiguity": 85,
+    "interruptions": 15,
+    "collaboration": 45,
+    "research": 95,
+    "customer_contact": 5
+   },
+   "summary": "Designing and simulating quantum circuits in Qiskit or Cirq, working through linear algebra and physics, experimenting with error mitigation, and running jobs on noisy early hardware."
+  },
+  "bioinformatics-eng": {
+   "scores": {
+    "build": 75,
+    "analyze": 75,
+    "math": 55,
+    "design": 5,
+    "operate": 30,
+    "people": 35,
+    "ambiguity": 50,
+    "interruptions": 25,
+    "collaboration": 55,
+    "research": 55,
+    "customer_contact": 10
+   },
+   "summary": "Writing and debugging Nextflow/Snakemake pipelines for alignment and variant calling, running jobs on HPC or cloud, checking results for statistical sanity, and working through requests from lab scientists."
+  },
+  "fpga-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 60,
+    "math": 50,
+    "design": 5,
+    "operate": 10,
+    "people": 20,
+    "ambiguity": 40,
+    "interruptions": 15,
+    "collaboration": 40,
+    "research": 30,
+    "customer_contact": 5
+   },
+   "summary": "Writing RTL in Verilog/VHDL, running synthesis and place-and-route, fixing timing violations and clock-domain crossings, and debugging designs on the board with logic analyzers and simulation."
+  },
+  "asic-verification-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 75,
+    "math": 35,
+    "design": 5,
+    "operate": 5,
+    "people": 20,
+    "ambiguity": 35,
+    "interruptions": 20,
+    "collaboration": 50,
+    "research": 20,
+    "customer_contact": 5
+   },
+   "summary": "Building UVM testbenches and constrained-random tests in SystemVerilog, writing assertions and coverage models, running regressions, and triaging failing simulations with designers until coverage closes."
+  },
+  "dba": {
+   "scores": {
+    "build": 30,
+    "analyze": 60,
+    "math": 15,
+    "design": 5,
+    "operate": 90,
+    "people": 30,
+    "ambiguity": 30,
+    "interruptions": 80,
+    "collaboration": 50,
+    "research": 10,
+    "customer_contact": 10
+   },
+   "summary": "Tuning slow queries and indexes, managing backups, replication and upgrades, watching database monitoring, answering developer requests, and handling pages when a database degrades or fails over."
+  },
+  "sap-consultant": {
+   "scores": {
+    "build": 55,
+    "analyze": 50,
+    "math": 10,
+    "design": 15,
+    "operate": 30,
+    "people": 70,
+    "ambiguity": 45,
+    "interruptions": 50,
+    "collaboration": 75,
+    "research": 10,
+    "customer_contact": 65
+   },
+   "summary": "Configuring SAP modules to match business processes, writing ABAP enhancements and reports, running workshops with business users, testing changes, and working through migration and rollout tasks."
+  },
+  "salesforce-dev": {
+   "scores": {
+    "build": 80,
+    "analyze": 30,
+    "math": 5,
+    "design": 30,
+    "operate": 20,
+    "people": 45,
+    "ambiguity": 30,
+    "interruptions": 45,
+    "collaboration": 60,
+    "research": 10,
+    "customer_contact": 30
+   },
+   "summary": "Writing Apex triggers and classes, building Lightning Web Components and flows, wiring REST integrations, and working within governor limits to deliver CRM changes that sales and service teams ask for."
+  },
+  "servicenow-dev": {
+   "scores": {
+    "build": 75,
+    "analyze": 30,
+    "math": 5,
+    "design": 20,
+    "operate": 35,
+    "people": 40,
+    "ambiguity": 30,
+    "interruptions": 45,
+    "collaboration": 55,
+    "research": 10,
+    "customer_contact": 20
+   },
+   "summary": "Building catalog items, workflows and business rules in ServiceNow, scripting in Glide JavaScript, setting up integrations, and fixing issues that IT and operations teams raise about their processes."
+  },
+  "rpa-dev": {
+   "scores": {
+    "build": 70,
+    "analyze": 50,
+    "math": 5,
+    "design": 15,
+    "operate": 35,
+    "people": 50,
+    "ambiguity": 35,
+    "interruptions": 45,
+    "collaboration": 60,
+    "research": 15,
+    "customer_contact": 25
+   },
+   "summary": "Mapping manual business processes with process owners, building UiPath or Power Automate bots, handling exceptions and brittle UI selectors, and fixing bots that break when the underlying systems change."
+  },
+  "lowcode-dev": {
+   "scores": {
+    "build": 75,
+    "analyze": 30,
+    "math": 5,
+    "design": 45,
+    "operate": 15,
+    "people": 50,
+    "ambiguity": 35,
+    "interruptions": 40,
+    "collaboration": 60,
+    "research": 10,
+    "customer_contact": 35
+   },
+   "summary": "Assembling apps in Power Apps, OutSystems or Mendix: data models, screens and workflow logic, plus small amounts of code and API integration, iterating quickly with the business users who will use them."
+  },
+  "gis-eng": {
+   "scores": {
+    "build": 70,
+    "analyze": 70,
+    "math": 45,
+    "design": 35,
+    "operate": 20,
+    "people": 30,
+    "ambiguity": 45,
+    "interruptions": 20,
+    "collaboration": 45,
+    "research": 35,
+    "customer_contact": 15
+   },
+   "summary": "Writing Python and spatial SQL to process location and satellite data, managing PostGIS databases, handling projections and formats, and building maps and mapping APIs that others consume."
+  },
+  "cae-simulation-eng": {
+   "scores": {
+    "build": 35,
+    "analyze": 85,
+    "math": 85,
+    "design": 10,
+    "operate": 10,
+    "people": 30,
+    "ambiguity": 55,
+    "interruptions": 20,
+    "collaboration": 50,
+    "research": 50,
+    "customer_contact": 10
+   },
+   "summary": "Setting up meshes and boundary conditions, running FEA/CFD jobs on HPC clusters, scripting the tools to automate studies, checking convergence, and turning results into recommendations for design engineers."
+  },
+  "dsp-eng": {
+   "scores": {
+    "build": 80,
+    "analyze": 60,
+    "math": 85,
+    "design": 10,
+    "operate": 10,
+    "people": 20,
+    "ambiguity": 50,
+    "interruptions": 15,
+    "collaboration": 40,
+    "research": 50,
+    "customer_contact": 5
+   },
+   "summary": "Prototyping filters and audio algorithms in MATLAB or Python, porting them to real-time C++, profiling latency and CPU on target hardware, and listening to and measuring output to track down artifacts."
+  },
+  "iot-eng": {
+   "scores": {
+    "build": 85,
+    "analyze": 45,
+    "math": 25,
+    "design": 10,
+    "operate": 45,
+    "people": 25,
+    "ambiguity": 50,
+    "interruptions": 40,
+    "collaboration": 55,
+    "research": 25,
+    "customer_contact": 10
+   },
+   "summary": "Writing device firmware in C/C++, getting MQTT/BLE connectivity working, building the cloud side that ingests telemetry, and debugging problems that span hardware, network and backend across a fleet."
+  },
+  "developer-advocate": {
+   "scores": {
+    "build": 60,
+    "analyze": 25,
+    "math": 5,
+    "design": 30,
+    "operate": 5,
+    "people": 85,
+    "ambiguity": 65,
+    "interruptions": 50,
+    "collaboration": 70,
+    "research": 25,
+    "customer_contact": 85
+   },
+   "summary": "Building sample apps and demos, writing tutorials and recording videos, giving talks and workshops, answering developers in forums and Discord, and relaying their pain points to product and engineering."
+  },
+  "devrel-manager": {
+   "scores": {
+    "build": 15,
+    "analyze": 45,
+    "math": 10,
+    "design": 25,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 80,
+    "interruptions": 70,
+    "collaboration": 90,
+    "research": 20,
+    "customer_contact": 70
+   },
+   "summary": "Setting community and content strategy, managing and hiring advocates, planning events and campaigns, reporting adoption metrics, and negotiating budget and priorities with marketing, product and leadership."
+  },
+  "technical-writer": {
+   "scores": {
+    "build": 40,
+    "analyze": 45,
+    "math": 5,
+    "design": 45,
+    "operate": 5,
+    "people": 55,
+    "ambiguity": 40,
+    "interruptions": 30,
+    "collaboration": 60,
+    "research": 20,
+    "customer_contact": 25
+   },
+   "summary": "Interviewing engineers and reading code to understand features, writing and editing guides, API references and release notes in Markdown, organizing doc structure, and shipping changes through Git reviews."
+  },
+  "sales-engineer": {
+   "scores": {
+    "build": 35,
+    "analyze": 45,
+    "math": 5,
+    "design": 15,
+    "operate": 10,
+    "people": 85,
+    "ambiguity": 55,
+    "interruptions": 70,
+    "collaboration": 80,
+    "research": 10,
+    "customer_contact": 95
+   },
+   "summary": "Running discovery calls and live product demos with prospects, answering technical questions and RFPs, building quick proofs of concept, and working deals alongside account executives toward a quota."
+  },
+  "solutions-engineer": {
+   "scores": {
+    "build": 50,
+    "analyze": 60,
+    "math": 5,
+    "design": 25,
+    "operate": 10,
+    "people": 75,
+    "ambiguity": 60,
+    "interruptions": 60,
+    "collaboration": 75,
+    "research": 15,
+    "customer_contact": 85
+   },
+   "summary": "Analyzing customer requirements, designing how the product fits into their architecture, building integration prototypes and POCs with APIs, and presenting technical solutions to customer engineering teams."
+  },
+  "support-engineer": {
+   "scores": {
+    "build": 20,
+    "analyze": 55,
+    "math": 5,
+    "design": 5,
+    "operate": 50,
+    "people": 75,
+    "ambiguity": 35,
+    "interruptions": 85,
+    "collaboration": 60,
+    "research": 10,
+    "customer_contact": 95
+   },
+   "summary": "Working a ticket queue: reproducing customer bugs, reading logs and stack traces, running SQL to check data, replying to customers under SLA pressure, and escalating clear repros to engineering."
+  },
+  "tech-account-manager": {
+   "scores": {
+    "build": 10,
+    "analyze": 45,
+    "math": 5,
+    "design": 5,
+    "operate": 30,
+    "people": 90,
+    "ambiguity": 55,
+    "interruptions": 75,
+    "collaboration": 85,
+    "research": 5,
+    "customer_contact": 95
+   },
+   "summary": "Holding regular calls with named enterprise accounts, advising on architecture and adoption, chasing escalations through support and engineering, and preparing business reviews ahead of renewals."
+  },
+  "implementation-engineer": {
+   "scores": {
+    "build": 45,
+    "analyze": 45,
+    "math": 5,
+    "design": 10,
+    "operate": 25,
+    "people": 75,
+    "ambiguity": 40,
+    "interruptions": 60,
+    "collaboration": 75,
+    "research": 5,
+    "customer_contact": 85
+   },
+   "summary": "Configuring the product for new customers, setting up API integrations and data migrations, running onboarding calls and training, tracking the project plan, and fixing issues that block go-live."
+  },
+  "customer-success-engineer": {
+   "scores": {
+    "build": 25,
+    "analyze": 50,
+    "math": 5,
+    "design": 5,
+    "operate": 30,
+    "people": 85,
+    "ambiguity": 45,
+    "interruptions": 70,
+    "collaboration": 75,
+    "research": 5,
+    "customer_contact": 90
+   },
+   "summary": "Meeting with live customers to drive adoption, troubleshooting integration and usage problems, watching account health metrics for churn risk, and coordinating with support and sales on fixes and expansion."
+  },
+  "scrum-master": {
+   "scores": {
+    "build": 5,
+    "analyze": 25,
+    "math": 5,
+    "design": 5,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 35,
+    "interruptions": 65,
+    "collaboration": 95,
+    "research": 5,
+    "customer_contact": 10
+   },
+   "summary": "Facilitating standups, sprint planning, reviews and retros, keeping the Jira board and sprint metrics accurate, chasing down blockers for the team, and coaching people on working agreements."
+  },
+  "agile-coach": {
+   "scores": {
+    "build": 5,
+    "analyze": 35,
+    "math": 5,
+    "design": 15,
+    "operate": 5,
+    "people": 95,
+    "ambiguity": 80,
+    "interruptions": 50,
+    "collaboration": 90,
+    "research": 25,
+    "customer_contact": 25
+   },
+   "summary": "Assessing how teams and departments work, running training and workshops, coaching managers and leaders, analyzing flow metrics, and steering organizational change across many teams at once."
+  },
+  "technical-program-manager": {
+   "scores": {
+    "build": 15,
+    "analyze": 55,
+    "math": 10,
+    "design": 10,
+    "operate": 25,
+    "people": 90,
+    "ambiguity": 70,
+    "interruptions": 70,
+    "collaboration": 95,
+    "research": 10,
+    "customer_contact": 15
+   },
+   "summary": "Running cross-team programs: building the plan, tracking dependencies and risks, digging into technical designs with engineers, running syncs, and writing status updates that keep leadership aligned."
+  },
+  "program-manager": {
+   "scores": {
+    "build": 5,
+    "analyze": 45,
+    "math": 10,
+    "design": 5,
+    "operate": 20,
+    "people": 95,
+    "ambiguity": 55,
+    "interruptions": 70,
+    "collaboration": 95,
+    "research": 5,
+    "customer_contact": 20
+   },
+   "summary": "Maintaining schedules, budgets and risk logs across several projects, running status meetings, chasing owners for updates, and preparing reports and OKR tracking for leadership."
+  },
+  "data-governance": {
+   "scores": {
+    "build": 10,
+    "analyze": 60,
+    "math": 15,
+    "design": 10,
+    "operate": 35,
+    "people": 85,
+    "ambiguity": 70,
+    "interruptions": 45,
+    "collaboration": 85,
+    "research": 15,
+    "customer_contact": 10
+   },
+   "summary": "Writing data policies and quality standards, assigning data owners, rolling out catalog and lineage tooling, working with legal on GDPR/CCPA compliance, and getting business units to actually adopt the rules."
+  },
+  "data-steward": {
+   "scores": {
+    "build": 15,
+    "analyze": 75,
+    "math": 15,
+    "design": 5,
+    "operate": 45,
+    "people": 55,
+    "ambiguity": 30,
+    "interruptions": 40,
+    "collaboration": 65,
+    "research": 10,
+    "customer_contact": 5
+   },
+   "summary": "Profiling datasets with SQL, fixing bad and duplicate records, maintaining catalog definitions and master data, resolving data-quality issues raised by users, and enforcing governance rules within a domain."
+  },
+  "ml-data-lead": {
+   "scores": {
+    "build": 40,
+    "analyze": 75,
+    "math": 35,
+    "design": 15,
+    "operate": 40,
+    "people": 75,
+    "ambiguity": 65,
+    "interruptions": 45,
+    "collaboration": 80,
+    "research": 40,
+    "customer_contact": 25
+   },
+   "summary": "Curating and auditing training datasets with Python and SQL, designing annotation guidelines and QA checks, managing labeling vendors, and working with ML engineers to trace model errors back to data issues."
+  },
+  "labeling-ops-manager": {
+   "scores": {
+    "build": 10,
+    "analyze": 55,
+    "math": 15,
+    "design": 15,
+    "operate": 70,
+    "people": 90,
+    "ambiguity": 45,
+    "interruptions": 65,
+    "collaboration": 85,
+    "research": 10,
+    "customer_contact": 40
+   },
+   "summary": "Writing labeling guidelines and workflows, managing internal annotators or vendor teams, tracking throughput and quality dashboards, running QA audits, and resolving edge cases raised by ML teams."
+  },
+  "technical-recruiter": {
+   "scores": {
+    "build": 0,
+    "analyze": 25,
+    "math": 0,
+    "design": 5,
+    "operate": 10,
+    "people": 95,
+    "ambiguity": 40,
+    "interruptions": 75,
+    "collaboration": 85,
+    "research": 5,
+    "customer_contact": 90
+   },
+   "summary": "Sourcing engineers with Boolean searches and outreach, running screening calls, moving candidates through the ATS, coordinating interviews with hiring managers, and negotiating and closing offers."
+  }
+ },
+ "dimensions": [
+  {
+   "id": "build",
+   "group": "interest",
+   "meaning": "Designing and writing software or products that ship"
+  },
+  {
+   "id": "analyze",
+   "group": "interest",
+   "meaning": "Investigating data or systems to answer questions"
+  },
+  {
+   "id": "math",
+   "group": "interest",
+   "meaning": "Depth of mathematics or statistics the work relies on"
+  },
+  {
+   "id": "design",
+   "group": "interest",
+   "meaning": "Shaping user experience, interfaces and visuals"
+  },
+  {
+   "id": "operate",
+   "group": "interest",
+   "meaning": "Keeping production systems running, reliable and secure"
+  },
+  {
+   "id": "people",
+   "group": "interest",
+   "meaning": "Working through people (stakeholders, teammates, users) as core work"
+  },
+  {
+   "id": "ambiguity",
+   "group": "work_style",
+   "meaning": "0 = well-specified tasks, 100 = open-ended problems you define"
+  },
+  {
+   "id": "interruptions",
+   "group": "work_style",
+   "meaning": "0 = protected focus, 100 = on-call, incidents, constant switching"
+  },
+  {
+   "id": "collaboration",
+   "group": "work_style",
+   "meaning": "0 = mostly solo deep work, 100 = constant coordination"
+  },
+  {
+   "id": "research",
+   "group": "work_style",
+   "meaning": "0 = practical and ship fast, 100 = exploration with uncertain outcomes"
+  },
+  {
+   "id": "customer_contact",
+   "group": "work_style",
+   "meaning": "0 = internal only, 100 = with external customers or users daily"
+  }
+ ],
+ "updated_at": "2026-10-11T17:21:01"
+}
