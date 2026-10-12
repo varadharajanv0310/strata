@@ -311,7 +311,7 @@
     "staff-engineer",
     "distributed-systems-engineer",
     "software-architect",
-    "platform-engineer"
+    "platform-eng"
    ]
   },
   {
@@ -906,162 +906,9 @@
    ],
    "leads_to": [
     "backend",
-    "platform-engineer",
+    "platform-eng",
     "distributed-systems-engineer",
     "software-architect"
-   ]
-  },
-  {
-   "id": "platform-engineer",
-   "name": "Platform Engineer",
-   "family": "eng",
-   "blurb": "Builds the internal tooling, pipelines, and paved-road services that other engineers ship on. Sits between product and infra — think internal developer platforms, self-serve deploys, and golden paths that reduce toil.",
-   "skills": [
-    {
-     "name": "Kubernetes",
-     "importance": "A"
-    },
-    {
-     "name": "Infrastructure as Code (Terraform)",
-     "importance": "A"
-    },
-    {
-     "name": "CI/CD Pipelines",
-     "importance": "A"
-    },
-    {
-     "name": "Cloud (AWS/GCP)",
-     "importance": "I"
-    },
-    {
-     "name": "Developer Tooling",
-     "importance": "I"
-    },
-    {
-     "name": "Go/Python",
-     "importance": "I"
-    },
-    {
-     "name": "Observability",
-     "importance": "I"
-    },
-    {
-     "name": "Internal Developer Platforms",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Platform Engineer I",
-     "mult": 0.62
-    },
-    {
-     "title": "Platform Engineer II",
-     "mult": 0.82
-    },
-    {
-     "title": "Senior Platform Engineer",
-     "mult": 1
-    },
-    {
-     "title": "Staff Platform Engineer",
-     "mult": 1.4
-    },
-    {
-     "title": "Principal Engineer",
-     "mult": 1.85
-    }
-   ],
-   "demand": 88,
-   "demandDelta": 22,
-   "interest": 72,
-   "growth": 0.6,
-   "salary": {
-    "IN": 2200000,
-    "US": 175000,
-    "GB": 82000,
-    "CA": 138000,
-    "AU": 155000,
-    "SG": 128000,
-    "DE": 88000
-   },
-   "stages": [
-    {
-     "title": "Junior Platform Engineer",
-     "yoe_min": 0,
-     "yoe_max": 2,
-     "salary": {
-      "IN": 800000,
-      "US": 122000,
-      "GB": 52000,
-      "CA": 90000,
-      "AU": 90000,
-      "SG": 70000,
-      "DE": 58000
-     }
-    },
-    {
-     "title": "Platform Engineer",
-     "yoe_min": 2,
-     "yoe_max": 5,
-     "salary": {
-      "IN": 1800000,
-      "US": 162000,
-      "GB": 74000,
-      "CA": 128000,
-      "AU": 138000,
-      "SG": 112000,
-      "DE": 80000
-     }
-    },
-    {
-     "title": "Senior Platform Engineer",
-     "yoe_min": 5,
-     "yoe_max": 9,
-     "salary": {
-      "IN": 3600000,
-      "US": 215000,
-      "GB": 102000,
-      "CA": 165000,
-      "AU": 175000,
-      "SG": 160000,
-      "DE": 100000
-     }
-    },
-    {
-     "title": "Staff Platform Engineer",
-     "yoe_min": 9,
-     "yoe_max": 13,
-     "salary": {
-      "IN": 6000000,
-      "US": 290000,
-      "GB": 138000,
-      "CA": 220000,
-      "AU": 232000,
-      "SG": 222000,
-      "DE": 127000
-     }
-    },
-    {
-     "title": "Principal Platform Engineer",
-     "yoe_min": 13,
-     "yoe_max": 30,
-     "salary": {
-      "IN": 8500000,
-      "US": 375000,
-      "GB": 172000,
-      "CA": 272000,
-      "AU": 285000,
-      "SG": 285000,
-      "DE": 158000
-     }
-    }
-   ],
-   "leads_to": [
-    "staff-engineer",
-    "distributed-systems-engineer",
-    "software-architect",
-    "Engineering Manager"
    ]
   },
   {
@@ -1761,7 +1608,7 @@
    "leads_to": [
     "staff-engineer",
     "principal-engineer",
-    "platform-engineer",
+    "platform-eng",
     "software-architect"
    ]
   },
@@ -2368,7 +2215,7 @@
    ],
    "leads_to": [
     "backend",
-    "platform-engineer",
+    "platform-eng",
     "distributed-systems-engineer",
     "staff-engineer"
    ]
@@ -2524,155 +2371,6 @@
     "software-architect",
     "staff-engineer",
     "tech-lead"
-   ]
-  },
-  {
-   "id": "php-developer",
-   "name": "PHP Developer",
-   "family": "eng",
-   "blurb": "Builds and maintains web backends in PHP — Laravel or Symfony apps, plus a lot of WordPress and legacy codebases. A large, affordable market that's slowly shrinking as newer stacks take share.",
-   "skills": [
-    {
-     "name": "PHP",
-     "importance": "A"
-    },
-    {
-     "name": "Laravel/Symfony",
-     "importance": "A"
-    },
-    {
-     "name": "MySQL",
-     "importance": "I"
-    },
-    {
-     "name": "REST APIs",
-     "importance": "I"
-    },
-    {
-     "name": "HTML/CSS/JS",
-     "importance": "I"
-    },
-    {
-     "name": "Git",
-     "importance": "I"
-    },
-    {
-     "name": "WordPress",
-     "importance": "B"
-    },
-    {
-     "name": "Composer",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Junior PHP Developer",
-     "mult": 0.6
-    },
-    {
-     "title": "PHP Developer",
-     "mult": 0.8
-    },
-    {
-     "title": "Senior PHP Developer",
-     "mult": 1
-    },
-    {
-     "title": "Lead PHP Developer",
-     "mult": 1.3
-    }
-   ],
-   "demand": 58,
-   "demandDelta": 0,
-   "interest": 50,
-   "growth": 0.2,
-   "salary": {
-    "IN": 1050000,
-    "US": 110000,
-    "GB": 50000,
-    "CA": 92000,
-    "AU": 105000,
-    "SG": 82000,
-    "DE": 60000
-   },
-   "stages": [
-    {
-     "title": "Junior PHP Developer",
-     "yoe_min": 0,
-     "yoe_max": 2,
-     "salary": {
-      "IN": 400000,
-      "US": 72000,
-      "GB": 33000,
-      "CA": 60000,
-      "AU": 62000,
-      "SG": 46000,
-      "DE": 43000
-     }
-    },
-    {
-     "title": "PHP Developer",
-     "yoe_min": 2,
-     "yoe_max": 5,
-     "salary": {
-      "IN": 900000,
-      "US": 98000,
-      "GB": 46000,
-      "CA": 85000,
-      "AU": 92000,
-      "SG": 70000,
-      "DE": 58000
-     }
-    },
-    {
-     "title": "Senior PHP Developer",
-     "yoe_min": 5,
-     "yoe_max": 9,
-     "salary": {
-      "IN": 1800000,
-      "US": 130000,
-      "GB": 64000,
-      "CA": 112000,
-      "AU": 120000,
-      "SG": 100000,
-      "DE": 74000
-     }
-    },
-    {
-     "title": "Lead PHP Developer",
-     "yoe_min": 9,
-     "yoe_max": 13,
-     "salary": {
-      "IN": 3200000,
-      "US": 172000,
-      "GB": 88000,
-      "CA": 150000,
-      "AU": 158000,
-      "SG": 140000,
-      "DE": 95000
-     }
-    },
-    {
-     "title": "Principal Engineer",
-     "yoe_min": 13,
-     "yoe_max": 30,
-     "salary": {
-      "IN": 4800000,
-      "US": 220000,
-      "GB": 115000,
-      "CA": 195000,
-      "AU": 205000,
-      "SG": 188000,
-      "DE": 120000
-     }
-    }
-   ],
-   "leads_to": [
-    "fullstack",
-    "backend",
-    "tech-lead",
-    "web-developer"
    ]
   },
   {
@@ -23938,7 +23636,7 @@
     }
    ],
    "leads_to": [
-    "cloud-eng",
+    "cloud-engineer",
     "platform-eng",
     "cloud-arch",
     "sre",
@@ -24231,150 +23929,6 @@
     "Head of Cloud / VP Infrastructure",
     "Solutions Architect",
     "CTO"
-   ]
-  },
-  {
-   "id": "cloud-eng",
-   "name": "Cloud Engineer",
-   "family": "infra",
-   "blurb": "You build and run workloads in the cloud — provisioning services, wiring networking, and automating everything with infrastructure as code. The hands-on counterpart to the architect: you turn cloud designs into working, monitored systems.",
-   "skills": [
-    {
-     "name": "AWS / Azure / GCP",
-     "importance": "A"
-    },
-    {
-     "name": "Terraform / IaC",
-     "importance": "A"
-    },
-    {
-     "name": "Linux",
-     "importance": "I"
-    },
-    {
-     "name": "Networking",
-     "importance": "I"
-    },
-    {
-     "name": "Scripting (Python/Bash)",
-     "importance": "I"
-    },
-    {
-     "name": "Kubernetes / Containers",
-     "importance": "I"
-    },
-    {
-     "name": "CI/CD",
-     "importance": "B"
-    },
-    {
-     "name": "Monitoring",
-     "importance": "B"
-    },
-    {
-     "name": "Cost Management",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Junior Cloud Engineer",
-     "mult": 0.62
-    },
-    {
-     "title": "Cloud Engineer",
-     "mult": 0.8
-    },
-    {
-     "title": "Senior Cloud Engineer",
-     "mult": 1
-    },
-    {
-     "title": "Staff Cloud Engineer",
-     "mult": 1.4
-    },
-    {
-     "title": "Principal Cloud Engineer",
-     "mult": 1.72
-    }
-   ],
-   "demand": 85,
-   "demandDelta": 24,
-   "interest": 78,
-   "growth": 0.5,
-   "salary": {
-    "IN": 1600000,
-    "US": 150000,
-    "GB": 70000,
-    "CA": 118000,
-    "AU": 134000,
-    "SG": 110000,
-    "DE": 76000
-   },
-   "stages": [
-    {
-     "title": "Junior Cloud Engineer",
-     "yoe_min": 0,
-     "yoe_max": 2,
-     "salary": {
-      "IN": 700000,
-      "US": 110000,
-      "GB": 46000,
-      "CA": 82000,
-      "AU": 82000,
-      "SG": 63000,
-      "DE": 55000
-     }
-    },
-    {
-     "title": "Cloud Engineer",
-     "yoe_min": 2,
-     "yoe_max": 5,
-     "salary": {
-      "IN": 1500000,
-      "US": 145000,
-      "GB": 65000,
-      "CA": 115000,
-      "AU": 125000,
-      "SG": 100000,
-      "DE": 74000
-     }
-    },
-    {
-     "title": "Senior Cloud Engineer",
-     "yoe_min": 5,
-     "yoe_max": 9,
-     "salary": {
-      "IN": 3000000,
-      "US": 195000,
-      "GB": 92000,
-      "CA": 150000,
-      "AU": 160000,
-      "SG": 145000,
-      "DE": 93000
-     }
-    },
-    {
-     "title": "Staff / Lead Cloud Engineer",
-     "yoe_min": 9,
-     "yoe_max": 15,
-     "salary": {
-      "IN": 5000000,
-      "US": 260000,
-      "GB": 125000,
-      "CA": 200000,
-      "AU": 210000,
-      "SG": 200000,
-      "DE": 116000
-     }
-    }
-   ],
-   "leads_to": [
-    "cloud-arch",
-    "platform-eng",
-    "sre",
-    "devsecops-eng",
-    "cloudops-eng"
    ]
   },
   {
@@ -24953,7 +24507,7 @@
    ],
    "leads_to": [
     "linux-eng",
-    "cloud-eng",
+    "cloud-engineer",
     "infra-eng",
     "sre",
     "cloudops-eng"
@@ -25094,7 +24648,7 @@
    "leads_to": [
     "infra-eng",
     "sre",
-    "cloud-eng",
+    "cloud-engineer",
     "kubernetes-eng",
     "cloudops-eng"
    ]
@@ -25374,7 +24928,7 @@
    "leads_to": [
     "platform-eng",
     "sre",
-    "cloud-eng",
+    "cloud-engineer",
     "devsecops-eng",
     "kubernetes-eng"
    ]
@@ -25929,7 +25483,7 @@
    ],
    "leads_to": [
     "sre",
-    "cloud-eng",
+    "cloud-engineer",
     "platform-eng",
     "cloud-arch",
     "devsecops-eng"
@@ -28573,7 +28127,7 @@
    ],
    "leads_to": [
     "sre",
-    "platform-engineer",
+    "platform-eng",
     "cloud-engineer",
     "cloud-infrastructure-engineer",
     "cloud-security-architect"
@@ -30710,137 +30264,6 @@
     "ciso",
     "pentester",
     "grc-analyst"
-   ]
-  },
-  {
-   "id": "network-security-eng",
-   "name": "Network Security Engineer",
-   "family": "infra",
-   "blurb": "Defends the perimeter and internal fabric: configures firewalls, IDS/IPS, VPNs, and segmentation, and increasingly migrates orgs toward zero-trust and SASE. Deep networking fundamentals with a security lens.",
-   "skills": [
-    {
-     "name": "Firewalls (Palo Alto / Fortinet)",
-     "importance": "A"
-    },
-    {
-     "name": "Network Protocols",
-     "importance": "A"
-    },
-    {
-     "name": "IDS / IPS",
-     "importance": "I"
-    },
-    {
-     "name": "VPN",
-     "importance": "I"
-    },
-    {
-     "name": "Zero Trust / NAC",
-     "importance": "I"
-    },
-    {
-     "name": "Cisco Networking",
-     "importance": "I"
-    },
-    {
-     "name": "Packet Analysis",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Network Security Engineer",
-     "mult": 0.78
-    },
-    {
-     "title": "Senior Network Security Engineer",
-     "mult": 1
-    },
-    {
-     "title": "Lead Network Security Engineer",
-     "mult": 1.35
-    },
-    {
-     "title": "Network Security Architect",
-     "mult": 1.7
-    }
-   ],
-   "demand": 74,
-   "demandDelta": 6,
-   "interest": 60,
-   "growth": 0.35,
-   "salary": {
-    "IN": 1500000,
-    "US": 135000,
-    "GB": 64000,
-    "CA": 110000,
-    "AU": 125000,
-    "SG": 100000,
-    "DE": 72000
-   },
-   "stages": [
-    {
-     "title": "Network Security Engineer I",
-     "yoe_min": 0,
-     "yoe_max": 2,
-     "salary": {
-      "IN": 600000,
-      "US": 85000,
-      "GB": 38000,
-      "CA": 72000,
-      "AU": 80000,
-      "SG": 58000,
-      "DE": 52000
-     }
-    },
-    {
-     "title": "Network Security Engineer",
-     "yoe_min": 2,
-     "yoe_max": 5,
-     "salary": {
-      "IN": 1200000,
-      "US": 120000,
-      "GB": 55000,
-      "CA": 105000,
-      "AU": 115000,
-      "SG": 88000,
-      "DE": 70000
-     }
-    },
-    {
-     "title": "Senior Network Security Engineer",
-     "yoe_min": 5,
-     "yoe_max": 9,
-     "salary": {
-      "IN": 2200000,
-      "US": 158000,
-      "GB": 76000,
-      "CA": 138000,
-      "AU": 150000,
-      "SG": 120000,
-      "DE": 88000
-     }
-    },
-    {
-     "title": "Staff / Principal Network Security Engineer",
-     "yoe_min": 9,
-     "yoe_max": 16,
-     "salary": {
-      "IN": 3600000,
-      "US": 205000,
-      "GB": 102000,
-      "CA": 175000,
-      "AU": 190000,
-      "SG": 160000,
-      "DE": 110000
-     }
-    }
-   ],
-   "leads_to": [
-    "cloud-security-eng",
-    "security-architect",
-    "iam-eng",
-    "ciso"
    ]
   },
   {
@@ -33419,7 +32842,7 @@
     "network-architect",
     "devops-engineer",
     "sre",
-    "platform-engineer",
+    "platform-eng",
     "network-engineer"
    ]
   },
@@ -34117,7 +33540,7 @@
     "software-engineer",
     "qa-manager",
     "devops-engineer",
-    "platform-engineer"
+    "platform-eng"
    ]
   },
   {
@@ -40143,7 +39566,7 @@
     }
    ],
    "leads_to": [
-    "staff-eng",
+    "staff-engineer",
     "design-lead",
     "lead-swe",
     "design-ops"
@@ -41395,7 +40818,7 @@
    "leads_to": [
     "senior-eng-mgr",
     "director-eng",
-    "staff-eng"
+    "staff-engineer"
    ]
   },
   {
@@ -42066,277 +41489,9 @@
     }
    ],
    "leads_to": [
-    "staff-eng",
+    "staff-engineer",
     "eng-mgr",
-    "principal-eng"
-   ]
-  },
-  {
-   "id": "staff-eng",
-   "name": "Staff Engineer",
-   "family": "eng",
-   "blurb": "The first rung of the senior IC track: you drive technical strategy and system design across multiple teams, write influential RFCs, and multiply other engineers instead of managing them.",
-   "skills": [
-    {
-     "name": "System design at scale",
-     "importance": "A"
-    },
-    {
-     "name": "Technical strategy",
-     "importance": "A"
-    },
-    {
-     "name": "Cross-team influence",
-     "importance": "A"
-    },
-    {
-     "name": "Architecture",
-     "importance": "I"
-    },
-    {
-     "name": "Mentorship",
-     "importance": "I"
-    },
-    {
-     "name": "Hands-on coding",
-     "importance": "I"
-    },
-    {
-     "name": "Technical writing & RFCs",
-     "importance": "I"
-    },
-    {
-     "name": "Reliability leadership",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Senior Engineer",
-     "mult": 1
-    },
-    {
-     "title": "Staff Engineer",
-     "mult": 1.5
-    },
-    {
-     "title": "Senior Staff Engineer",
-     "mult": 1.8
-    },
-    {
-     "title": "Principal Engineer",
-     "mult": 1.9
-    },
-    {
-     "title": "Distinguished Engineer",
-     "mult": 2.7
-    }
-   ],
-   "demand": 84,
-   "demandDelta": 22,
-   "interest": 82,
-   "growth": 0.55,
-   "salary": {
-    "IN": 5500000,
-    "US": 275000,
-    "GB": 135000,
-    "CA": 210000,
-    "AU": 230000,
-    "SG": 195000,
-    "DE": 130000
-   },
-   "stages": [
-    {
-     "title": "Senior Software Engineer",
-     "yoe_min": 5,
-     "yoe_max": 8,
-     "salary": {
-      "IN": 3200000,
-      "US": 205000,
-      "GB": 95000,
-      "CA": 155000,
-      "AU": 165000,
-      "SG": 150000,
-      "DE": 95000
-     }
-    },
-    {
-     "title": "Staff Engineer",
-     "yoe_min": 8,
-     "yoe_max": 12,
-     "salary": {
-      "IN": 5500000,
-      "US": 270000,
-      "GB": 130000,
-      "CA": 210000,
-      "AU": 220000,
-      "SG": 210000,
-      "DE": 120000
-     }
-    },
-    {
-     "title": "Senior Staff Engineer",
-     "yoe_min": 12,
-     "yoe_max": 16,
-     "salary": {
-      "IN": 7500000,
-      "US": 330000,
-      "GB": 160000,
-      "CA": 255000,
-      "AU": 265000,
-      "SG": 260000,
-      "DE": 150000
-     }
-    },
-    {
-     "title": "Principal Engineer",
-     "yoe_min": 16,
-     "yoe_max": 24,
-     "salary": {
-      "IN": 10000000,
-      "US": 400000,
-      "GB": 195000,
-      "CA": 305000,
-      "AU": 315000,
-      "SG": 310000,
-      "DE": 180000
-     }
-    }
-   ],
-   "leads_to": [
-    "principal-eng",
-    "eng-mgr",
-    "distinguished-eng"
-   ]
-  },
-  {
-   "id": "principal-eng",
-   "name": "Principal Engineer",
-   "family": "eng",
-   "blurb": "A senior IC who sets technical direction across an org or business unit. You own the hardest architecture problems, align many teams behind a technical vision, and are measured by org-wide impact.",
-   "skills": [
-    {
-     "name": "Org-wide technical strategy",
-     "importance": "A"
-    },
-    {
-     "name": "Distributed systems architecture",
-     "importance": "A"
-    },
-    {
-     "name": "Technical influence & alignment",
-     "importance": "A"
-    },
-    {
-     "name": "Deep domain expertise",
-     "importance": "I"
-    },
-    {
-     "name": "Mentorship & tech review",
-     "importance": "I"
-    },
-    {
-     "name": "RFCs & technical vision",
-     "importance": "I"
-    },
-    {
-     "name": "Cross-org coordination",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Staff Engineer",
-     "mult": 1.5
-    },
-    {
-     "title": "Principal Engineer",
-     "mult": 1.9
-    },
-    {
-     "title": "Distinguished Engineer",
-     "mult": 2.7
-    },
-    {
-     "title": "Technical Fellow",
-     "mult": 3.5
-    }
-   ],
-   "demand": 74,
-   "demandDelta": 18,
-   "interest": 76,
-   "growth": 0.55,
-   "salary": {
-    "IN": 8000000,
-    "US": 350000,
-    "GB": 165000,
-    "CA": 255000,
-    "AU": 285000,
-    "SG": 240000,
-    "DE": 160000
-   },
-   "stages": [
-    {
-     "title": "Staff Engineer",
-     "yoe_min": 9,
-     "yoe_max": 13,
-     "salary": {
-      "IN": 5500000,
-      "US": 275000,
-      "GB": 130000,
-      "CA": 210000,
-      "AU": 220000,
-      "SG": 210000,
-      "DE": 120000
-     }
-    },
-    {
-     "title": "Principal Engineer",
-     "yoe_min": 13,
-     "yoe_max": 18,
-     "salary": {
-      "IN": 9000000,
-      "US": 360000,
-      "GB": 175000,
-      "CA": 275000,
-      "AU": 285000,
-      "SG": 280000,
-      "DE": 160000
-     }
-    },
-    {
-     "title": "Senior Principal Engineer",
-     "yoe_min": 18,
-     "yoe_max": 23,
-     "salary": {
-      "IN": 13000000,
-      "US": 440000,
-      "GB": 215000,
-      "CA": 335000,
-      "AU": 345000,
-      "SG": 345000,
-      "DE": 200000
-     }
-    },
-    {
-     "title": "Distinguished Engineer",
-     "yoe_min": 23,
-     "yoe_max": 32,
-     "salary": {
-      "IN": 18000000,
-      "US": 540000,
-      "GB": 260000,
-      "CA": 400000,
-      "AU": 410000,
-      "SG": 415000,
-      "DE": 245000
-     }
-    }
-   ],
-   "leads_to": [
-    "distinguished-eng",
-    "vp-eng",
-    "Technical Fellow"
+    "principal-engineer"
    ]
   },
   {
@@ -42892,160 +42047,6 @@
     "CTO",
     "Chief Product Officer",
     "SVP Engineering"
-   ]
-  },
-  {
-   "id": "tpm",
-   "name": "Technical Program Manager",
-   "family": "prod",
-   "blurb": "Drives complex cross-team engineering programs to delivery: schedules, dependencies, risks, and comms. You have enough technical depth to challenge trade-offs, but you lead through influence, not authority.",
-   "skills": [
-    {
-     "name": "Program management",
-     "importance": "A"
-    },
-    {
-     "name": "Cross-team coordination",
-     "importance": "A"
-    },
-    {
-     "name": "Technical acumen",
-     "importance": "A"
-    },
-    {
-     "name": "Risk & dependency management",
-     "importance": "I"
-    },
-    {
-     "name": "Roadmap & planning",
-     "importance": "I"
-    },
-    {
-     "name": "Stakeholder communication",
-     "importance": "I"
-    },
-    {
-     "name": "Agile/Scrum",
-     "importance": "I"
-    },
-    {
-     "name": "Data & metrics tracking",
-     "importance": "B"
-    }
-   ],
-   "ladder": [
-    {
-     "title": "Program Manager",
-     "mult": 0.85
-    },
-    {
-     "title": "Technical Program Manager",
-     "mult": 1.05
-    },
-    {
-     "title": "Senior TPM",
-     "mult": 1.35
-    },
-    {
-     "title": "Principal TPM",
-     "mult": 1.7
-    },
-    {
-     "title": "Director TPM",
-     "mult": 2
-    }
-   ],
-   "demand": 72,
-   "demandDelta": 14,
-   "interest": 64,
-   "growth": 0.42,
-   "salary": {
-    "IN": 4000000,
-    "US": 200000,
-    "GB": 95000,
-    "CA": 155000,
-    "AU": 175000,
-    "SG": 150000,
-    "DE": 100000
-   },
-   "stages": [
-    {
-     "title": "Technical Program Manager I",
-     "yoe_min": 1,
-     "yoe_max": 4,
-     "salary": {
-      "IN": 1400000,
-      "US": 130000,
-      "GB": 60000,
-      "CA": 105000,
-      "AU": 110000,
-      "SG": 95000,
-      "DE": 68000
-     }
-    },
-    {
-     "title": "Technical Program Manager II",
-     "yoe_min": 4,
-     "yoe_max": 7,
-     "salary": {
-      "IN": 2600000,
-      "US": 175000,
-      "GB": 82000,
-      "CA": 140000,
-      "AU": 150000,
-      "SG": 130000,
-      "DE": 90000
-     }
-    },
-    {
-     "title": "Senior Technical Program Manager",
-     "yoe_min": 7,
-     "yoe_max": 11,
-     "salary": {
-      "IN": 4200000,
-      "US": 230000,
-      "GB": 110000,
-      "CA": 180000,
-      "AU": 190000,
-      "SG": 175000,
-      "DE": 115000
-     }
-    },
-    {
-     "title": "Principal Technical Program Manager",
-     "yoe_min": 11,
-     "yoe_max": 16,
-     "salary": {
-      "IN": 6500000,
-      "US": 310000,
-      "GB": 145000,
-      "CA": 235000,
-      "AU": 245000,
-      "SG": 235000,
-      "DE": 150000
-     }
-    },
-    {
-     "title": "Director / Group TPM",
-     "yoe_min": 16,
-     "yoe_max": 28,
-     "salary": {
-      "IN": 9500000,
-      "US": 400000,
-      "GB": 185000,
-      "CA": 300000,
-      "AU": 310000,
-      "SG": 300000,
-      "DE": 190000
-     }
-    }
-   ],
-   "leads_to": [
-    "Senior Technical Program Manager",
-    "Director of Program Management",
-    "Head of Engineering Operations",
-    "Product Manager",
-    "Engineering Manager"
    ]
   },
   {
@@ -56375,9 +55376,19 @@
  "generated_at": "2026-07-19T13:36:55",
  "model": "claude (workflow fan-out)",
  "stats": {
-  "roles": 346,
+  "roles": 339,
   "dropped": 19,
-  "skills": 1797
+  "skills": 1797,
+  "merged": 7
  },
- "progression_merged": 346
+ "progression_merged": 346,
+ "merged_ids": {
+  "cloud-eng": "cloud-engineer",
+  "platform-engineer": "platform-eng",
+  "php-developer": "php-engineer",
+  "network-security-eng": "network-security-engineer",
+  "tpm": "technical-program-manager",
+  "staff-eng": "staff-engineer",
+  "principal-eng": "principal-engineer"
+ }
 }

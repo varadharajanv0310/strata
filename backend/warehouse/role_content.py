@@ -62,7 +62,7 @@ TRAIT_DIMENSIONS: list[tuple[str, str, str]] = [
 DIMENSION_IDS = [d[0] for d in TRAIT_DIMENSIONS]
 
 # Calibration anchors: every generator sees these, and they override whatever a batch says for
-# these roles, so all 346 profiles share one scale.
+# these roles, so every profile shares one scale.
 TRAIT_ANCHORS: dict[str, dict[str, int]] = {
     "swe": dict(build=90, analyze=40, math=25, design=20, operate=30, people=35, ambiguity=45,
                 interruptions=35, collaboration=55, research=25, customer_contact=10),

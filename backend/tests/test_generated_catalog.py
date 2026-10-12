@@ -171,3 +171,24 @@ def test_headline_stays_early_career_measured_upgrades_demand(monkeypatch):
     assert swe["countries"]["US"]["transparency"] > 0
     # cells with no Adzuna stay fully generated
     assert bc["countries"]["US"]["source"] == GENERATED_SOURCE
+
+
+# ---- the tracked catalog: one record per job ----------------------------------------------------
+def test_tracked_catalog_has_no_duplicate_roles():
+    """Generation once produced the same job twice under two ids ('cloud-eng' and
+    'cloud-engineer', both "Cloud Engineer"); those were folded into one survivor each
+    (backend/warehouse/catalog_merge.py). No two roles may share a name again."""
+    from backend.warehouse import role_content as rc
+    from backend.warehouse.catalog_merge import MERGES
+    from backend.warehouse.generated_build import load_generated_catalog
+
+    cat = load_generated_catalog()
+    names = [r["name"].strip().lower() for r in cat["roles"]]
+    assert len(names) == len(set(names)), "two catalog roles share a name"
+    ids = {r["id"] for r in cat["roles"]}
+    assert not ids & set(MERGES), "a merged-away id is back in the catalog"
+    assert set(MERGES.values()) <= ids, "a merge survivor is missing"
+    assert cat["merged_ids"] == {**cat["merged_ids"], **MERGES}
+    assert not {t for r in cat["roles"] for t in r.get("leads_to", [])} & set(MERGES)
+    for kind in ("traits", "roadmaps", "aliases"):
+        assert not set(rc.load(kind)["roles"]) & set(MERGES), kind

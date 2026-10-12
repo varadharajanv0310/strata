@@ -95,7 +95,7 @@ as their **own labeled lens** (`kind=estimate`), never blended into the others.
 ![strata explore](docs/screenshots/hero.png)
 
 The entry surface. A dotted globe drives the whole page — tapping a country redraws
-every panel around that market. The counters are the live dataset: 346 tech roles
+every panel around that market. The counters are the live dataset: 339 tech roles
 across 7 countries with 9 years of trend data.
 
 ### Roles

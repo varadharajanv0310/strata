@@ -271,7 +271,7 @@ class RoleResolver:
 
     @classmethod
     def from_catalog(cls) -> "RoleResolver":
-        """Built from the generated catalog file alone (no marts): the full 346-role universe,
+        """Built from the generated catalog file alone (no marts): the full catalog universe,
         for offline classification and for tests whose seeded marts hold only a few roles."""
         from backend.warehouse import role_content
         from backend.warehouse.seed import FAMILIES

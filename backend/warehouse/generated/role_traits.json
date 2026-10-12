@@ -98,22 +98,6 @@
    },
    "summary": "Designing and versioning API contracts, writing OpenAPI specs, implementing auth, rate limits and gateway rules, and answering integration questions from internal teams and external developers."
   },
-  "platform-engineer": {
-   "scores": {
-    "build": 75,
-    "analyze": 45,
-    "math": 10,
-    "design": 15,
-    "operate": 70,
-    "people": 40,
-    "ambiguity": 50,
-    "interruptions": 55,
-    "collaboration": 65,
-    "research": 25,
-    "customer_contact": 5
-   },
-   "summary": "Writing Terraform, CI/CD pipelines and Kubernetes configs that other engineers deploy on, building self-serve tooling, and fielding support requests from developer teams who are your internal customers."
-  },
   "software-architect": {
    "scores": {
     "build": 50,
@@ -273,22 +257,6 @@
     "customer_contact": 15
    },
    "summary": "Building and maintaining C#/ASP.NET business applications against SQL Server, writing Entity Framework data access, and handling feature requests and fixes in corporate IT, finance or healthcare teams."
-  },
-  "php-developer": {
-   "scores": {
-    "build": 82,
-    "analyze": 30,
-    "math": 10,
-    "design": 30,
-    "operate": 30,
-    "people": 35,
-    "ambiguity": 25,
-    "interruptions": 50,
-    "collaboration": 50,
-    "research": 10,
-    "customer_contact": 25
-   },
-   "summary": "Building Laravel or Symfony features, writing MySQL queries and templates, and patching older PHP and WordPress codebases, often switching between several small client or product requests in a day."
   },
   "ruby-developer": {
    "scores": {
@@ -2690,22 +2658,6 @@
    },
    "summary": "Designing cloud architectures and diagrams, weighing cost, security and scale trade-offs, reviewing teams' designs, planning migrations, and presenting recommendations to engineering leads and often clients."
   },
-  "cloud-eng": {
-   "scores": {
-    "build": 55,
-    "analyze": 35,
-    "math": 10,
-    "design": 5,
-    "operate": 80,
-    "people": 30,
-    "ambiguity": 35,
-    "interruptions": 60,
-    "collaboration": 55,
-    "research": 15,
-    "customer_contact": 10
-   },
-   "summary": "Provisioning AWS/Azure/GCP services with Terraform, configuring networking, IAM and containers, scripting automation, setting up monitoring, and troubleshooting cloud workloads when they fail or overspend."
-  },
   "kubernetes-eng": {
    "scores": {
     "build": 50,
@@ -3441,22 +3393,6 @@
     "customer_contact": 95
    },
    "summary": "Rotating between client engagements: interviewing stakeholders, assessing controls against frameworks like ISO 27001 or NIST, running light technical testing, and writing and presenting findings and remediation roadmaps."
-  },
-  "network-security-eng": {
-   "scores": {
-    "build": 25,
-    "analyze": 55,
-    "math": 10,
-    "design": 0,
-    "operate": 85,
-    "people": 25,
-    "ambiguity": 35,
-    "interruptions": 65,
-    "collaboration": 45,
-    "research": 15,
-    "customer_contact": 5
-   },
-   "summary": "Writing and reviewing firewall rules, managing VPNs and IDS/IPS, implementing segmentation and zero-trust access changes in maintenance windows, and troubleshooting blocked traffic tickets from other teams."
   },
   "vuln-researcher": {
    "scores": {
@@ -4754,38 +4690,6 @@
    },
    "summary": "Writing code for a service you own, designing its architecture, reviewing teammates' pull requests, breaking down work for a small group, and mentoring while keeping delivery on track."
   },
-  "staff-eng": {
-   "scores": {
-    "build": 70,
-    "analyze": 70,
-    "math": 30,
-    "design": 15,
-    "operate": 40,
-    "people": 65,
-    "ambiguity": 80,
-    "interruptions": 45,
-    "collaboration": 80,
-    "research": 45,
-    "customer_contact": 10
-   },
-   "summary": "Writing RFCs and design docs, reviewing architecture across teams, prototyping critical pieces of code, mentoring engineers, and steering multiple teams toward a shared technical direction."
-  },
-  "principal-eng": {
-   "scores": {
-    "build": 55,
-    "analyze": 75,
-    "math": 35,
-    "design": 15,
-    "operate": 40,
-    "people": 75,
-    "ambiguity": 85,
-    "interruptions": 45,
-    "collaboration": 85,
-    "research": 55,
-    "customer_contact": 15
-   },
-   "summary": "Owning the hardest distributed-systems problems in an org, setting technical vision, leading design reviews, and building consensus across many teams and their leaders."
-  },
   "distinguished-eng": {
    "scores": {
     "build": 40,
@@ -4849,22 +4753,6 @@
     "customer_contact": 25
    },
    "summary": "Hiring and scaling a startup engineering team, setting process, owning delivery against the roadmap, making key technical calls, and occasionally jumping into code or incidents."
-  },
-  "tpm": {
-   "scores": {
-    "build": 15,
-    "analyze": 55,
-    "math": 15,
-    "design": 10,
-    "operate": 30,
-    "people": 90,
-    "ambiguity": 60,
-    "interruptions": 75,
-    "collaboration": 98,
-    "research": 10,
-    "customer_contact": 15
-   },
-   "summary": "Running cross-team program meetings, tracking schedules, dependencies and risks, writing status updates, and pushing engineering teams to resolve trade-offs that block delivery."
   },
   "chief-architect": {
    "scores": {

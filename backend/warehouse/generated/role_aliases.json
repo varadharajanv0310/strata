@@ -143,20 +143,6 @@
     "API Integration"
    ]
   },
-  "platform-engineer": {
-   "titles": [
-    "Platform Engineer",
-    "Platform Software Engineer",
-    "Software Engineer, Platform",
-    "Developer Platform Engineer",
-    "Internal Developer Platform Engineer",
-    "Application Platform Engineer",
-    "Platform Services Engineer"
-   ],
-   "fields": [
-    "Platform Engineering"
-   ]
-  },
   "software-architect": {
    "titles": [
     "Software Architect",
@@ -176,7 +162,10 @@
     "Staff Engineer",
     "Lead Member of Technical Staff",
     "LMTS",
-    "SMTS"
+    "SMTS",
+    "PMTS",
+    "Development Expert",
+    "Key Expert"
    ],
    "fields": []
   },
@@ -185,7 +174,10 @@
     "Principal Engineer",
     "PMTS",
     "Consulting Member of Technical Staff",
-    "Principal Technologist"
+    "Principal Technologist",
+    "Partner Software Engineer",
+    "Partner Architect",
+    "Chief Development Expert"
    ],
    "fields": []
   },
@@ -323,24 +315,6 @@
     ".NET",
     "Dot Net",
     "C#"
-   ]
-  },
-  "php-developer": {
-   "titles": [
-    "PHP Developer",
-    "PHP Programmer",
-    "PHP Web Developer",
-    "PHP Software Developer",
-    "PHP/MySQL Developer",
-    "Symfony Developer",
-    "CodeIgniter Developer",
-    "CakePHP Developer",
-    "Yii Developer",
-    "PHP-Entwickler"
-   ],
-   "fields": [
-    "PHP Development",
-    "PHP"
    ]
   },
   "ruby-developer": {
@@ -552,9 +526,18 @@
     "Software Engineer, PHP",
     "LAMP Developer",
     "LAMP Stack Developer",
-    "Magento Developer"
+    "Magento Developer",
+    "PHP Programmer",
+    "PHP Web Developer",
+    "PHP Software Developer",
+    "PHP/MySQL Developer",
+    "Symfony Developer",
+    "CodeIgniter Developer"
    ],
-   "fields": []
+   "fields": [
+    "PHP Development",
+    "PHP"
+   ]
   },
   "laravel-engineer": {
    "titles": [
@@ -2946,7 +2929,11 @@
     "Internal Developer Platform Engineer",
     "Developer Platform Engineer",
     "DevOps Platform Engineer",
-    "Platform Operations Engineer"
+    "Platform Operations Engineer",
+    "Platform Software Engineer",
+    "Software Engineer, Platform",
+    "Application Platform Engineer",
+    "Platform Services Engineer"
    ],
    "fields": [
     "Platform Engineering"
@@ -3062,25 +3049,6 @@
     "Cloud-Architekt"
    ],
    "fields": []
-  },
-  "cloud-eng": {
-   "titles": [
-    "Cloud Engineer",
-    "Cloud Systems Engineer",
-    "Cloud Computing Engineer",
-    "Cloud Specialist",
-    "Cloud Administrator",
-    "AWS Cloud Engineer",
-    "AWS Engineer",
-    "GCP Cloud Engineer",
-    "Multi-Cloud Engineer",
-    "OCI Cloud Engineer"
-   ],
-   "fields": [
-    "Cloud Computing",
-    "Cloud",
-    "Cloud Engineering"
-   ]
   },
   "kubernetes-eng": {
    "titles": [
@@ -3296,7 +3264,8 @@
     "Multi-Cloud Engineer",
     "Public Cloud Engineer",
     "Cloud Technology Engineer",
-    "Cloud Developer"
+    "Cloud Developer",
+    "Cloud Administrator"
    ],
    "fields": [
     "Cloud Computing",
@@ -3967,25 +3936,6 @@
     "Cyber Risk Advisory"
    ]
   },
-  "network-security-eng": {
-   "titles": [
-    "Network Security Engineer",
-    "Network Security Specialist",
-    "Network Security Administrator",
-    "Network Security Analyst",
-    "Firewall Engineer",
-    "Firewall Administrator",
-    "Palo Alto Firewall Engineer",
-    "Fortinet Engineer",
-    "SASE Engineer",
-    "Zero Trust Network Engineer",
-    "Perimeter Security Engineer",
-    "Network Security Consultant"
-   ],
-   "fields": [
-    "Network Security"
-   ]
-  },
   "vuln-researcher": {
    "titles": [
     "Vulnerability Researcher",
@@ -4384,7 +4334,11 @@
     "Perimeter Security Engineer",
     "Network Security Consultant",
     "IDS/IPS Engineer",
-    "VPN Engineer"
+    "VPN Engineer",
+    "Palo Alto Firewall Engineer",
+    "Fortinet Engineer",
+    "SASE Engineer",
+    "Zero Trust Network Engineer"
    ],
    "fields": [
     "Network Security"
@@ -5600,10 +5554,16 @@
     "Software Program Manager",
     "Infrastructure Program Manager",
     "Hardware Program Manager",
-    "Technischer Projektleiter"
+    "Technischer Projektleiter",
+    "Engineering Programme Manager",
+    "Technical Delivery Manager",
+    "Program Manager, Engineering",
+    "Technical Program Lead"
    ],
    "fields": [
-    "Technical Program Management"
+    "Technical Program Management",
+    "Engineering Program Management",
+    "Technical Project Management"
    ]
   },
   "program-manager": {
@@ -6032,25 +5992,6 @@
    ],
    "fields": []
   },
-  "staff-eng": {
-   "titles": [
-    "Staff Engineer",
-    "PMTS",
-    "Development Expert",
-    "Key Expert"
-   ],
-   "fields": []
-  },
-  "principal-eng": {
-   "titles": [
-    "Principal Engineer",
-    "Partner Software Engineer",
-    "Partner Architect",
-    "Consulting Member of Technical Staff",
-    "Chief Development Expert"
-   ],
-   "fields": []
-  },
   "distinguished-eng": {
    "titles": [
     "Distinguished Engineer",
@@ -6098,25 +6039,6 @@
     "Leiter Softwareentwicklung"
    ],
    "fields": []
-  },
-  "tpm": {
-   "titles": [
-    "Technical Program Manager",
-    "TPM",
-    "Technical Programme Manager",
-    "Engineering Program Manager",
-    "Engineering Programme Manager",
-    "Software Program Manager",
-    "Technical Project Manager",
-    "Technical Delivery Manager",
-    "Program Manager, Engineering",
-    "Technical Program Lead"
-   ],
-   "fields": [
-    "Technical Program Management",
-    "Engineering Program Management",
-    "Technical Project Management"
-   ]
   },
   "chief-architect": {
    "titles": [
