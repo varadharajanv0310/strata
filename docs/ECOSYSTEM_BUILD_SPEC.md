@@ -8,7 +8,10 @@ How to read this document:
 - Items marked **(default)** are working assumptions; the owner can overturn them at any time.
 - Paid/free and placement decisions are deferred by the owner; until then the defaults below apply.
 
-Last updated: 11 October 2026.
+Every change made while building this is recorded in [`BUILD_LEDGER.md`](BUILD_LEDGER.md): what,
+why, where it lives and how to remove it.
+
+Last updated: 12 October 2026.
 
 ---
 
