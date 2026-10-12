@@ -7,6 +7,9 @@ This is the base every paid personalization is assembled from (docs/ECOSYSTEM_BU
 * **Roadmap template** per role: ordered phases of steps built from the role's graded skills,
   each phase ending in something built (spec §4.3). Country-agnostic: the skills a role needs do
   not change by country; pay and demand (which do) come from the catalog.
+* **Title aliases** per role: the job titles people post and hold for it, plus the discipline
+  names internship postings use ("Machine Learning Intern"), so the resolver can classify any
+  posting title onto a catalog role (spec §7 Phase 1a).
 
 Everything here is stamped ``generated`` (model knowledge), following the catalog's honesty rules.
 Generators write batch files; ``validate`` checks a batch before it is accepted and ``merge``
@@ -18,6 +21,8 @@ CLI::
     python -m backend.warehouse.role_content validate roadmaps <batch.json>
     python -m backend.warehouse.role_content merge    traits   <batch.json> [...]
     python -m backend.warehouse.role_content merge    roadmaps <batch.json> [...]
+    python -m backend.warehouse.role_content validate aliases  <batch.json>
+    python -m backend.warehouse.role_content merge    aliases  <batch.json> [...]
 """
 from __future__ import annotations
 
@@ -30,6 +35,8 @@ from pathlib import Path
 GENERATED_DIR = Path(__file__).resolve().parent / "generated"
 TRAITS_FILE = GENERATED_DIR / "role_traits.json"
 ROADMAPS_FILE = GENERATED_DIR / "role_roadmaps.json"
+ALIASES_FILE = GENERATED_DIR / "role_aliases.json"
+KINDS = ("traits", "roadmaps", "aliases")
 CATALOG_FILE = Path(__file__).resolve().parent / "generated_catalog.json"
 GENERATED_SOURCE = "Generated (model knowledge)"
 
@@ -172,11 +179,50 @@ def validate_roadmap_record(role_id: str, rec: dict, role: dict | None) -> list[
     return errs
 
 
+def _norm(text: str) -> str:
+    from backend.warehouse.taxonomy import normalize_surface
+    return normalize_surface(text)
+
+
+def validate_alias_record(role_id: str, rec: dict, names: dict[str, list[str]]) -> list[str]:
+    """``names`` maps each catalog role's normalized name to the role ids carrying it: a role may
+    not claim another role's own name as its alias."""
+    errs = []
+    if not isinstance(rec, dict):
+        return [f"{role_id}: record must be an object"]
+    titles, fields = rec.get("titles"), rec.get("fields", [])
+    if not isinstance(titles, list) or not 3 <= len(titles) <= 15:
+        errs.append(f"{role_id}: 'titles' must be a list of 3-15 job titles")
+        titles = titles if isinstance(titles, list) else []
+    if not isinstance(fields, list) or len(fields) > 6:
+        errs.append(f"{role_id}: 'fields' must be a list of at most 6 discipline names")
+        fields = fields if isinstance(fields, list) else []
+    seen = set()
+    for key, items, cap in (("titles", titles, 60), ("fields", fields, 40)):
+        for t in items:
+            if not isinstance(t, str) or not t.strip() or len(t) > cap:
+                errs.append(f"{role_id}: {key} entries must be non-empty strings up to {cap} characters, got {t!r}")
+                continue
+            n = _norm(t)
+            if not n:
+                errs.append(f"{role_id}: {key} entry {t!r} is empty after normalization")
+            elif n in seen:
+                errs.append(f"{role_id}: duplicate alias {t!r}")
+            elif n in names and role_id not in names[n]:
+                errs.append(f"{role_id}: {t!r} is the name of another role ({', '.join(names[n])}); leave it to that role")
+            seen.add(n)
+    return errs
+
+
 def validate_batch(kind: str, batch: dict) -> list[str]:
     roles = batch.get("roles") if isinstance(batch, dict) else None
     if not isinstance(roles, dict) or not roles:
         return ["batch must be an object with a non-empty 'roles' object keyed by role id"]
     catalog = _catalog_roles()
+    names: dict[str, list[str]] = {}
+    if kind == "aliases":
+        for rid, r in catalog.items():
+            names.setdefault(_norm(r["name"]), []).append(rid)
     errs = []
     for rid, rec in roles.items():
         if rid not in catalog:
@@ -184,6 +230,8 @@ def validate_batch(kind: str, batch: dict) -> list[str]:
             continue
         if kind == "traits":
             errs += validate_trait_record(rid, rec)
+        elif kind == "aliases":
+            errs += validate_alias_record(rid, rec, names)
         else:
             errs += validate_roadmap_record(rid, rec, catalog[rid])
     return errs
@@ -193,11 +241,11 @@ def validate_batch(kind: str, batch: dict) -> list[str]:
 #  Merge into the tracked files                                                 #
 # --------------------------------------------------------------------------- #
 def _tracked_path(kind: str) -> Path:
-    return TRAITS_FILE if kind == "traits" else ROADMAPS_FILE
+    return {"traits": TRAITS_FILE, "roadmaps": ROADMAPS_FILE, "aliases": ALIASES_FILE}[kind]
 
 
 def load(kind: str) -> dict:
-    """The tracked file for ``kind`` ('traits' or 'roadmaps'); empty shell if absent."""
+    """The tracked file for ``kind`` ('traits', 'roadmaps' or 'aliases'); empty shell if absent."""
     p = _tracked_path(kind)
     if p.exists():
         return json.loads(p.read_text(encoding="utf-8"))
@@ -234,7 +282,7 @@ def merge(kind: str, batch_files: list[Path]) -> dict:
 def _main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="role_content")
     ap.add_argument("action", choices=["validate", "merge"])
-    ap.add_argument("kind", choices=["traits", "roadmaps"])
+    ap.add_argument("kind", choices=list(KINDS))
     ap.add_argument("files", nargs="+")
     a = ap.parse_args(argv)
     if a.action == "validate":

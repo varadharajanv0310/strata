@@ -38,6 +38,15 @@ Last updated: 11 October 2026.
   syncs and caches what it needs.
 - **Shared role vocabulary.** Every internship in InternshipOS is classified onto a strata role id.
   Matching, insights and roadmaps depend on this.
+- **strata endpoints InternshipOS calls (built):**
+  - `POST /api/roles/classify` with `{"titles": [...up to 500], "alternatives": 2}` returns, per
+    title in order: `role_id`, `name`, `family`, `confidence` (`high` / `med` / `low`, or `none` for a
+    blank title), `score`, `via` (the surface that matched) and runner-up `alternatives`. Treat `low`
+    as unclassified. Posting noise ("Intern", seasons, years, "Werkstudent", "(m/w/d)", location
+    suffixes) is stripped by strata.
+  - `GET /api/role-content/dimensions`, `GET /api/role-content/traits` (every role's 11 trait scores)
+    and `GET /api/role-content/{role_id}` (one role's trait profile and roadmap template).
+  - `GET /api/roles/{role_id}` (skills, pay progression, trajectory).
 - **AI layer.** Reuse InternshipOS's provider boundary, usage ledger and grounded-fact validator. The model is
   configuration (DeepSeek Flash connected on 11 October 2026). Every model call first checks the user's
   paid entitlement and per-user cost ceiling.

@@ -314,6 +314,13 @@ def resolve_roles(db: Session, q: str, limit: int = 8) -> dict:
     return get_resolver(db).resolve(q, limit=limit)
 
 
+def classify_titles(db: Session, titles: list[str], alternatives: int = 2) -> list[dict]:
+    """Posting titles -> catalog roles, one result per title in order (InternshipOS, spec §7)."""
+    from backend.app.resolver import get_resolver
+    res = get_resolver(db)
+    return [res.classify(t, alternatives) for t in titles]
+
+
 def typeahead_roles(db: Session, q: str, limit: int = 8) -> list[dict]:
     """Per-keystroke suggestions; never blanks for a non-trivial prefix."""
     from backend.app.resolver import get_resolver

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from backend.app import services
@@ -29,6 +30,16 @@ def resolve(
     db: Session = Depends(get_db),
 ) -> dict:
     return services.resolve_roles(db, q, limit)
+
+
+class ClassifyIn(BaseModel):
+    titles: list[str] = Field(..., min_length=1, max_length=500, description="posting titles")
+    alternatives: int = Field(2, ge=0, le=10, description="runner-up roles per title")
+
+
+@router.post("/roles/classify", summary="Classify posting titles onto catalog roles (batch)")
+def classify(body: ClassifyIn, db: Session = Depends(get_db)) -> dict:
+    return {"results": services.classify_titles(db, body.titles, body.alternatives)}
 
 
 @router.get("/roles/typeahead", summary="Per-keystroke role suggestions")

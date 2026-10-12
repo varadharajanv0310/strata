@@ -1,0 +1,6363 @@
+{
+ "source": "Generated (model knowledge)",
+ "kind": "generated",
+ "roles": {
+  "swe": {
+   "titles": [
+    "Software Engineer",
+    "Software Developer",
+    "SWE",
+    "SDE",
+    "Software Development Engineer",
+    "Developer",
+    "Programmer",
+    "Computer Programmer",
+    "Member of Technical Staff",
+    "MTS",
+    "Generalist Software Engineer",
+    "Softwareentwickler",
+    "Programmierer"
+   ],
+   "fields": [
+    "Software Engineering",
+    "Software Development",
+    "Computer Science",
+    "Programming",
+    "Softwareentwicklung"
+   ]
+  },
+  "backend": {
+   "titles": [
+    "Backend Engineer",
+    "Backend Developer",
+    "Back-end Engineer",
+    "Back-end Developer",
+    "Backend Software Engineer",
+    "Software Engineer, Backend",
+    "Backend Software Developer",
+    "Server-side Engineer",
+    "Server-side Developer",
+    "Server Engineer",
+    "Backend Services Engineer",
+    "Backend Programmer",
+    "Backend-Entwickler"
+   ],
+   "fields": [
+    "Backend Development",
+    "Back-end Development",
+    "Backend Engineering",
+    "Server-side Development",
+    "Backend-Entwicklung"
+   ]
+  },
+  "frontend": {
+   "titles": [
+    "Frontend Engineer",
+    "Frontend Developer",
+    "Front-end Engineer",
+    "Front-end Developer",
+    "Frontend Software Engineer",
+    "Software Engineer, Frontend",
+    "UI Developer",
+    "UI Engineer",
+    "React Developer",
+    "React.js Developer",
+    "Angular Developer",
+    "Vue.js Developer",
+    "JavaScript Developer",
+    "Frontend-Entwickler"
+   ],
+   "fields": [
+    "Frontend Development",
+    "Front-end Development",
+    "Frontend Engineering",
+    "UI Development",
+    "React.js",
+    "Frontend-Entwicklung"
+   ]
+  },
+  "fullstack": {
+   "titles": [
+    "Full-Stack Engineer",
+    "Full Stack Developer",
+    "Fullstack Engineer",
+    "Fullstack Developer",
+    "Full Stack Software Engineer",
+    "Software Engineer, Full Stack",
+    "Full Stack Web Developer",
+    "MERN Stack Developer",
+    "MEAN Stack Developer",
+    "Java Full Stack Developer",
+    "Python Full Stack Developer",
+    "Product Engineer",
+    "Full-Stack-Entwickler"
+   ],
+   "fields": [
+    "Full Stack Development",
+    "Fullstack Development",
+    "Full-Stack Engineering",
+    "MERN Stack"
+   ]
+  },
+  "web-developer": {
+   "titles": [
+    "Web Developer",
+    "Website Developer",
+    "Web Designer",
+    "Web Programmer",
+    "Web Engineer",
+    "Web Application Developer",
+    "WordPress Developer",
+    "Shopify Developer",
+    "Webflow Developer",
+    "Drupal Developer",
+    "CMS Developer",
+    "HTML/CSS Developer",
+    "Webmaster",
+    "Webentwickler"
+   ],
+   "fields": [
+    "Web Development",
+    "Web Design",
+    "Website Development",
+    "WordPress Development",
+    "Webentwicklung"
+   ]
+  },
+  "api-engineer": {
+   "titles": [
+    "API Engineer",
+    "API Developer",
+    "API Integration Engineer",
+    "API Integration Developer",
+    "API Platform Engineer",
+    "API Gateway Engineer",
+    "REST API Developer",
+    "GraphQL Engineer",
+    "GraphQL Developer",
+    "Apigee Developer",
+    "API Architect"
+   ],
+   "fields": [
+    "API Development",
+    "API Integration"
+   ]
+  },
+  "platform-engineer": {
+   "titles": [
+    "Platform Engineer",
+    "Platform Software Engineer",
+    "Software Engineer, Platform",
+    "Developer Platform Engineer",
+    "Internal Developer Platform Engineer",
+    "Application Platform Engineer",
+    "Platform Services Engineer"
+   ],
+   "fields": [
+    "Platform Engineering"
+   ]
+  },
+  "software-architect": {
+   "titles": [
+    "Software Architect",
+    "Application Architect",
+    "Technical Architect",
+    "Java Architect",
+    ".NET Architect",
+    "Microservices Architect",
+    "Backend Architect",
+    "Frontend Architect",
+    "Softwarearchitekt"
+   ],
+   "fields": []
+  },
+  "staff-engineer": {
+   "titles": [
+    "Staff Engineer",
+    "Lead Member of Technical Staff",
+    "LMTS",
+    "SMTS"
+   ],
+   "fields": []
+  },
+  "principal-engineer": {
+   "titles": [
+    "Principal Engineer",
+    "PMTS",
+    "Consulting Member of Technical Staff",
+    "Principal Technologist"
+   ],
+   "fields": []
+  },
+  "tech-lead": {
+   "titles": [
+    "Technical Lead",
+    "Tech Lead",
+    "Technical Team Lead",
+    "Technical Team Leader",
+    "Software Team Lead",
+    "Team Lead",
+    "Development Lead",
+    "Dev Lead",
+    "Development Team Lead",
+    "Engineering Lead",
+    "Module Lead",
+    "Teamleiter Softwareentwicklung"
+   ],
+   "fields": []
+  },
+  "distributed-systems-engineer": {
+   "titles": [
+    "Distributed Systems Engineer",
+    "Distributed Systems Software Engineer",
+    "Software Engineer, Distributed Systems",
+    "Distributed Systems Developer",
+    "Distributed Computing Engineer",
+    "Distributed Database Engineer",
+    "Large-Scale Systems Engineer",
+    "Scalability Engineer"
+   ],
+   "fields": [
+    "Distributed Systems",
+    "Distributed Computing"
+   ]
+  },
+  "java-developer": {
+   "titles": [
+    "Java Developer",
+    "Java Engineer",
+    "Java Software Engineer",
+    "Java Software Developer",
+    "Java Programmer",
+    "Core Java Developer",
+    "J2EE Developer",
+    "Java/J2EE Developer",
+    "Java EE Developer",
+    "Jakarta EE Developer",
+    "Java Application Developer",
+    "Software Engineer, Java",
+    "Java-Entwickler"
+   ],
+   "fields": [
+    "Java Development",
+    "Java",
+    "Core Java"
+   ]
+  },
+  "python-developer": {
+   "titles": [
+    "Python Developer",
+    "Python Engineer",
+    "Python Programmer",
+    "Python Software Engineer",
+    "Python Software Developer",
+    "Software Engineer, Python",
+    "Python Application Developer",
+    "Python-Entwickler"
+   ],
+   "fields": [
+    "Python Development",
+    "Python",
+    "Python Programming"
+   ]
+  },
+  "nodejs-developer": {
+   "titles": [
+    "Node.js Developer",
+    "NodeJS Developer",
+    "Node JS Developer",
+    "Node Developer",
+    "Node.js Backend Developer",
+    "Backend Developer (Node.js)",
+    "Express.js Developer",
+    "Node.js API Developer",
+    "JavaScript Backend Developer",
+    "Node.js-Entwickler"
+   ],
+   "fields": [
+    "Node.js",
+    "NodeJS",
+    "Node.js Development"
+   ]
+  },
+  "golang-engineer": {
+   "titles": [
+    "Go Engineer",
+    "Golang Engineer",
+    "Go Developer",
+    "Golang Developer",
+    "Go Software Engineer",
+    "Golang Software Engineer",
+    "Software Engineer, Go",
+    "Go Backend Engineer",
+    "Golang Backend Developer",
+    "Backend Engineer (Golang)",
+    "Go Programmer",
+    "Golang-Entwickler",
+    "Go-Entwickler"
+   ],
+   "fields": [
+    "Golang",
+    "Golang Development"
+   ]
+  },
+  "dotnet-developer": {
+   "titles": [
+    ".NET Developer",
+    "Dot Net Developer",
+    "DotNet Developer",
+    "C# Developer",
+    "C#.NET Developer",
+    "ASP.NET Developer",
+    "ASP.NET Core Developer",
+    ".NET Core Developer",
+    "VB.NET Developer",
+    ".NET Programmer",
+    "C# Programmer",
+    ".NET Software Developer",
+    ".NET-Entwickler",
+    "C#-Entwickler"
+   ],
+   "fields": [
+    ".NET Development",
+    ".NET",
+    "Dot Net",
+    "C#"
+   ]
+  },
+  "php-developer": {
+   "titles": [
+    "PHP Developer",
+    "PHP Programmer",
+    "PHP Web Developer",
+    "PHP Software Developer",
+    "PHP/MySQL Developer",
+    "Symfony Developer",
+    "CodeIgniter Developer",
+    "CakePHP Developer",
+    "Yii Developer",
+    "PHP-Entwickler"
+   ],
+   "fields": [
+    "PHP Development",
+    "PHP"
+   ]
+  },
+  "ruby-developer": {
+   "titles": [
+    "Ruby on Rails Developer",
+    "Rails Developer",
+    "RoR Developer",
+    "Ruby Developer",
+    "Ruby Programmer",
+    "Ruby Backend Developer",
+    "Ruby on Rails Web Developer",
+    "Ruby on Rails Entwickler"
+   ],
+   "fields": [
+    "Ruby on Rails",
+    "Ruby"
+   ]
+  },
+  "application-developer": {
+   "titles": [
+    "Application Developer",
+    "Applications Developer",
+    "Application Programmer",
+    "Programmer Analyst",
+    "Analyst Programmer",
+    "Application Development Analyst",
+    "Enterprise Application Developer",
+    "Business Application Developer",
+    "Software Application Developer",
+    "IT Application Developer",
+    "Anwendungsentwickler",
+    "Fachinformatiker Anwendungsentwicklung"
+   ],
+   "fields": [
+    "Application Development",
+    "Anwendungsentwicklung"
+   ]
+  },
+  "java-backend": {
+   "titles": [
+    "Java Backend Engineer",
+    "Java Backend Developer",
+    "Backend Java Developer",
+    "Backend Java Engineer",
+    "Java Back-end Developer",
+    "Backend Engineer (Java)",
+    "Software Engineer, Java Backend",
+    "Java Microservices Developer",
+    "Java Microservices Engineer",
+    "Java API Developer",
+    "JVM Backend Engineer",
+    "Java Backend-Entwickler"
+   ],
+   "fields": [
+    "Java Backend Development",
+    "Java Backend"
+   ]
+  },
+  "spring-engineer": {
+   "titles": [
+    "Spring Boot Engineer",
+    "Spring Boot Developer",
+    "Java Spring Boot Developer",
+    "Java Spring Boot Engineer",
+    "Java Spring Developer",
+    "Spring Developer",
+    "Spring Engineer",
+    "Spring Framework Developer",
+    "Spring Boot Microservices Developer",
+    "Spring Cloud Developer",
+    "Java Developer (Spring Boot)"
+   ],
+   "fields": [
+    "Spring Boot"
+   ]
+  },
+  "python-backend": {
+   "titles": [
+    "Python Backend Engineer",
+    "Python Backend Developer",
+    "Backend Python Developer",
+    "Backend Python Engineer",
+    "Backend Engineer (Python)",
+    "Software Engineer, Python Backend",
+    "Python Back-end Developer",
+    "Python API Developer",
+    "Python Web Developer",
+    "FastAPI Developer",
+    "FastAPI Engineer",
+    "Flask Developer"
+   ],
+   "fields": [
+    "Python Backend Development",
+    "Python Backend",
+    "FastAPI"
+   ]
+  },
+  "django-engineer": {
+   "titles": [
+    "Django Developer",
+    "Django Engineer",
+    "Python Django Developer",
+    "Django Backend Developer",
+    "Django REST Framework Developer",
+    "DRF Developer",
+    "Django Software Engineer",
+    "Django Web Developer"
+   ],
+   "fields": [
+    "Django",
+    "Python Django"
+   ]
+  },
+  "rust-engineer": {
+   "titles": [
+    "Rust Engineer",
+    "Rust Developer",
+    "Rust Software Engineer",
+    "Rust Programmer",
+    "Rust Backend Engineer",
+    "Rust Systems Engineer",
+    "Software Engineer, Rust",
+    "Rust-Entwickler"
+   ],
+   "fields": [
+    "Rust",
+    "Rust Development"
+   ]
+  },
+  "dotnet-engineer": {
+   "titles": [
+    ".NET / C# Engineer",
+    ".NET Engineer",
+    "C# Engineer",
+    ".NET Software Engineer",
+    "C# Software Engineer",
+    "Software Engineer, .NET",
+    "Software Engineer (C#)",
+    ".NET Backend Engineer",
+    ".NET Backend Developer",
+    "C# Backend Developer",
+    "ASP.NET Core Engineer",
+    "DotNet Engineer",
+    "Dot Net Engineer"
+   ],
+   "fields": []
+  },
+  "cpp-engineer": {
+   "titles": [
+    "C++ Engineer",
+    "C++ Developer",
+    "C++ Software Engineer",
+    "C++ Software Developer",
+    "C++ Programmer",
+    "Software Engineer, C++",
+    "Modern C++ Developer",
+    "C/C++ Developer",
+    "C/C++ Engineer",
+    "Qt Developer",
+    "Qt/C++ Developer",
+    "C++-Entwickler"
+   ],
+   "fields": [
+    "C++",
+    "C++ Development",
+    "C/C++"
+   ]
+  },
+  "cpp-lowlatency": {
+   "titles": [
+    "Low-Latency C++ Engineer",
+    "Low Latency C++ Developer",
+    "Low Latency Engineer",
+    "Low-Latency Software Engineer",
+    "Software Engineer, Low Latency",
+    "Ultra Low Latency Developer",
+    "HFT C++ Developer",
+    "HFT Software Engineer",
+    "HFT Developer",
+    "High-Frequency Trading Developer",
+    "C++ Trading Systems Developer",
+    "Trading Systems Engineer",
+    "Algorithmic Trading Developer"
+   ],
+   "fields": [
+    "Trading Systems"
+   ]
+  },
+  "rails-engineer": {
+   "titles": [
+    "Ruby on Rails Engineer",
+    "Rails Engineer",
+    "RoR Engineer",
+    "Ruby Engineer",
+    "Ruby Software Engineer",
+    "Software Engineer, Ruby on Rails",
+    "Ruby Backend Engineer",
+    "Backend Engineer (Ruby)"
+   ],
+   "fields": []
+  },
+  "php-engineer": {
+   "titles": [
+    "PHP Developer",
+    "PHP Engineer",
+    "PHP Software Engineer",
+    "PHP Backend Developer",
+    "Backend PHP Engineer",
+    "Software Engineer, PHP",
+    "LAMP Developer",
+    "LAMP Stack Developer",
+    "Magento Developer"
+   ],
+   "fields": []
+  },
+  "laravel-engineer": {
+   "titles": [
+    "Laravel Developer",
+    "Laravel Engineer",
+    "PHP Laravel Developer",
+    "Laravel PHP Developer",
+    "Laravel Backend Developer",
+    "Laravel Full Stack Developer",
+    "Laravel Software Engineer",
+    "Laravel-Entwickler"
+   ],
+   "fields": [
+    "Laravel",
+    "Laravel Development"
+   ]
+  },
+  "nodejs-engineer": {
+   "titles": [
+    "Node.js Engineer",
+    "NodeJS Engineer",
+    "Node Engineer",
+    "Node.js Backend Engineer",
+    "Node.js Software Engineer",
+    "Backend Engineer (Node.js)",
+    "Software Engineer, Node.js",
+    "Node.js API Engineer",
+    "JavaScript Backend Engineer"
+   ],
+   "fields": []
+  },
+  "typescript-backend": {
+   "titles": [
+    "TypeScript Backend Engineer",
+    "TypeScript Backend Developer",
+    "Backend TypeScript Engineer",
+    "Backend Engineer (TypeScript)",
+    "Software Engineer, TypeScript",
+    "TypeScript Engineer",
+    "TypeScript Developer",
+    "TypeScript Node.js Developer",
+    "NestJS Developer",
+    "NestJS Engineer"
+   ],
+   "fields": [
+    "TypeScript",
+    "NestJS"
+   ]
+  },
+  "scala-engineer": {
+   "titles": [
+    "Scala Engineer",
+    "Scala Developer",
+    "Scala Software Engineer",
+    "Scala Backend Engineer",
+    "Scala Programmer",
+    "Software Engineer, Scala",
+    "Akka Developer",
+    "Scala-Entwickler"
+   ],
+   "fields": [
+    "Scala"
+   ]
+  },
+  "elixir-engineer": {
+   "titles": [
+    "Elixir Engineer",
+    "Elixir Developer",
+    "Elixir Software Engineer",
+    "Elixir Backend Engineer",
+    "Software Engineer, Elixir",
+    "Phoenix Developer",
+    "Elixir/Phoenix Developer",
+    "Erlang Developer",
+    "Erlang Engineer",
+    "Erlang/OTP Engineer"
+   ],
+   "fields": [
+    "Elixir",
+    "Erlang"
+   ]
+  },
+  "kotlin-backend": {
+   "titles": [
+    "Kotlin Backend Developer",
+    "Kotlin Engineer",
+    "Kotlin Server-Side Developer",
+    "Backend Engineer (Kotlin)",
+    "Backend Developer (Kotlin)",
+    "Kotlin Spring Boot Developer",
+    "Ktor Developer",
+    "Kotlin Microservices Developer",
+    "Kotlin JVM Developer",
+    "Kotlin Backend-Entwickler",
+    "Backend-Entwickler Kotlin"
+   ],
+   "fields": [
+    "Kotlin Backend"
+   ]
+  },
+  "clojure-engineer": {
+   "titles": [
+    "Clojure Developer",
+    "Clojure Software Engineer",
+    "Clojure Backend Engineer",
+    "Clojure Backend Developer",
+    "Software Engineer (Clojure)",
+    "Clojure Programmer",
+    "ClojureScript Developer",
+    "Clojure/ClojureScript Engineer",
+    "Functional Programmer (Clojure)",
+    "Clojure-Entwickler"
+   ],
+   "fields": [
+    "Clojure",
+    "Clojure Development"
+   ]
+  },
+  "perl-developer": {
+   "titles": [
+    "Perl Programmer",
+    "Perl Engineer",
+    "Perl Software Engineer",
+    "Perl Software Developer",
+    "Perl Backend Developer",
+    "Perl Web Developer",
+    "Perl/Unix Developer",
+    "Perl Linux Developer",
+    "Perl Automation Engineer",
+    "Perl Scripting Developer",
+    "Perl-Entwickler"
+   ],
+   "fields": [
+    "Perl Development"
+   ]
+  },
+  "dotnet-fullstack": {
+   "titles": [
+    ".NET Full Stack Developer",
+    "Full Stack .NET Developer",
+    "Full Stack .NET Engineer",
+    "C# Full Stack Developer",
+    "Full Stack C# Developer",
+    "ASP.NET Full Stack Developer",
+    ".NET Core Full Stack Developer",
+    ".NET Angular Developer",
+    ".NET React Developer",
+    "Blazor Developer",
+    "Full Stack Developer (.NET/Angular)",
+    "Full Stack Developer (C#/React)",
+    "Full-Stack-Entwickler .NET"
+   ],
+   "fields": [
+    "Full Stack .NET",
+    ".NET Full Stack Development"
+   ]
+  },
+  "mobile": {
+   "titles": [
+    "Mobile Developer",
+    "Mobile App Developer",
+    "Mobile Application Developer",
+    "Mobile Software Engineer",
+    "Mobile Software Developer",
+    "Mobile Application Engineer",
+    "Mobile App Engineer",
+    "Mobile Apps Engineer",
+    "App Developer",
+    "iOS/Android Developer",
+    "Mobile Engineer",
+    "App-Entwickler",
+    "Mobile Entwickler"
+   ],
+   "fields": [
+    "Mobile Development",
+    "Mobile App Development",
+    "Mobile Application Development",
+    "App Development",
+    "Mobile Engineering",
+    "App-Entwicklung"
+   ]
+  },
+  "ios-eng": {
+   "titles": [
+    "iOS Developer",
+    "iOS Software Engineer",
+    "iOS Software Developer",
+    "iOS App Developer",
+    "iOS Application Developer",
+    "iOS Mobile Developer",
+    "Mobile iOS Engineer",
+    "Software Engineer, iOS",
+    "Swift Developer",
+    "SwiftUI Developer",
+    "Objective-C Developer",
+    "Apple Platforms Engineer",
+    "iOS-Entwickler"
+   ],
+   "fields": [
+    "iOS Development",
+    "iOS",
+    "iOS App Development",
+    "Swift Development"
+   ]
+  },
+  "android-eng": {
+   "titles": [
+    "Android Developer",
+    "Android Software Engineer",
+    "Android Software Developer",
+    "Android App Developer",
+    "Android Application Developer",
+    "Android Mobile Developer",
+    "Android Mobile Engineer",
+    "Software Engineer, Android",
+    "Android Kotlin Developer",
+    "Kotlin Android Developer",
+    "Jetpack Compose Developer",
+    "Android-Entwickler"
+   ],
+   "fields": [
+    "Android Development",
+    "Android",
+    "Android App Development"
+   ]
+  },
+  "react-native-eng": {
+   "titles": [
+    "React Native Developer",
+    "React Native Mobile Developer",
+    "React Native App Developer",
+    "React Native Software Engineer",
+    "React Native Mobile Engineer",
+    "Mobile Developer (React Native)",
+    "Mobile Engineer (React Native)",
+    "React Native Entwickler"
+   ],
+   "fields": [
+    "React Native",
+    "React Native Development"
+   ]
+  },
+  "flutter-eng": {
+   "titles": [
+    "Flutter Engineer",
+    "Flutter Mobile Developer",
+    "Flutter App Developer",
+    "Flutter Application Developer",
+    "Flutter Software Engineer",
+    "Flutter Mobile Engineer",
+    "Flutter/Dart Developer",
+    "Dart Developer",
+    "Mobile Developer (Flutter)",
+    "Flutter-Entwickler"
+   ],
+   "fields": [
+    "Flutter",
+    "Flutter Development",
+    "Flutter App Development"
+   ]
+  },
+  "mobile-architect": {
+   "titles": [
+    "Mobile Solutions Architect",
+    "Mobile Application Architect",
+    "Mobile App Architect",
+    "Mobile Software Architect",
+    "Mobile Technical Architect",
+    "iOS Architect",
+    "Android Architect",
+    "Mobile Enterprise Architect"
+   ],
+   "fields": []
+  },
+  "cross-platform-mobile": {
+   "titles": [
+    "Cross-Platform Mobile Developer",
+    "Cross-Platform App Developer",
+    "Cross-Platform Developer",
+    "Cross-Platform Software Engineer",
+    "Hybrid Mobile Developer",
+    "Hybrid App Developer",
+    "Hybrid Mobile App Developer",
+    "Ionic Developer",
+    "Xamarin Developer",
+    ".NET MAUI Developer",
+    "Cordova Developer",
+    "Mobile Developer (React Native/Flutter)"
+   ],
+   "fields": [
+    "Cross-Platform Development",
+    "Cross-Platform App Development",
+    "Hybrid App Development"
+   ]
+  },
+  "kmp-eng": {
+   "titles": [
+    "Kotlin Multiplatform Developer",
+    "KMP Developer",
+    "KMP Engineer",
+    "KMM Developer",
+    "Kotlin Multiplatform Mobile Developer",
+    "Kotlin Multiplatform Mobile Engineer",
+    "Compose Multiplatform Developer",
+    "Mobile Engineer (Kotlin Multiplatform)"
+   ],
+   "fields": [
+    "Kotlin Multiplatform"
+   ]
+  },
+  "mobile-game-dev": {
+   "titles": [
+    "Mobile Game Programmer",
+    "Mobile Games Developer",
+    "Mobile Game Engineer",
+    "Mobile Games Engineer",
+    "Mobile Games Programmer",
+    "Mobile Gameplay Programmer",
+    "Mobile Game Software Engineer",
+    "Mobile Gaming Developer",
+    "Casual Game Developer",
+    "Hyper-Casual Game Developer"
+   ],
+   "fields": [
+    "Mobile Game Development",
+    "Mobile Games"
+   ]
+  },
+  "unity-client-eng": {
+   "titles": [
+    "Unity Engineer",
+    "Unity 3D Developer",
+    "Unity3D Engineer",
+    "Unity Game Developer",
+    "Unity Programmer",
+    "Unity Game Programmer",
+    "Unity Gameplay Programmer",
+    "Unity C# Developer",
+    "Unity Software Engineer",
+    "Unity-Entwickler"
+   ],
+   "fields": [
+    "Unity",
+    "Unity Development",
+    "Unity Game Development"
+   ]
+  },
+  "unreal-client-eng": {
+   "titles": [
+    "Unreal Developer",
+    "Unreal Engineer",
+    "Unreal Programmer",
+    "Unreal Engine Programmer",
+    "Unreal Engine Engineer",
+    "Unreal Engine Software Engineer",
+    "UE4 Developer",
+    "UE5 Developer",
+    "Unreal C++ Developer",
+    "Unreal Gameplay Programmer",
+    "Unreal Blueprint Developer",
+    "Unreal Engine Entwickler"
+   ],
+   "fields": [
+    "Unreal Engine",
+    "Unreal Engine Development"
+   ]
+  },
+  "game-client-eng": {
+   "titles": [
+    "Game Developer",
+    "Game Programmer",
+    "Gameplay Programmer",
+    "Gameplay Engineer",
+    "Game Engineer",
+    "Game Software Engineer",
+    "Game Client Programmer",
+    "Game Client Developer",
+    "Client Programmer",
+    "Gameplay Developer",
+    "Spieleentwickler",
+    "Spieleprogrammierer"
+   ],
+   "fields": [
+    "Game Development",
+    "Game Programming",
+    "Gameplay Programming",
+    "Games Programming",
+    "Spieleentwicklung"
+   ]
+  },
+  "mobile-sdk-eng": {
+   "titles": [
+    "Mobile SDK Developer",
+    "Mobile SDK Software Engineer",
+    "Software Engineer, Mobile SDK",
+    "iOS SDK Engineer",
+    "iOS SDK Developer",
+    "Android SDK Engineer",
+    "Android SDK Developer",
+    "SDK Engineer (Mobile)",
+    "Mobile Libraries Engineer"
+   ],
+   "fields": []
+  },
+  "mobile-platform-eng": {
+   "titles": [
+    "Mobile Platform Developer",
+    "Mobile Infrastructure Engineer",
+    "Mobile Infra Engineer",
+    "Mobile Foundations Engineer",
+    "Mobile Foundation Engineer",
+    "Mobile Tooling Engineer",
+    "Mobile Developer Experience Engineer",
+    "Mobile Developer Productivity Engineer",
+    "iOS Infrastructure Engineer",
+    "Android Infrastructure Engineer",
+    "iOS Platform Engineer"
+   ],
+   "fields": []
+  },
+  "mobile-release-eng": {
+   "titles": [
+    "Mobile DevOps Engineer",
+    "Mobile Release Engineer",
+    "Mobile Build Engineer",
+    "Mobile Build & Release Engineer",
+    "Mobile CI/CD Engineer",
+    "iOS Release Engineer",
+    "Android Release Engineer",
+    "Mobile Release Manager",
+    "App Release Engineer",
+    "Mobile DevOps Specialist"
+   ],
+   "fields": [
+    "Mobile DevOps"
+   ]
+  },
+  "mobile-qa-eng": {
+   "titles": [
+    "Mobile Test Automation Engineer",
+    "Mobile Automation Engineer",
+    "Mobile Automation Test Engineer",
+    "Mobile Automation Tester",
+    "Mobile QA Automation Tester",
+    "Mobile App Automation Engineer",
+    "Mobile Test Automation Developer",
+    "Appium Automation Engineer",
+    "Appium Test Engineer",
+    "Mobile SDET",
+    "SDET (Mobile)",
+    "iOS Automation Engineer",
+    "Android Automation Engineer"
+   ],
+   "fields": [
+    "Mobile Test Automation",
+    "Mobile Automation Testing"
+   ]
+  },
+  "mobile-ar-eng": {
+   "titles": [
+    "Mobile AR Developer",
+    "Mobile AR Software Engineer",
+    "AR Mobile Developer",
+    "Mobile Augmented Reality Developer",
+    "Mobile Augmented Reality Engineer",
+    "ARKit Developer",
+    "ARKit Engineer",
+    "ARCore Developer",
+    "RealityKit Developer",
+    "iOS AR Engineer",
+    "Android AR Engineer",
+    "Lens Studio Developer"
+   ],
+   "fields": [
+    "Mobile AR Development"
+   ]
+  },
+  "mobile-pm": {
+   "titles": [
+    "Product Manager, Mobile",
+    "Mobile App Product Manager",
+    "Mobile Apps Product Manager",
+    "App Product Manager",
+    "Product Manager (Mobile Apps)",
+    "Product Manager (iOS/Android)",
+    "Mobile Product Owner",
+    "Mobile Experience Product Manager",
+    "Mobile PM",
+    "Produktmanager Mobile",
+    "Produktmanager App"
+   ],
+   "fields": [
+    "Mobile Product Management"
+   ]
+  },
+  "data-eng": {
+   "titles": [
+    "Data Engineer",
+    "Software Engineer, Data",
+    "Data Software Engineer",
+    "Data Developer",
+    "Data Engineering Analyst",
+    "Data Engineering Consultant",
+    "Data Engineering Specialist",
+    "Data Engineering Developer",
+    "Python Data Engineer",
+    "SQL Data Engineer",
+    "Dateningenieur"
+   ],
+   "fields": [
+    "Data Engineering"
+   ]
+  },
+  "analytics-engineer": {
+   "titles": [
+    "Analytics Engineer",
+    "dbt Developer",
+    "dbt Engineer",
+    "Analytics Data Engineer",
+    "Data Analytics Engineer",
+    "Analytics Engineering Specialist",
+    "Data Transformation Engineer",
+    "Metrics Engineer",
+    "Analytics Engineer (dbt)"
+   ],
+   "fields": [
+    "Analytics Engineering"
+   ]
+  },
+  "etl-developer": {
+   "titles": [
+    "ETL Engineer",
+    "ETL Consultant",
+    "ETL Programmer",
+    "ETL/SQL Developer",
+    "Informatica Developer",
+    "Informatica PowerCenter Developer",
+    "ETL Informatica Developer",
+    "SSIS Developer",
+    "Talend Developer",
+    "DataStage Developer",
+    "Ab Initio Developer",
+    "ODI Developer",
+    "ETL-Entwickler"
+   ],
+   "fields": [
+    "ETL Development",
+    "ETL"
+   ]
+  },
+  "data-platform-engineer": {
+   "titles": [
+    "Data Platform Developer",
+    "Data Platform Software Engineer",
+    "Software Engineer, Data Platform",
+    "Platform Data Engineer",
+    "Data Platform Engineering Specialist",
+    "Self-Serve Data Platform Engineer"
+   ],
+   "fields": [
+    "Data Platform",
+    "Data Platform Engineering"
+   ]
+  },
+  "streaming-data-engineer": {
+   "titles": [
+    "Streaming Engineer",
+    "Data Streaming Engineer",
+    "Stream Processing Engineer",
+    "Real-Time Data Engineer",
+    "Event Stream Processing Engineer",
+    "Flink Developer",
+    "Apache Flink Engineer",
+    "Kafka Streams Developer",
+    "Spark Streaming Developer",
+    "Streaming Data Developer"
+   ],
+   "fields": [
+    "Stream Processing",
+    "Data Streaming"
+   ]
+  },
+  "data-warehouse-engineer": {
+   "titles": [
+    "Data Warehouse Developer",
+    "Data Warehousing Engineer",
+    "Data Warehousing Developer",
+    "DWH Engineer",
+    "DWH Developer",
+    "EDW Developer",
+    "Enterprise Data Warehouse Engineer",
+    "Data Warehouse Specialist",
+    "Data Warehouse Consultant",
+    "DWH-Entwickler",
+    "Data-Warehouse-Entwickler"
+   ],
+   "fields": [
+    "Data Warehousing",
+    "Data Warehouse"
+   ]
+  },
+  "bi-engineer": {
+   "titles": [
+    "BI Engineer",
+    "Business Intelligence Engineer",
+    "BIE",
+    "BI Data Engineer",
+    "Business Intelligence Data Engineer",
+    "Looker Developer",
+    "Looker Engineer",
+    "LookML Developer",
+    "BI Software Engineer"
+   ],
+   "fields": [
+    "BI Engineering",
+    "Business Intelligence Engineering"
+   ]
+  },
+  "big-data-engineer": {
+   "titles": [
+    "Big Data Developer",
+    "Big Data Software Engineer",
+    "Big Data Specialist",
+    "Big Data Consultant",
+    "Hadoop Developer",
+    "Hadoop Engineer",
+    "Big Data Hadoop Developer",
+    "Hive Developer",
+    "Scala Big Data Developer",
+    "Big-Data-Entwickler"
+   ],
+   "fields": [
+    "Big Data",
+    "Big Data Engineering",
+    "Hadoop"
+   ]
+  },
+  "data-architect": {
+   "titles": [
+    "Enterprise Data Architect",
+    "Data Solutions Architect",
+    "Cloud Data Architect",
+    "Big Data Architect",
+    "Data Warehouse Architect",
+    "Data Platform Architect",
+    "Data & Analytics Architect",
+    "Analytics Architect",
+    "Data Management Architect",
+    "Azure Data Architect",
+    "AWS Data Architect",
+    "Datenarchitekt"
+   ],
+   "fields": []
+  },
+  "dataops-engineer": {
+   "titles": [
+    "DataOps Specialist",
+    "Data Operations Engineer",
+    "Data DevOps Engineer",
+    "DevOps Engineer (Data)",
+    "Data Reliability Engineer",
+    "Data Observability Engineer",
+    "Data Platform Operations Engineer"
+   ],
+   "fields": [
+    "DataOps"
+   ]
+  },
+  "data-infrastructure-engineer": {
+   "titles": [
+    "Data Infra Engineer",
+    "Software Engineer, Data Infrastructure",
+    "Data Infrastructure Software Engineer",
+    "Data Systems Engineer",
+    "Distributed Data Systems Engineer",
+    "Database Reliability Engineer",
+    "DBRE"
+   ],
+   "fields": [
+    "Data Infrastructure"
+   ]
+  },
+  "cloud-data-engineer": {
+   "titles": [
+    "AWS Data Engineer",
+    "Azure Data Engineer",
+    "GCP Data Engineer",
+    "Google Cloud Data Engineer",
+    "Azure Data Factory Developer",
+    "ADF Developer",
+    "AWS Glue Developer",
+    "Azure Synapse Developer",
+    "BigQuery Data Engineer",
+    "Cloud Data Developer"
+   ],
+   "fields": [
+    "Cloud Data Engineering"
+   ]
+  },
+  "snowflake-engineer": {
+   "titles": [
+    "Snowflake Developer",
+    "Snowflake Engineer",
+    "Snowflake Data Developer",
+    "Snowflake SQL Developer",
+    "Snowflake dbt Developer",
+    "Snowflake Consultant",
+    "Snowpark Developer"
+   ],
+   "fields": [
+    "Snowflake"
+   ]
+  },
+  "databricks-engineer": {
+   "titles": [
+    "Databricks Engineer",
+    "Databricks Developer",
+    "Databricks Data Engineer",
+    "Azure Databricks Engineer",
+    "Azure Databricks Developer",
+    "Lakehouse Engineer",
+    "Lakehouse Data Engineer",
+    "Databricks Lakehouse Engineer",
+    "Databricks Platform Engineer",
+    "Databricks Consultant",
+    "Databricks Specialist",
+    "Delta Lake Engineer"
+   ],
+   "fields": [
+    "Databricks"
+   ]
+  },
+  "data-integration-engineer": {
+   "titles": [
+    "Data Integration Engineer",
+    "Data Integration Developer",
+    "Data Integration Specialist",
+    "Integration Engineer",
+    "Integration Developer",
+    "Integration Specialist",
+    "Enterprise Integration Engineer",
+    "MuleSoft Developer",
+    "MuleSoft Engineer",
+    "Boomi Developer",
+    "Dell Boomi Developer",
+    "iPaaS Developer",
+    "iPaaS Engineer",
+    "Integration Consultant",
+    "Integrationsentwickler"
+   ],
+   "fields": [
+    "Data Integration",
+    "Systems Integration"
+   ]
+  },
+  "data-quality-engineer": {
+   "titles": [
+    "Data Quality Engineer",
+    "DQ Engineer",
+    "Data Quality Analyst",
+    "Data Quality Specialist",
+    "Data Reliability Engineer",
+    "Data Observability Engineer",
+    "Data Validation Engineer",
+    "Data Test Engineer",
+    "Data QA Engineer",
+    "ETL Tester",
+    "ETL Test Engineer",
+    "ETL QA Engineer"
+   ],
+   "fields": [
+    "Data Quality",
+    "ETL Testing"
+   ]
+  },
+  "kafka-platform-engineer": {
+   "titles": [
+    "Kafka Engineer",
+    "Kafka Platform Engineer",
+    "Kafka Developer",
+    "Kafka Administrator",
+    "Kafka Admin",
+    "Kafka SRE",
+    "Kafka Infrastructure Engineer",
+    "Confluent Kafka Engineer",
+    "Confluent Platform Engineer",
+    "Streaming Platform Engineer",
+    "Event Streaming Engineer",
+    "Event Streaming Platform Engineer",
+    "Messaging Platform Engineer",
+    "Kafka Architect"
+   ],
+   "fields": []
+  },
+  "spark-engineer": {
+   "titles": [
+    "Spark Engineer",
+    "Spark Developer",
+    "Apache Spark Developer",
+    "PySpark Developer",
+    "PySpark Engineer",
+    "PySpark Data Engineer",
+    "Spark Scala Developer",
+    "Scala Spark Developer",
+    "Spark Data Engineer",
+    "Spark Performance Engineer",
+    "Spark Specialist"
+   ],
+   "fields": []
+  },
+  "data-modeler": {
+   "titles": [
+    "Data Modeler",
+    "Data Modeller",
+    "Data Modeling Engineer",
+    "Data Modelling Engineer",
+    "Data Modeling Specialist",
+    "Data Modeling Analyst",
+    "Dimensional Data Modeler",
+    "Logical Data Modeler",
+    "Database Modeler",
+    "Data Vault Modeler",
+    "Data Vault Developer",
+    "Information Modeler",
+    "Datenmodellierer"
+   ],
+   "fields": [
+    "Data Modeling",
+    "Data Modelling"
+   ]
+  },
+  "data-pipeline-engineer": {
+   "titles": [
+    "Data Pipeline Engineer",
+    "Data Pipeline Developer",
+    "Data Pipelines Engineer",
+    "Data Ingestion Engineer",
+    "Ingestion Engineer",
+    "Ingestion Pipeline Engineer",
+    "Data Orchestration Engineer",
+    "Airflow Engineer",
+    "Airflow Developer",
+    "Data Workflow Engineer",
+    "Data Pipeline Specialist"
+   ],
+   "fields": [
+    "Data Pipelines",
+    "Data Ingestion"
+   ]
+  },
+  "real-time-analytics-engineer": {
+   "titles": [
+    "Real-Time Analytics Engineer",
+    "Realtime Analytics Engineer",
+    "Real-Time Analytics Developer",
+    "Streaming Analytics Engineer",
+    "Real-Time OLAP Engineer",
+    "OLAP Engineer",
+    "ClickHouse Engineer",
+    "ClickHouse Developer",
+    "Apache Druid Engineer",
+    "Apache Pinot Engineer",
+    "Operational Analytics Engineer"
+   ],
+   "fields": [
+    "Real-Time Analytics",
+    "Streaming Analytics"
+   ]
+  },
+  "head-of-data-engineering": {
+   "titles": [
+    "Head of Data Engineering",
+    "Director of Data Engineering",
+    "Data Engineering Director",
+    "VP of Data Engineering",
+    "VP Data Engineering",
+    "Data Engineering Manager",
+    "Engineering Manager, Data",
+    "Head of Data Platform",
+    "Head of Data Infrastructure",
+    "Leiter Data Engineering"
+   ],
+   "fields": []
+  },
+  "data-sci": {
+   "titles": [
+    "Data Scientist",
+    "Data Science Specialist",
+    "Data Science Analyst",
+    "Data Science Consultant",
+    "Data Science Engineer",
+    "Data Science Generalist",
+    "Full-Stack Data Scientist",
+    "Generalist Data Scientist",
+    "Data Science Professional",
+    "Datenwissenschaftler"
+   ],
+   "fields": [
+    "Data Science",
+    "Data Science and Analytics"
+   ]
+  },
+  "applied-scientist": {
+   "titles": [
+    "Applied Scientist",
+    "Applied ML Scientist",
+    "Applied Machine Learning Scientist",
+    "Applied Research Scientist",
+    "Applied AI Scientist",
+    "Applied Science Researcher",
+    "Applied Scientist, Machine Learning"
+   ],
+   "fields": [
+    "Applied Science"
+   ]
+  },
+  "research-scientist": {
+   "titles": [
+    "Research Scientist",
+    "Researcher",
+    "Research Staff Member",
+    "Industrial Research Scientist",
+    "Scientific Researcher",
+    "Computer Science Researcher",
+    "Postdoctoral Researcher",
+    "Postdoctoral Research Scientist",
+    "Wissenschaftlicher Mitarbeiter"
+   ],
+   "fields": [
+    "Research",
+    "Research Science"
+   ]
+  },
+  "ml-scientist": {
+   "titles": [
+    "Machine Learning Scientist",
+    "ML Scientist",
+    "AI/ML Scientist",
+    "AI Scientist",
+    "Artificial Intelligence Scientist",
+    "Scientist, Machine Learning",
+    "Deep Learning Scientist",
+    "ML Modeling Scientist",
+    "Modeling Scientist"
+   ],
+   "fields": []
+  },
+  "statistician": {
+   "titles": [
+    "Statistician",
+    "Statistical Analyst",
+    "Applied Statistician",
+    "Mathematical Statistician",
+    "Research Statistician",
+    "Statistical Consultant",
+    "Statistical Modeler",
+    "Data Statistician",
+    "Statistical Officer",
+    "Statistiker"
+   ],
+   "fields": [
+    "Statistics",
+    "Applied Statistics",
+    "Statistical Analysis"
+   ]
+  },
+  "biostatistician": {
+   "titles": [
+    "Biostatistician",
+    "Clinical Statistician",
+    "Medical Statistician",
+    "Clinical Trial Statistician",
+    "Pharmaceutical Statistician",
+    "Biostatistics Analyst",
+    "Biostatistical Scientist",
+    "Statistical Scientist",
+    "Biometrician",
+    "Statistical Programmer",
+    "Clinical SAS Programmer",
+    "Biostatistiker"
+   ],
+   "fields": [
+    "Biostatistics",
+    "Clinical Statistics",
+    "Statistical Programming"
+   ]
+  },
+  "econometrician": {
+   "titles": [
+    "Econometrician",
+    "Economist",
+    "Applied Economist",
+    "Quantitative Economist",
+    "Research Economist",
+    "Data Economist",
+    "Tech Economist",
+    "Econometrics Analyst",
+    "Econometric Modeler",
+    "Economic Analyst",
+    "Oekonometriker"
+   ],
+   "fields": [
+    "Economics",
+    "Econometrics",
+    "Economic Research"
+   ]
+  },
+  "quant-analyst": {
+   "titles": [
+    "Quantitative Analyst",
+    "Quant Analyst",
+    "Desk Quant",
+    "Front Office Quant",
+    "Pricing Quant",
+    "Quantitative Strategist",
+    "Strat",
+    "Quantitative Developer",
+    "Quant Developer",
+    "Quantitative Modeler",
+    "Financial Engineer",
+    "Quantitative Finance Analyst",
+    "Derivatives Pricing Analyst",
+    "Quantitativer Analyst"
+   ],
+   "fields": [
+    "Quantitative Finance",
+    "Quantitative Analysis",
+    "Financial Engineering",
+    "Quant"
+   ]
+  },
+  "quant-researcher": {
+   "titles": [
+    "Quantitative Researcher",
+    "Quant Researcher",
+    "QR",
+    "Quantitative Research Analyst",
+    "Quant Research Analyst",
+    "Quantitative Research Scientist",
+    "Alpha Researcher",
+    "Signal Researcher",
+    "Systematic Researcher",
+    "Systematic Strategy Researcher"
+   ],
+   "fields": [
+    "Quantitative Research",
+    "Quant Research"
+   ]
+  },
+  "quant-trader": {
+   "titles": [
+    "Quantitative Trader",
+    "Quant Trader",
+    "Algorithmic Trader",
+    "Algo Trader",
+    "Systematic Trader",
+    "Trader",
+    "Options Trader",
+    "Electronic Trader",
+    "Quantitative Trading Analyst",
+    "Market Maker"
+   ],
+   "fields": [
+    "Quantitative Trading",
+    "Trading",
+    "Algorithmic Trading"
+   ]
+  },
+  "experimentation-scientist": {
+   "titles": [
+    "Experimentation Scientist",
+    "Experimentation Data Scientist",
+    "Data Scientist, Experimentation",
+    "Online Experimentation Scientist",
+    "A/B Testing Scientist",
+    "Experimentation Statistician",
+    "Experimentation Analyst",
+    "Experimentation Specialist",
+    "Experiment Design Scientist"
+   ],
+   "fields": [
+    "Experimentation",
+    "A/B Testing"
+   ]
+  },
+  "decision-scientist": {
+   "titles": [
+    "Decision Scientist",
+    "Decision Science Analyst",
+    "Decision Sciences Analyst",
+    "Decision Analyst",
+    "Decision Science Specialist",
+    "Decision Science Consultant",
+    "Decision Analytics Specialist",
+    "Business Decision Scientist"
+   ],
+   "fields": [
+    "Decision Science",
+    "Decision Sciences",
+    "Decision Analytics"
+   ]
+  },
+  "actuary": {
+   "titles": [
+    "Actuary",
+    "Actuarial Analyst",
+    "Actuarial Consultant",
+    "Actuarial Specialist",
+    "Actuarial Scientist",
+    "Actuarial Student",
+    "Pricing Actuary",
+    "Reserving Actuary",
+    "Life Actuary",
+    "Pensions Actuary",
+    "Aktuar"
+   ],
+   "fields": [
+    "Actuarial",
+    "Actuarial Science"
+   ]
+  },
+  "nlp-scientist": {
+   "titles": [
+    "NLP Research Scientist",
+    "NLP Scientist",
+    "NLP Researcher",
+    "Natural Language Processing Scientist",
+    "Natural Language Processing Research Scientist",
+    "Research Scientist, NLP",
+    "Computational Linguist",
+    "Computerlinguist",
+    "Language Technology Scientist"
+   ],
+   "fields": [
+    "NLP Research",
+    "Computational Linguistics"
+   ]
+  },
+  "cv-scientist": {
+   "titles": [
+    "Computer Vision Scientist",
+    "CV Scientist",
+    "Computer Vision Research Scientist",
+    "Computer Vision Researcher",
+    "Research Scientist, Computer Vision",
+    "Vision Scientist",
+    "Imaging Scientist",
+    "Image Processing Scientist",
+    "Medical Imaging Scientist",
+    "Perception Research Scientist"
+   ],
+   "fields": [
+    "Computer Vision Research",
+    "Imaging Science"
+   ]
+  },
+  "product-data-scientist": {
+   "titles": [
+    "Product Data Scientist",
+    "Data Scientist, Product",
+    "Data Scientist, Product Analytics",
+    "Product Analytics Data Scientist",
+    "Product Analytics Scientist",
+    "Product Scientist",
+    "Growth Data Scientist",
+    "Data Scientist, Analytics"
+   ],
+   "fields": [
+    "Product Data Science"
+   ]
+  },
+  "marketing-scientist": {
+   "titles": [
+    "Marketing Data Scientist",
+    "Marketing Scientist",
+    "Data Scientist, Marketing",
+    "Marketing Science Analyst",
+    "Marketing Science Partner",
+    "Marketing Analytics Data Scientist",
+    "Marketing Mix Modeler",
+    "Media Mix Modeling Analyst",
+    "MMM Analyst",
+    "Attribution Data Scientist"
+   ],
+   "fields": [
+    "Marketing Science",
+    "Marketing Data Science"
+   ]
+  },
+  "or-scientist": {
+   "titles": [
+    "Operations Research Scientist",
+    "OR Scientist",
+    "Operations Research Analyst",
+    "Operations Research Engineer",
+    "Operations Researcher",
+    "Operations Research Specialist",
+    "Optimization Scientist",
+    "Optimization Research Scientist",
+    "Supply Chain Optimization Scientist",
+    "Decision Optimization Scientist"
+   ],
+   "fields": [
+    "Operations Research",
+    "Optimization",
+    "Mathematical Optimization"
+   ]
+  },
+  "bioinformatics-scientist": {
+   "titles": [
+    "Bioinformatics Scientist",
+    "Bioinformatician",
+    "Bioinformatics Analyst",
+    "Bioinformatics Specialist",
+    "Bioinformatics Research Scientist",
+    "Computational Biologist",
+    "Computational Biology Scientist",
+    "Computational Genomics Scientist",
+    "Genomics Data Scientist",
+    "Bioinformatiker"
+   ],
+   "fields": [
+    "Bioinformatics",
+    "Computational Biology",
+    "Genomics"
+   ]
+  },
+  "causal-inference-scientist": {
+   "titles": [
+    "Causal Inference Scientist",
+    "Causal Inference Data Scientist",
+    "Data Scientist, Causal Inference",
+    "Causal Data Scientist",
+    "Causal ML Scientist",
+    "Causal Inference Researcher",
+    "Causal Inference Analyst",
+    "Uplift Modeling Scientist"
+   ],
+   "fields": [
+    "Causal Inference"
+   ]
+  },
+  "risk-quant": {
+   "titles": [
+    "Risk Quant",
+    "Risk Quant Analyst",
+    "Model Risk Analyst",
+    "Model Risk Manager",
+    "Model Validation Analyst",
+    "Model Validation Quant",
+    "Model Validator",
+    "Quantitative Risk Analyst",
+    "Market Risk Quant",
+    "Credit Risk Quant",
+    "Credit Risk Modeler",
+    "Risk Modeling Analyst",
+    "Market Risk Analyst",
+    "Credit Risk Analyst"
+   ],
+   "fields": [
+    "Model Risk",
+    "Model Validation",
+    "Quantitative Risk",
+    "Credit Risk",
+    "Market Risk"
+   ]
+  },
+  "survey-statistician": {
+   "titles": [
+    "Survey Statistician",
+    "Survey Methodologist",
+    "Survey Research Statistician",
+    "Survey Research Scientist",
+    "Survey Scientist",
+    "Sampling Statistician",
+    "Statistical Methodologist",
+    "Methodologist",
+    "Survey Data Scientist"
+   ],
+   "fields": [
+    "Survey Methodology",
+    "Survey Research",
+    "Survey Statistics"
+   ]
+  },
+  "ml-eng": {
+   "titles": [
+    "Machine Learning Engineer",
+    "ML Engineer",
+    "MLE",
+    "AI/ML Engineer",
+    "AI ML Engineer",
+    "Machine Learning Developer",
+    "ML Developer",
+    "AI/ML Developer",
+    "Applied ML Engineer",
+    "Applied Machine Learning Engineer",
+    "Machine Learning Software Engineer",
+    "Software Engineer, Machine Learning",
+    "Machine Learning Specialist",
+    "Machine Learning Ingenieur"
+   ],
+   "fields": [
+    "Machine Learning",
+    "ML",
+    "AI/ML",
+    "Machine Learning Engineering",
+    "Applied Machine Learning"
+   ]
+  },
+  "ai-eng": {
+   "titles": [
+    "AI Engineer",
+    "Artificial Intelligence Engineer",
+    "AI Developer",
+    "Artificial Intelligence Developer",
+    "AI Software Engineer",
+    "Software Engineer, AI",
+    "Applied AI Engineer",
+    "AI Integration Engineer",
+    "AI Programmer",
+    "KI-Entwickler",
+    "KI-Ingenieur"
+   ],
+   "fields": [
+    "Artificial Intelligence",
+    "AI",
+    "AI Engineering"
+   ]
+  },
+  "mlops-eng": {
+   "titles": [
+    "MLOps Engineer",
+    "ML Ops Engineer",
+    "ML Operations Engineer",
+    "Machine Learning Operations Engineer",
+    "MLOps Developer",
+    "MLOps Specialist",
+    "MLOps Consultant",
+    "ML DevOps Engineer",
+    "Machine Learning DevOps Engineer",
+    "Model Deployment Engineer",
+    "ML Deployment Engineer"
+   ],
+   "fields": [
+    "MLOps",
+    "Machine Learning Operations"
+   ]
+  },
+  "ml-platform-eng": {
+   "titles": [
+    "ML Platform Engineer",
+    "Machine Learning Platform Engineer",
+    "AI Platform Engineer",
+    "AI/ML Platform Engineer",
+    "ML Platform Software Engineer",
+    "Software Engineer, ML Platform",
+    "Machine Learning Platform Developer",
+    "Data Science Platform Engineer",
+    "ML Tooling Engineer",
+    "Feature Store Engineer"
+   ],
+   "fields": [
+    "ML Platform",
+    "Machine Learning Platform"
+   ]
+  },
+  "ml-infra-eng": {
+   "titles": [
+    "ML Infrastructure Engineer",
+    "Machine Learning Infrastructure Engineer",
+    "ML Infra Engineer",
+    "AI Infrastructure Engineer",
+    "AI Infra Engineer",
+    "GPU Infrastructure Engineer",
+    "GPU Cluster Engineer",
+    "Training Infrastructure Engineer",
+    "Distributed Training Engineer",
+    "ML Systems Engineer",
+    "AI HPC Engineer",
+    "AI Compute Infrastructure Engineer"
+   ],
+   "fields": [
+    "ML Infrastructure",
+    "AI Infrastructure",
+    "ML Systems"
+   ]
+  },
+  "cv-eng": {
+   "titles": [
+    "Computer Vision Engineer",
+    "CV Engineer",
+    "Computer Vision Developer",
+    "Computer Vision ML Engineer",
+    "Computer Vision Algorithm Engineer",
+    "Vision AI Engineer",
+    "Machine Vision Engineer",
+    "Vision Engineer",
+    "Perception Engineer",
+    "Image Processing Engineer",
+    "3D Vision Engineer",
+    "Softwareentwickler Bildverarbeitung",
+    "Ingenieur Bildverarbeitung"
+   ],
+   "fields": [
+    "Computer Vision",
+    "Image Processing",
+    "Machine Vision"
+   ]
+  },
+  "nlp-eng": {
+   "titles": [
+    "NLP Engineer",
+    "Natural Language Processing Engineer",
+    "NLP Developer",
+    "NLP ML Engineer",
+    "Machine Learning Engineer, NLP",
+    "NLP Data Scientist",
+    "Computational Linguist",
+    "Computerlinguist",
+    "Language Engineer",
+    "Text Analytics Engineer"
+   ],
+   "fields": [
+    "Natural Language Processing",
+    "NLP",
+    "Computational Linguistics"
+   ]
+  },
+  "dl-eng": {
+   "titles": [
+    "Deep Learning Engineer",
+    "DL Engineer",
+    "Deep Learning Developer",
+    "Deep Learning Specialist",
+    "Deep Learning Algorithm Engineer",
+    "Deep Learning Software Engineer",
+    "Neural Network Engineer"
+   ],
+   "fields": [
+    "Deep Learning",
+    "Neural Networks"
+   ]
+  },
+  "recsys-eng": {
+   "titles": [
+    "Recommender Systems Engineer",
+    "Recommendation Systems Engineer",
+    "Recommendation Engineer",
+    "Recommendations Engineer",
+    "RecSys Engineer",
+    "Recommendation Algorithm Engineer",
+    "Personalization Engineer",
+    "Personalization ML Engineer",
+    "Machine Learning Engineer, Recommendations",
+    "Feed Ranking Engineer"
+   ],
+   "fields": [
+    "Recommender Systems",
+    "Recommendation Systems",
+    "Personalization"
+   ]
+  },
+  "search-ranking-eng": {
+   "titles": [
+    "Search & Ranking Engineer",
+    "Search Engineer",
+    "Ranking Engineer",
+    "Search Relevance Engineer",
+    "Relevance Engineer",
+    "Search ML Engineer",
+    "Search Quality Engineer",
+    "Information Retrieval Engineer",
+    "Query Understanding Engineer",
+    "Vector Search Engineer",
+    "Elasticsearch Engineer"
+   ],
+   "fields": [
+    "Information Retrieval",
+    "Search Relevance",
+    "Search and Ranking"
+   ]
+  },
+  "ml-research-eng": {
+   "titles": [
+    "ML Research Engineer",
+    "Machine Learning Research Engineer",
+    "Research Engineer",
+    "AI Research Engineer",
+    "Research Engineer, Machine Learning",
+    "Research Engineer, AI",
+    "Deep Learning Research Engineer",
+    "ML Research Software Engineer"
+   ],
+   "fields": [
+    "Research Engineering",
+    "Machine Learning Research Engineering"
+   ]
+  },
+  "research-scientist-ml": {
+   "titles": [
+    "ML Research Scientist",
+    "Machine Learning Research Scientist",
+    "AI Research Scientist",
+    "Research Scientist, Machine Learning",
+    "Research Scientist, AI",
+    "Deep Learning Research Scientist",
+    "ML Researcher",
+    "Machine Learning Researcher",
+    "AI Researcher"
+   ],
+   "fields": [
+    "Machine Learning Research",
+    "AI Research",
+    "Deep Learning Research"
+   ]
+  },
+  "llm-eng": {
+   "titles": [
+    "LLM Engineer",
+    "Large Language Model Engineer",
+    "Language Model Engineer",
+    "LLM Training Engineer",
+    "LLM Pretraining Engineer",
+    "Pretraining Engineer",
+    "Foundation Model Engineer",
+    "LLM Research Engineer",
+    "LLM Data Engineer"
+   ],
+   "fields": [
+    "Large Language Models",
+    "LLM",
+    "Foundation Models"
+   ]
+  },
+  "genai-eng": {
+   "titles": [
+    "Generative AI Engineer",
+    "GenAI Engineer",
+    "Gen AI Engineer",
+    "Generative AI Developer",
+    "GenAI Developer",
+    "Gen AI Developer",
+    "Generative AI ML Engineer",
+    "Generative Models Engineer",
+    "Diffusion Model Engineer",
+    "Image Generation Engineer",
+    "Generative AI Specialist"
+   ],
+   "fields": [
+    "Generative AI",
+    "GenAI",
+    "Gen AI"
+   ]
+  },
+  "prompt-eng": {
+   "titles": [
+    "Prompt Engineer",
+    "AI Prompt Engineer",
+    "LLM Prompt Engineer",
+    "Generative AI Prompt Engineer",
+    "Prompt Engineering Specialist",
+    "Prompt Specialist",
+    "Prompt Designer",
+    "Prompt Writer"
+   ],
+   "fields": [
+    "Prompt Engineering"
+   ]
+  },
+  "conversational-ai-eng": {
+   "titles": [
+    "Conversational AI Engineer",
+    "Conversational AI Developer",
+    "Conversational AI Specialist",
+    "Chatbot Developer",
+    "Chatbot Engineer",
+    "Bot Developer",
+    "Voicebot Developer",
+    "Virtual Assistant Developer",
+    "Dialogue Systems Engineer",
+    "NLU Engineer",
+    "Dialogflow Developer",
+    "Rasa Developer",
+    "Contact Center AI Engineer",
+    "CCAI Engineer"
+   ],
+   "fields": [
+    "Conversational AI",
+    "Chatbot Development"
+   ]
+  },
+  "speech-ai-eng": {
+   "titles": [
+    "Speech & Audio ML Engineer",
+    "Speech Recognition Engineer",
+    "ASR Engineer",
+    "Speech Engineer",
+    "Speech ML Engineer",
+    "Speech AI Engineer",
+    "Speech Scientist",
+    "Speech Processing Engineer",
+    "TTS Engineer",
+    "Text-to-Speech Engineer",
+    "Speech Synthesis Engineer",
+    "Audio ML Engineer",
+    "Audio AI Engineer",
+    "Voice AI Engineer"
+   ],
+   "fields": [
+    "Speech Recognition",
+    "Speech Processing",
+    "Speech AI",
+    "Audio Machine Learning"
+   ]
+  },
+  "rl-eng": {
+   "titles": [
+    "Reinforcement Learning Engineer",
+    "RL Engineer",
+    "Reinforcement Learning Developer",
+    "Reinforcement Learning Research Engineer",
+    "RL Research Engineer",
+    "Reinforcement Learning Specialist",
+    "RL Environments Engineer"
+   ],
+   "fields": [
+    "Reinforcement Learning"
+   ]
+  },
+  "ads-ml-eng": {
+   "titles": [
+    "Ads ML Engineer",
+    "Ads Machine Learning Engineer",
+    "Advertising ML Engineer",
+    "Machine Learning Engineer, Ads",
+    "Ads Ranking Engineer",
+    "Ad Ranking Engineer",
+    "Ads Ranking ML Engineer",
+    "Ads Quality Engineer",
+    "Ad Tech ML Engineer",
+    "Monetization ML Engineer",
+    "Bidding Algorithm Engineer"
+   ],
+   "fields": [
+    "Ads Machine Learning",
+    "Computational Advertising"
+   ]
+  },
+  "rag-eng": {
+   "titles": [
+    "RAG Engineer",
+    "RAG Developer",
+    "Retrieval-Augmented Generation Engineer",
+    "Applied LLM Engineer",
+    "Applied LLM Developer",
+    "RAG Pipeline Engineer",
+    "LLM Retrieval Engineer"
+   ],
+   "fields": [
+    "Retrieval-Augmented Generation",
+    "RAG"
+   ]
+  },
+  "ml-perf-eng": {
+   "titles": [
+    "Inference Optimization Engineer",
+    "Inference Engineer",
+    "AI Inference Engineer",
+    "ML Performance Engineer",
+    "Machine Learning Performance Engineer",
+    "AI Performance Engineer",
+    "Deep Learning Performance Engineer",
+    "Model Optimization Engineer",
+    "Model Serving Engineer",
+    "GPU Performance Engineer",
+    "GPU Kernel Engineer",
+    "CUDA Engineer",
+    "CUDA Developer",
+    "ML Compiler Engineer"
+   ],
+   "fields": [
+    "ML Performance",
+    "Model Optimization",
+    "GPU Programming",
+    "ML Compilers"
+   ]
+  },
+  "multimodal-ml-eng": {
+   "titles": [
+    "Multimodal ML Engineer",
+    "Multimodal Machine Learning Engineer",
+    "Multimodal Deep Learning Engineer",
+    "Multimodal Training Engineer",
+    "Multimodal Research Engineer",
+    "Vision-Language Model Engineer",
+    "VLM Engineer",
+    "Machine Learning Engineer, Multimodal"
+   ],
+   "fields": [
+    "Multimodal Machine Learning",
+    "Vision-Language Models"
+   ]
+  },
+  "edge-ml-eng": {
+   "titles": [
+    "Edge ML Engineer",
+    "On-Device ML Engineer",
+    "Edge AI Engineer",
+    "Edge AI Developer",
+    "On-Device AI Engineer",
+    "Embedded ML Engineer",
+    "Embedded Machine Learning Engineer",
+    "Embedded AI Engineer",
+    "TinyML Engineer",
+    "Mobile ML Engineer",
+    "Machine Learning Engineer, On-Device"
+   ],
+   "fields": [
+    "Edge AI",
+    "On-Device AI",
+    "Embedded Machine Learning",
+    "TinyML"
+   ]
+  },
+  "genai-app-eng": {
+   "titles": [
+    "GenAI Application Engineer",
+    "Generative AI Application Engineer",
+    "GenAI Application Developer",
+    "LLM Application Engineer",
+    "LLM Application Developer",
+    "LLM App Developer",
+    "AI Application Engineer",
+    "AI Application Developer",
+    "GenAI Full Stack Engineer",
+    "Generative AI Full Stack Developer",
+    "AI Full Stack Engineer",
+    "GenAI Software Engineer"
+   ],
+   "fields": [
+    "AI Application Development",
+    "LLM Application Development"
+   ]
+  },
+  "ai-agent-eng": {
+   "titles": [
+    "AI Agent Engineer",
+    "AI Agents Engineer",
+    "AI Agent Developer",
+    "Agentic AI Engineer",
+    "Agentic AI Developer",
+    "Agent Engineer",
+    "LLM Agent Engineer",
+    "Agentic Systems Engineer",
+    "Multi-Agent Systems Engineer"
+   ],
+   "fields": [
+    "Agentic AI",
+    "AI Agents"
+   ]
+  },
+  "fde": {
+   "titles": [
+    "Forward Deployed Engineer",
+    "FDE",
+    "Forward Deployed Software Engineer",
+    "Forward Deployed AI Engineer",
+    "Forward Deployed ML Engineer",
+    "Forward Deployed Data Engineer"
+   ],
+   "fields": [
+    "Forward Deployed Engineering"
+   ]
+  },
+  "ai-product-eng": {
+   "titles": [
+    "AI Product Engineer",
+    "Product Engineer, AI",
+    "AI Product Developer",
+    "LLM Product Engineer",
+    "Applied AI Product Engineer",
+    "Product Engineer, Generative AI",
+    "AI Product Software Engineer"
+   ],
+   "fields": [
+    "AI Product Engineering"
+   ]
+  },
+  "ai-safety-eng": {
+   "titles": [
+    "AI Safety Engineer",
+    "ML Safety Engineer",
+    "LLM Safety Engineer",
+    "Model Safety Engineer",
+    "Safeguards Engineer",
+    "AI Guardrails Engineer",
+    "Responsible AI Engineer",
+    "Responsible AI Specialist",
+    "Trust & Safety ML Engineer"
+   ],
+   "fields": [
+    "AI Safety",
+    "Responsible AI"
+   ]
+  },
+  "ai-alignment-researcher": {
+   "titles": [
+    "AI Alignment Researcher",
+    "Alignment Researcher",
+    "Alignment Research Scientist",
+    "Alignment Research Engineer",
+    "Research Scientist, Alignment",
+    "AI Safety Researcher",
+    "AI Safety Research Scientist",
+    "Interpretability Researcher",
+    "Interpretability Research Scientist",
+    "Research Scientist, Interpretability"
+   ],
+   "fields": [
+    "AI Alignment",
+    "Alignment Research",
+    "Interpretability",
+    "AI Safety Research"
+   ]
+  },
+  "llm-eval-eng": {
+   "titles": [
+    "LLM Evaluation Engineer",
+    "LLM Evals Engineer",
+    "AI Evaluation Engineer",
+    "AI Evals Engineer",
+    "Evals Engineer",
+    "Model Evaluation Engineer",
+    "ML Evaluation Engineer",
+    "GenAI Evaluation Engineer",
+    "AI Benchmarking Engineer"
+   ],
+   "fields": [
+    "LLM Evaluation",
+    "AI Evaluation",
+    "Model Evaluation"
+   ]
+  },
+  "ai-red-teamer": {
+   "titles": [
+    "AI Red Teamer",
+    "AI Red Team Engineer",
+    "AI Red Team Specialist",
+    "AI Red Teaming Specialist",
+    "LLM Red Teamer",
+    "Generative AI Red Teamer",
+    "Red Team Engineer, AI",
+    "AI Security Researcher",
+    "LLM Security Researcher",
+    "Adversarial ML Engineer"
+   ],
+   "fields": [
+    "AI Red Teaming",
+    "AI Security",
+    "Adversarial Machine Learning"
+   ]
+  },
+  "llmops-eng": {
+   "titles": [
+    "LLMOps Engineer",
+    "LLM Ops Engineer",
+    "LLM Operations Engineer",
+    "GenAIOps Engineer",
+    "GenAI Ops Engineer",
+    "LLM Platform Engineer",
+    "GenAI Platform Engineer",
+    "LLM Deployment Engineer",
+    "MLOps Engineer, LLM"
+   ],
+   "fields": [
+    "LLMOps"
+   ]
+  },
+  "genai-solutions-arch": {
+   "titles": [
+    "GenAI Solutions Architect",
+    "Generative AI Solutions Architect",
+    "Gen AI Solution Architect",
+    "GenAI Architect",
+    "Generative AI Architect",
+    "AI Solutions Architect",
+    "AI Architect",
+    "LLM Solutions Architect",
+    "LLM Architect",
+    "Enterprise AI Architect"
+   ],
+   "fields": []
+  },
+  "applied-ai-research-eng": {
+   "titles": [
+    "Applied AI Research Engineer",
+    "Applied Research Engineer",
+    "Applied Research Engineer, AI",
+    "Applied ML Research Engineer",
+    "Applied Machine Learning Research Engineer",
+    "Applied GenAI Research Engineer",
+    "Applied AI Researcher"
+   ],
+   "fields": [
+    "Applied AI Research"
+   ]
+  },
+  "fine-tuning-eng": {
+   "titles": [
+    "Fine-Tuning Engineer",
+    "LLM Fine-Tuning Engineer",
+    "Model Fine-Tuning Engineer",
+    "AI Model Fine-Tuning Engineer",
+    "Fine-Tuning Specialist",
+    "Post-Training Engineer",
+    "Post-Training Research Engineer"
+   ],
+   "fields": [
+    "LLM Fine-Tuning",
+    "Post-Training"
+   ]
+  },
+  "genai-pm": {
+   "titles": [
+    "GenAI Product Manager",
+    "Generative AI Product Manager",
+    "Gen AI Product Manager",
+    "GenAI PM",
+    "LLM Product Manager",
+    "Product Manager, Generative AI",
+    "Product Manager, GenAI",
+    "Product Manager, LLM"
+   ],
+   "fields": [
+    "Generative AI Product Management"
+   ]
+  },
+  "rlhf-eng": {
+   "titles": [
+    "RLHF Engineer",
+    "RLHF Research Engineer",
+    "RLHF Specialist",
+    "Reinforcement Learning from Human Feedback Engineer",
+    "Reward Modeling Engineer",
+    "Reward Model Engineer",
+    "RL Post-Training Engineer",
+    "Human Feedback Engineer"
+   ],
+   "fields": [
+    "RLHF",
+    "Reward Modeling"
+   ]
+  },
+  "llm-inference-eng": {
+   "titles": [
+    "LLM Inference Engineer",
+    "LLM Serving Engineer",
+    "LLM Inference Optimization Engineer",
+    "LLM Performance Engineer",
+    "LLM Serving Infrastructure Engineer",
+    "Generative AI Inference Engineer",
+    "GenAI Inference Engineer"
+   ],
+   "fields": [
+    "LLM Inference"
+   ]
+  },
+  "multimodal-ai-eng": {
+   "titles": [
+    "Multimodal AI Engineer",
+    "Multimodal Engineer",
+    "Multimodal AI Developer",
+    "Multimodal GenAI Engineer",
+    "Multimodal LLM Engineer",
+    "Multimodal Applications Engineer",
+    "AI Engineer, Multimodal"
+   ],
+   "fields": [
+    "Multimodal AI"
+   ]
+  },
+  "ai-automation-eng": {
+   "titles": [
+    "AI Automation Engineer",
+    "AI Automation Developer",
+    "AI Automation Specialist",
+    "AI Automation Consultant",
+    "AI Workflow Automation Engineer",
+    "AI Process Automation Engineer",
+    "LLM Automation Engineer",
+    "GenAI Automation Engineer",
+    "n8n Developer",
+    "n8n Automation Engineer"
+   ],
+   "fields": [
+    "AI Automation",
+    "AI Workflow Automation"
+   ]
+  },
+  "ai-solutions-eng": {
+   "titles": [
+    "AI Solutions Engineer",
+    "AI/ML Solutions Engineer",
+    "GenAI Solutions Engineer",
+    "Generative AI Solutions Engineer",
+    "ML Solutions Engineer",
+    "Machine Learning Solutions Engineer",
+    "LLM Solutions Engineer",
+    "AI Sales Engineer",
+    "AI Pre-Sales Engineer",
+    "AI Presales Consultant",
+    "AI Solutions Consultant",
+    "AI Solutions Specialist",
+    "AI Customer Engineer"
+   ],
+   "fields": [
+    "AI Solutions",
+    "AI Solutions Engineering"
+   ]
+  },
+  "data-analyst": {
+   "titles": [
+    "Data Analyst",
+    "Data Analytics Analyst",
+    "Analytics Analyst",
+    "Data Analytics Specialist",
+    "Data Analytics Consultant",
+    "Data Analytics Executive",
+    "Business Data Analyst",
+    "SQL Data Analyst",
+    "SQL Analyst",
+    "Datenanalyst",
+    "Datenanalystin"
+   ],
+   "fields": [
+    "Data Analytics",
+    "Data Analysis",
+    "Analytics",
+    "Business Analytics",
+    "Datenanalyse"
+   ]
+  },
+  "bi-analyst": {
+   "titles": [
+    "Business Intelligence Analyst",
+    "BI Analyst",
+    "Business Intelligence Specialist",
+    "BI Specialist",
+    "BI Reporting Analyst",
+    "BI Data Analyst",
+    "Business Intelligence Data Analyst",
+    "BI & Analytics Analyst"
+   ],
+   "fields": [
+    "Business Intelligence",
+    "BI"
+   ]
+  },
+  "bi-developer": {
+   "titles": [
+    "BI Developer",
+    "Business Intelligence Developer",
+    "MSBI Developer",
+    "SSRS Developer",
+    "BI Report Developer",
+    "Report Developer",
+    "Qlik Developer",
+    "Qlik Sense Developer",
+    "QlikView Developer",
+    "Looker Developer",
+    "MicroStrategy Developer",
+    "Cognos Developer",
+    "OBIEE Developer",
+    "BI-Entwickler",
+    "Business Intelligence Entwickler"
+   ],
+   "fields": [
+    "BI Development",
+    "Business Intelligence Development"
+   ]
+  },
+  "product-analyst": {
+   "titles": [
+    "Product Analyst",
+    "Product Data Analyst",
+    "Product Analytics Analyst",
+    "Product Analytics Specialist",
+    "Product Insights Analyst",
+    "Data Analyst, Product",
+    "Experimentation Analyst"
+   ],
+   "fields": [
+    "Product Analytics"
+   ]
+  },
+  "marketing-analyst": {
+   "titles": [
+    "Marketing Analyst",
+    "Marketing Data Analyst",
+    "Marketing Analytics Analyst",
+    "Marketing Analytics Specialist",
+    "Marketing Performance Analyst",
+    "Performance Marketing Analyst",
+    "Campaign Analyst",
+    "Attribution Analyst",
+    "Paid Media Analyst",
+    "Marketing Operations Analyst",
+    "CRM Analyst"
+   ],
+   "fields": [
+    "Marketing Analytics",
+    "Marketing Analysis"
+   ]
+  },
+  "growth-analyst": {
+   "titles": [
+    "Growth Analyst",
+    "Growth Data Analyst",
+    "Growth Marketing Analyst",
+    "Growth Analytics Specialist",
+    "Growth Insights Analyst",
+    "User Acquisition Analyst",
+    "Retention Analyst"
+   ],
+   "fields": [
+    "Growth Analytics",
+    "Growth"
+   ]
+  },
+  "business-analyst": {
+   "titles": [
+    "Business Analyst",
+    "BA",
+    "IT Business Analyst",
+    "Business Systems Analyst",
+    "Technical Business Analyst",
+    "Functional Business Analyst",
+    "Functional Analyst",
+    "Requirements Analyst",
+    "Business Requirements Analyst",
+    "Business Process Analyst",
+    "Systems Analyst",
+    "Agile Business Analyst"
+   ],
+   "fields": [
+    "Business Analysis",
+    "Business Systems Analysis"
+   ]
+  },
+  "financial-analyst-tech": {
+   "titles": [
+    "Financial Analyst",
+    "Finance Analyst",
+    "FP&A Analyst",
+    "FP&A Specialist",
+    "Financial Planning & Analysis Analyst",
+    "Financial Planning Analyst",
+    "Strategic Finance Analyst",
+    "Business Finance Analyst",
+    "Corporate Finance Analyst",
+    "Financial Data Analyst",
+    "Business Controller"
+   ],
+   "fields": [
+    "Finance",
+    "FP&A",
+    "Financial Analysis",
+    "Financial Planning & Analysis",
+    "Strategic Finance"
+   ]
+  },
+  "reporting-analyst": {
+   "titles": [
+    "Reporting Analyst",
+    "MI Analyst",
+    "Management Information Analyst",
+    "MIS Analyst",
+    "MIS Executive",
+    "Reporting Specialist",
+    "Reporting Executive",
+    "Report Analyst",
+    "Data Reporting Analyst",
+    "Operational Reporting Analyst",
+    "Regulatory Reporting Analyst"
+   ],
+   "fields": [
+    "Reporting",
+    "MIS",
+    "Management Information"
+   ]
+  },
+  "analytics-manager": {
+   "titles": [
+    "Analytics Manager",
+    "Data Analytics Manager",
+    "Manager, Analytics",
+    "Manager, Business Analytics",
+    "Head of Analytics",
+    "Head of Data Analytics",
+    "BI Manager",
+    "Business Intelligence Manager",
+    "Insights & Analytics Manager"
+   ],
+   "fields": []
+  },
+  "tableau-developer": {
+   "titles": [
+    "Tableau Developer",
+    "Tableau Consultant",
+    "Tableau Specialist",
+    "Tableau Engineer",
+    "Tableau Analyst",
+    "Tableau BI Developer",
+    "Tableau Dashboard Developer",
+    "Tableau Report Developer",
+    "Tableau Server Administrator"
+   ],
+   "fields": [
+    "Tableau Development"
+   ]
+  },
+  "power-bi-developer": {
+   "titles": [
+    "Power BI Developer",
+    "Power BI Consultant",
+    "Power BI Specialist",
+    "Power BI Engineer",
+    "Power BI Analyst",
+    "Power BI Report Developer",
+    "Power BI Dashboard Developer",
+    "Power BI Administrator",
+    "Power BI Entwickler"
+   ],
+   "fields": [
+    "Power BI",
+    "Power BI Development"
+   ]
+  },
+  "data-viz-specialist": {
+   "titles": [
+    "Data Visualization Specialist",
+    "Data Visualisation Specialist",
+    "Data Visualization Analyst",
+    "Data Visualisation Analyst",
+    "Data Visualization Developer",
+    "Data Visualization Engineer",
+    "Data Visualization Designer",
+    "Data Visualization Consultant",
+    "Information Designer",
+    "D3.js Developer"
+   ],
+   "fields": [
+    "Data Visualization",
+    "Data Visualisation",
+    "Information Design"
+   ]
+  },
+  "revenue-operations-analyst": {
+   "titles": [
+    "Revenue Operations Analyst",
+    "RevOps Analyst",
+    "Revenue Operations Specialist",
+    "RevOps Specialist",
+    "Sales Operations Analyst",
+    "Sales Ops Analyst",
+    "Sales Operations Specialist",
+    "Sales Analyst",
+    "GTM Operations Analyst",
+    "Go-to-Market Operations Analyst",
+    "Deal Desk Analyst"
+   ],
+   "fields": [
+    "Revenue Operations",
+    "RevOps",
+    "Sales Operations",
+    "Sales Ops",
+    "Sales Analytics"
+   ]
+  },
+  "web-analyst": {
+   "titles": [
+    "Web Analyst",
+    "Digital Analyst",
+    "Web Analytics Analyst",
+    "Digital Analytics Analyst",
+    "Web Analytics Specialist",
+    "Digital Analytics Specialist",
+    "Web Analytics Consultant",
+    "Digital Analytics Consultant",
+    "Analytics Implementation Specialist",
+    "Tag Management Specialist",
+    "CRO Analyst",
+    "Adobe Analytics Consultant",
+    "Webanalyst"
+   ],
+   "fields": [
+    "Web Analytics",
+    "Digital Analytics"
+   ]
+  },
+  "operations-analyst": {
+   "titles": [
+    "Operations Analyst",
+    "Ops Analyst",
+    "Business Operations Analyst",
+    "BizOps Analyst",
+    "Operations Data Analyst",
+    "Strategy & Operations Analyst",
+    "Supply Chain Analyst",
+    "Logistics Analyst",
+    "Process Improvement Analyst",
+    "Operational Excellence Analyst",
+    "Workforce Management Analyst"
+   ],
+   "fields": [
+    "Operations",
+    "Business Operations",
+    "Operations Analytics",
+    "Supply Chain",
+    "Strategy & Operations"
+   ]
+  },
+  "insights-analyst": {
+   "titles": [
+    "Insights Analyst",
+    "Insight Analyst",
+    "Customer Insights Analyst",
+    "Customer Insight Analyst",
+    "Consumer Insights Analyst",
+    "Market Insights Analyst",
+    "Business Insights Analyst",
+    "Data Insights Analyst",
+    "Research & Insights Analyst",
+    "Market Research Analyst",
+    "Consumer Insights Specialist",
+    "Insights Specialist"
+   ],
+   "fields": [
+    "Consumer Insights",
+    "Customer Insights",
+    "Market Research",
+    "Insights"
+   ]
+  },
+  "devops": {
+   "titles": [
+    "DevOps Engineer",
+    "DevOps Specialist",
+    "DevOps Consultant",
+    "DevOps Developer",
+    "DevOps Administrator",
+    "DevOps Automation Engineer",
+    "DevOps Architect",
+    "Azure DevOps Engineer",
+    "AWS DevOps Engineer",
+    "GCP DevOps Engineer",
+    "Cloud DevOps Engineer"
+   ],
+   "fields": [
+    "DevOps",
+    "DevOps Engineering",
+    "Cloud & DevOps"
+   ]
+  },
+  "sre": {
+   "titles": [
+    "Site Reliability Engineer",
+    "SRE",
+    "SRE Engineer",
+    "Reliability Engineer",
+    "Systems Reliability Engineer",
+    "Service Reliability Engineer",
+    "Infrastructure Reliability Engineer",
+    "Cloud Reliability Engineer",
+    "Platform Reliability Engineer"
+   ],
+   "fields": [
+    "Site Reliability Engineering",
+    "Reliability Engineering"
+   ]
+  },
+  "platform-eng": {
+   "titles": [
+    "Platform Engineer",
+    "Cloud Platform Engineer",
+    "Infrastructure Platform Engineer",
+    "Platform Infrastructure Engineer",
+    "Internal Developer Platform Engineer",
+    "Developer Platform Engineer",
+    "DevOps Platform Engineer",
+    "Platform Operations Engineer"
+   ],
+   "fields": [
+    "Platform Engineering"
+   ]
+  },
+  "build-release-eng": {
+   "titles": [
+    "Build & Release Engineer",
+    "Build and Release Engineer",
+    "Build/Release Engineer",
+    "Build Engineer",
+    "Release Engineer",
+    "Software Build Engineer",
+    "Software Release Engineer",
+    "Build Systems Engineer",
+    "Build Infrastructure Engineer",
+    "SCM Engineer",
+    "Software Configuration Management Engineer"
+   ],
+   "fields": [
+    "Release Engineering",
+    "Build Engineering",
+    "Build & Release"
+   ]
+  },
+  "cicd-eng": {
+   "titles": [
+    "CI/CD Engineer",
+    "CICD Engineer",
+    "CI Engineer",
+    "Continuous Integration Engineer",
+    "Continuous Delivery Engineer",
+    "Continuous Integration and Delivery Engineer",
+    "CI/CD Pipeline Engineer",
+    "CI/CD Automation Engineer",
+    "CI/CD Specialist",
+    "Jenkins Engineer",
+    "Jenkins Administrator"
+   ],
+   "fields": [
+    "CI/CD",
+    "Continuous Integration"
+   ]
+  },
+  "observability-eng": {
+   "titles": [
+    "Observability Engineer",
+    "Observability Platform Engineer",
+    "Monitoring Engineer",
+    "Monitoring & Observability Engineer",
+    "Monitoring Specialist",
+    "Monitoring Tools Engineer",
+    "Telemetry Engineer",
+    "APM Engineer",
+    "Datadog Engineer",
+    "Dynatrace Engineer"
+   ],
+   "fields": [
+    "Observability"
+   ]
+  },
+  "infra-eng": {
+   "titles": [
+    "Infrastructure Engineer",
+    "Infra Engineer",
+    "IT Infrastructure Engineer",
+    "Infrastructure Systems Engineer",
+    "Infrastructure Operations Engineer",
+    "Infrastructure Specialist",
+    "IT Infrastructure Specialist",
+    "IT Infrastructure Analyst",
+    "Infrastructure Consultant"
+   ],
+   "fields": [
+    "Infrastructure",
+    "IT Infrastructure",
+    "Infrastructure Engineering"
+   ]
+  },
+  "devex-eng": {
+   "titles": [
+    "Developer Experience Engineer",
+    "DevEx Engineer",
+    "DX Engineer",
+    "Developer Productivity Engineer",
+    "Engineering Productivity Engineer",
+    "Engineering Effectiveness Engineer",
+    "Developer Tools Engineer",
+    "Developer Tooling Engineer",
+    "Developer Infrastructure Engineer",
+    "Software Engineer, Developer Productivity"
+   ],
+   "fields": [
+    "Developer Experience",
+    "Developer Productivity",
+    "Developer Tools"
+   ]
+  },
+  "cloud-arch": {
+   "titles": [
+    "Cloud Architect",
+    "Cloud Solutions Architect",
+    "Cloud Solution Architect",
+    "Cloud Technical Architect",
+    "Cloud Infrastructure Architect",
+    "Cloud Native Architect",
+    "Multi-Cloud Architect",
+    "Hybrid Cloud Architect",
+    "Azure Solutions Architect",
+    "Azure Cloud Architect",
+    "Azure Architect",
+    "Oracle Cloud Architect",
+    "Cloud-Architekt"
+   ],
+   "fields": []
+  },
+  "cloud-eng": {
+   "titles": [
+    "Cloud Engineer",
+    "Cloud Systems Engineer",
+    "Cloud Computing Engineer",
+    "Cloud Specialist",
+    "Cloud Administrator",
+    "AWS Cloud Engineer",
+    "AWS Engineer",
+    "GCP Cloud Engineer",
+    "Multi-Cloud Engineer",
+    "OCI Cloud Engineer"
+   ],
+   "fields": [
+    "Cloud Computing",
+    "Cloud",
+    "Cloud Engineering"
+   ]
+  },
+  "kubernetes-eng": {
+   "titles": [
+    "Kubernetes Engineer",
+    "K8s Engineer",
+    "Kubernetes Administrator",
+    "Kubernetes Specialist",
+    "Kubernetes Consultant",
+    "Kubernetes Platform Engineer",
+    "Kubernetes Developer",
+    "Container Platform Engineer",
+    "Container Orchestration Engineer",
+    "OpenShift Engineer",
+    "OpenShift Administrator"
+   ],
+   "fields": [
+    "Kubernetes"
+   ]
+  },
+  "devsecops-eng": {
+   "titles": [
+    "DevSecOps Engineer",
+    "DevSecOps Specialist",
+    "DevSecOps Consultant",
+    "DevOps Security Engineer",
+    "Security DevOps Engineer",
+    "Secure DevOps Engineer",
+    "CI/CD Security Engineer",
+    "Pipeline Security Engineer",
+    "Software Supply Chain Security Engineer"
+   ],
+   "fields": [
+    "DevSecOps"
+   ]
+  },
+  "production-eng": {
+   "titles": [
+    "Production Engineer",
+    "Software Production Engineer",
+    "Production Systems Engineer",
+    "Production Operations Engineer",
+    "Production Reliability Engineer"
+   ],
+   "fields": [
+    "Production Engineering"
+   ]
+  },
+  "sysadmin": {
+   "titles": [
+    "Systems Administrator",
+    "System Administrator",
+    "Sysadmin",
+    "Systems Admin",
+    "IT Administrator",
+    "IT Systems Administrator",
+    "Server Administrator",
+    "Windows Administrator",
+    "Windows Server Administrator",
+    "Windows System Administrator",
+    "Infrastructure Administrator",
+    "Systemadministrator",
+    "Systemadministratorin",
+    "Fachinformatiker Systemintegration"
+   ],
+   "fields": [
+    "System Administration",
+    "Systems Administration",
+    "IT Administration",
+    "Systemadministration"
+   ]
+  },
+  "linux-eng": {
+   "titles": [
+    "Linux Systems Engineer",
+    "Linux System Engineer",
+    "Linux Engineer",
+    "Linux Administrator",
+    "Linux Admin",
+    "Linux System Administrator",
+    "Linux Systems Administrator",
+    "Linux Specialist",
+    "Linux Platform Engineer",
+    "Unix Engineer",
+    "Unix Administrator",
+    "Unix/Linux Administrator",
+    "RHEL Engineer",
+    "Linux Systemadministrator"
+   ],
+   "fields": [
+    "Linux",
+    "Linux Administration"
+   ]
+  },
+  "release-manager": {
+   "titles": [
+    "Release Manager",
+    "Software Release Manager",
+    "IT Release Manager",
+    "Release and Deployment Manager",
+    "Deployment Manager",
+    "Change and Release Manager",
+    "Release Coordinator",
+    "Release Management Specialist",
+    "Release Management Analyst",
+    "Release Analyst"
+   ],
+   "fields": [
+    "Release Management"
+   ]
+  },
+  "infra-automation-eng": {
+   "titles": [
+    "Infrastructure Automation Engineer",
+    "Infrastructure Automation Developer",
+    "Infrastructure Automation Specialist",
+    "Infrastructure as Code Engineer",
+    "IaC Engineer",
+    "Terraform Engineer",
+    "Terraform Developer",
+    "Ansible Engineer",
+    "Ansible Automation Engineer",
+    "Puppet Engineer",
+    "Cloud Automation Engineer",
+    "IT Automation Engineer",
+    "Automation Engineer (Infrastructure)"
+   ],
+   "fields": [
+    "Infrastructure Automation",
+    "Infrastructure as Code",
+    "Cloud Automation"
+   ]
+  },
+  "chaos-eng": {
+   "titles": [
+    "Chaos Engineer",
+    "Chaos Engineering Specialist",
+    "Resilience Engineer",
+    "Resiliency Engineer",
+    "Resilience Engineering Specialist",
+    "Resilience Test Engineer",
+    "Fault Injection Engineer",
+    "Chaos and Resilience Engineer",
+    "Site Resilience Engineer"
+   ],
+   "fields": [
+    "Chaos Engineering",
+    "Resilience Engineering"
+   ]
+  },
+  "internal-tools-eng": {
+   "titles": [
+    "Internal Tools Engineer",
+    "Internal Tools Developer",
+    "Internal Tooling Engineer",
+    "Internal Tools Software Engineer",
+    "Software Engineer, Internal Tools",
+    "Internal Applications Engineer",
+    "Internal Applications Developer",
+    "Internal Systems Developer",
+    "Operations Tooling Engineer",
+    "Retool Developer"
+   ],
+   "fields": [
+    "Internal Tools",
+    "Internal Tooling"
+   ]
+  },
+  "platform-architect": {
+   "titles": [
+    "Platform Architect",
+    "Cloud Platform Architect",
+    "Kubernetes Platform Architect",
+    "Kubernetes Architect",
+    "Container Platform Architect",
+    "Developer Platform Architect",
+    "Internal Developer Platform Architect",
+    "Platform Engineering Architect",
+    "Technical Platform Architect",
+    "OpenShift Architect",
+    "Plattformarchitekt"
+   ],
+   "fields": []
+  },
+  "cloudops-eng": {
+   "titles": [
+    "Cloud Operations Engineer",
+    "Cloud Operations Specialist",
+    "Cloud Operations Analyst",
+    "Cloud Operations Administrator",
+    "Cloud Operations Support Engineer",
+    "Cloud Infrastructure Operations Engineer",
+    "Cloud Service Operations Engineer",
+    "Cloud Monitoring Engineer",
+    "Cloud Administrator",
+    "Cloud Systems Administrator"
+   ],
+   "fields": [
+    "Cloud Operations"
+   ]
+  },
+  "cloud-engineer": {
+   "titles": [
+    "Cloud Engineer",
+    "AWS Cloud Engineer",
+    "AWS Engineer",
+    "GCP Cloud Engineer",
+    "Google Cloud Engineer",
+    "Cloud Systems Engineer",
+    "Cloud Computing Engineer",
+    "Cloud Engineering Specialist",
+    "Cloud Specialist",
+    "Cloud Technical Specialist",
+    "Multi-Cloud Engineer",
+    "Public Cloud Engineer",
+    "Cloud Technology Engineer",
+    "Cloud Developer"
+   ],
+   "fields": [
+    "Cloud Computing",
+    "Cloud Engineering",
+    "Cloud"
+   ]
+  },
+  "solutions-architect": {
+   "titles": [
+    "Solutions Architect",
+    "Solution Architect",
+    "Technical Solutions Architect",
+    "Cloud Solutions Architect",
+    "Presales Solutions Architect",
+    "Pre-Sales Solution Architect",
+    "Customer Solutions Architect",
+    "Partner Solutions Architect",
+    "Specialist Solutions Architect",
+    "Delivery Solutions Architect",
+    "IT Solutions Architect",
+    "Solution Designer"
+   ],
+   "fields": [
+    "Solutions Architecture",
+    "Solution Architecture"
+   ]
+  },
+  "systems-architect": {
+   "titles": [
+    "Systems Architect",
+    "System Architect",
+    "IT Systems Architect",
+    "Infrastructure Systems Architect",
+    "Systems Infrastructure Architect",
+    "Technical Systems Architect",
+    "Computer Systems Architect",
+    "Server Architect",
+    "Linux Systems Architect",
+    "Systemarchitekt"
+   ],
+   "fields": []
+  },
+  "infrastructure-architect": {
+   "titles": [
+    "Infrastructure Architect",
+    "IT Infrastructure Architect",
+    "Technical Infrastructure Architect",
+    "Infrastructure Solutions Architect",
+    "Enterprise Infrastructure Architect",
+    "Cloud Infrastructure Architect",
+    "Data Center Architect",
+    "Datacenter Architect",
+    "Infrastrukturarchitekt"
+   ],
+   "fields": []
+  },
+  "finops-engineer": {
+   "titles": [
+    "FinOps Engineer",
+    "FinOps Analyst",
+    "FinOps Specialist",
+    "FinOps Consultant",
+    "FinOps Practitioner",
+    "Cloud FinOps Engineer",
+    "Cloud FinOps Analyst",
+    "Cloud Cost Engineer",
+    "Cloud Cost Analyst",
+    "Cloud Cost Optimization Engineer",
+    "Cloud Cost Optimization Analyst",
+    "Cloud Financial Analyst",
+    "Cloud Financial Management Specialist",
+    "Cloud Economics Analyst"
+   ],
+   "fields": [
+    "FinOps",
+    "Cloud FinOps",
+    "Cloud Cost Optimization",
+    "Cloud Cost Management"
+   ]
+  },
+  "virtualization-engineer": {
+   "titles": [
+    "Virtualization Engineer",
+    "Virtualisation Engineer",
+    "Virtualization Administrator",
+    "Virtualization Specialist",
+    "Virtualization Architect",
+    "VMware Engineer",
+    "VMware Administrator",
+    "VMware vSphere Engineer",
+    "VMware Consultant",
+    "Hyper-V Engineer",
+    "Hyper-V Administrator",
+    "Nutanix Engineer",
+    "Citrix Engineer",
+    "VDI Engineer"
+   ],
+   "fields": [
+    "Virtualization",
+    "Virtualisation"
+   ]
+  },
+  "storage-engineer": {
+   "titles": [
+    "Storage Engineer",
+    "Storage Administrator",
+    "Storage Systems Engineer",
+    "Storage Specialist",
+    "Storage Architect",
+    "Data Storage Engineer",
+    "SAN Engineer",
+    "SAN Administrator",
+    "SAN/NAS Engineer",
+    "NetApp Engineer",
+    "NetApp Administrator",
+    "Storage and Backup Engineer",
+    "Backup Engineer",
+    "Backup Administrator",
+    "Backup and Recovery Engineer"
+   ],
+   "fields": [
+    "Storage",
+    "Data Storage",
+    "Storage Engineering"
+   ]
+  },
+  "aws-solutions-architect": {
+   "titles": [
+    "AWS Solutions Architect",
+    "AWS Solution Architect",
+    "AWS Cloud Solutions Architect",
+    "AWS Cloud Architect",
+    "AWS Architect",
+    "AWS Technical Architect",
+    "AWS Infrastructure Architect",
+    "Amazon Web Services Solutions Architect",
+    "Solutions Architect (AWS)"
+   ],
+   "fields": [
+    "AWS Solutions Architecture",
+    "AWS Architecture"
+   ]
+  },
+  "azure-cloud-engineer": {
+   "titles": [
+    "Azure Cloud Engineer",
+    "Azure Engineer",
+    "Microsoft Azure Engineer",
+    "Azure Infrastructure Engineer",
+    "Azure Cloud Infrastructure Engineer",
+    "Azure Platform Engineer",
+    "Azure Systems Engineer",
+    "Azure Operations Engineer",
+    "Azure Administrator",
+    "Azure Cloud Administrator",
+    "Azure Cloud Specialist",
+    "Azure Specialist"
+   ],
+   "fields": [
+    "Azure",
+    "Microsoft Azure",
+    "Azure Cloud"
+   ]
+  },
+  "gcp-cloud-architect": {
+   "titles": [
+    "GCP Cloud Architect",
+    "GCP Architect",
+    "Google Cloud Architect",
+    "Google Cloud Platform Architect",
+    "GCP Solutions Architect",
+    "Google Cloud Solutions Architect",
+    "GCP Infrastructure Architect",
+    "GCP Technical Architect",
+    "Cloud Architect (GCP)"
+   ],
+   "fields": []
+  },
+  "enterprise-architect": {
+   "titles": [
+    "Enterprise Architect",
+    "Enterprise IT Architect",
+    "Enterprise Solutions Architect",
+    "Enterprise Technology Architect",
+    "Enterprise Architecture Manager",
+    "Enterprise Architecture Consultant",
+    "Business Architect",
+    "Domain Architect",
+    "Unternehmensarchitekt"
+   ],
+   "fields": []
+  },
+  "cloud-infrastructure-engineer": {
+   "titles": [
+    "Cloud Infrastructure Engineer",
+    "Cloud Infra Engineer",
+    "Cloud Infrastructure Developer",
+    "Cloud Infrastructure Specialist",
+    "Cloud Platform Engineer",
+    "Cloud Foundations Engineer",
+    "Infrastructure Engineer (Cloud)",
+    "AWS Infrastructure Engineer",
+    "GCP Infrastructure Engineer"
+   ],
+   "fields": [
+    "Cloud Infrastructure"
+   ]
+  },
+  "cloud-security-architect": {
+   "titles": [
+    "Cloud Security Architect",
+    "Cloud Security Solutions Architect",
+    "Cloud Infrastructure Security Architect",
+    "Cloud Native Security Architect",
+    "Multi-Cloud Security Architect",
+    "AWS Security Architect",
+    "Azure Security Architect",
+    "GCP Security Architect",
+    "Security Architect (Cloud)"
+   ],
+   "fields": []
+  },
+  "cloud-network-engineer": {
+   "titles": [
+    "Cloud Network Engineer",
+    "Cloud Networking Engineer",
+    "Cloud Network Specialist",
+    "Cloud Network Architect",
+    "Cloud Connectivity Engineer",
+    "Network Engineer (Cloud)",
+    "AWS Network Engineer",
+    "Azure Network Engineer",
+    "GCP Network Engineer"
+   ],
+   "fields": [
+    "Cloud Networking"
+   ]
+  },
+  "cloud-migration-engineer": {
+   "titles": [
+    "Cloud Migration Engineer",
+    "Cloud Migration Specialist",
+    "Cloud Migration Consultant",
+    "Cloud Migration Architect",
+    "Cloud Migration Analyst",
+    "Migration Engineer",
+    "Application Migration Engineer",
+    "Workload Migration Engineer",
+    "Infrastructure Migration Engineer",
+    "Data Center Migration Engineer",
+    "AWS Migration Engineer",
+    "Azure Migration Engineer",
+    "Cloud Transformation Engineer"
+   ],
+   "fields": [
+    "Cloud Migration"
+   ]
+  },
+  "cloud-consultant": {
+   "titles": [
+    "Cloud Consultant",
+    "Cloud Technology Consultant",
+    "Cloud Advisory Consultant",
+    "Cloud Strategy Consultant",
+    "Cloud Solutions Consultant",
+    "Cloud Infrastructure Consultant",
+    "Cloud Transformation Consultant",
+    "Multi-Cloud Consultant",
+    "Cloud Advisor",
+    "AWS Consultant",
+    "Azure Consultant",
+    "GCP Consultant",
+    "Google Cloud Consultant",
+    "Cloud-Berater"
+   ],
+   "fields": [
+    "Cloud Consulting",
+    "Cloud Advisory"
+   ]
+  },
+  "datacenter-engineer": {
+   "titles": [
+    "Data Center Engineer",
+    "Datacenter Engineer",
+    "Data Centre Engineer",
+    "Data Center Operations Engineer",
+    "Data Centre Operations Engineer",
+    "Data Center Infrastructure Engineer",
+    "Data Center Hardware Engineer",
+    "Data Center Facilities Engineer",
+    "Data Center Site Engineer",
+    "Critical Facilities Engineer",
+    "Critical Environment Engineer"
+   ],
+   "fields": [
+    "Data Center Engineering",
+    "Data Centre Engineering",
+    "Critical Facilities"
+   ]
+  },
+  "hybrid-cloud-engineer": {
+   "titles": [
+    "Hybrid Cloud Engineer",
+    "Hybrid Cloud Specialist",
+    "Hybrid Cloud Architect",
+    "Hybrid Cloud Infrastructure Engineer",
+    "Hybrid Cloud Platform Engineer",
+    "Hybrid Infrastructure Engineer",
+    "Hybrid IT Engineer",
+    "Private Cloud Engineer",
+    "Private Cloud Architect",
+    "VMware Cloud Engineer",
+    "OpenStack Engineer",
+    "Azure Stack Engineer"
+   ],
+   "fields": [
+    "Hybrid Cloud",
+    "Private Cloud"
+   ]
+  },
+  "cloudops-engineer": {
+   "titles": [
+    "CloudOps Engineer",
+    "Cloud Ops Engineer",
+    "CloudOps Specialist",
+    "Cloud Ops Specialist",
+    "CloudOps Analyst",
+    "Cloud Ops Analyst",
+    "CloudOps Administrator",
+    "Managed Cloud Engineer",
+    "Managed Cloud Operations Engineer",
+    "Cloud Managed Services Engineer",
+    "Cloud Production Support Engineer"
+   ],
+   "fields": [
+    "CloudOps",
+    "Cloud Ops"
+   ]
+  },
+  "security": {
+   "titles": [
+    "Security Engineer",
+    "Cybersecurity Engineer",
+    "Cyber Security Engineer",
+    "Cyber Engineer",
+    "Information Security Engineer",
+    "InfoSec Engineer",
+    "IT Security Engineer",
+    "Infrastructure Security Engineer",
+    "Systems Security Engineer",
+    "Cybersecurity Specialist",
+    "IT Security Specialist",
+    "IT-Sicherheitsexperte"
+   ],
+   "fields": [
+    "Cybersecurity",
+    "Cyber Security",
+    "Information Security",
+    "IT Security",
+    "Security Engineering",
+    "IT-Sicherheit"
+   ]
+  },
+  "appsec-eng": {
+   "titles": [
+    "Application Security Engineer",
+    "AppSec Engineer",
+    "Application Security Analyst",
+    "AppSec Analyst",
+    "Application Security Specialist",
+    "Application Security Consultant",
+    "Application Security Architect",
+    "Software Security Engineer",
+    "Web Application Security Engineer",
+    "Web Security Engineer",
+    "Secure Code Review Engineer"
+   ],
+   "fields": [
+    "Application Security",
+    "AppSec",
+    "Software Security",
+    "Web Security"
+   ]
+  },
+  "product-security-eng": {
+   "titles": [
+    "Product Security Engineer",
+    "ProdSec Engineer",
+    "Product Security Analyst",
+    "Product Security Specialist",
+    "Product Security Architect",
+    "Product Cybersecurity Engineer",
+    "Security Engineer, Product Security",
+    "PSIRT Engineer",
+    "PSIRT Analyst"
+   ],
+   "fields": [
+    "Product Security",
+    "Product Cybersecurity"
+   ]
+  },
+  "pentester": {
+   "titles": [
+    "Penetration Tester",
+    "Pen Tester",
+    "Pentester",
+    "Ethical Hacker",
+    "Penetration Testing Consultant",
+    "Penetration Testing Engineer",
+    "Penetration Testing Specialist",
+    "Pentest Consultant",
+    "Web Application Penetration Tester",
+    "Network Penetration Tester",
+    "Offensive Security Engineer",
+    "Offensive Security Consultant",
+    "Security Tester",
+    "Penetrationstester"
+   ],
+   "fields": [
+    "Penetration Testing",
+    "Pentesting",
+    "Ethical Hacking",
+    "Offensive Security"
+   ]
+  },
+  "red-team-operator": {
+   "titles": [
+    "Red Team Operator",
+    "Red Teamer",
+    "Red Team Engineer",
+    "Red Team Specialist",
+    "Red Team Consultant",
+    "Red Team Analyst",
+    "Adversary Emulation Engineer",
+    "Adversary Emulation Specialist",
+    "Adversary Simulation Operator"
+   ],
+   "fields": [
+    "Red Teaming",
+    "Red Team",
+    "Adversary Emulation"
+   ]
+  },
+  "soc-analyst": {
+   "titles": [
+    "SOC Analyst",
+    "Security Operations Center Analyst",
+    "Security Operations Analyst",
+    "Security Operations Specialist",
+    "SOC Specialist",
+    "SOC Engineer",
+    "Security Analyst (SOC)",
+    "Security Monitoring Analyst",
+    "Cyber Defense Analyst",
+    "Cyber Defence Analyst",
+    "Cyber Security Operations Analyst",
+    "Cyber Operations Analyst",
+    "SIEM Analyst"
+   ],
+   "fields": [
+    "Security Operations",
+    "Security Operations Center",
+    "SOC",
+    "Cyber Defense",
+    "Cyber Defence"
+   ]
+  },
+  "grc-analyst": {
+   "titles": [
+    "GRC Analyst",
+    "Governance, Risk and Compliance Analyst",
+    "GRC Specialist",
+    "GRC Consultant",
+    "GRC Engineer",
+    "IT Risk Analyst",
+    "IT Compliance Analyst",
+    "Cyber Risk Analyst",
+    "Information Security Risk Analyst",
+    "Information Security Compliance Analyst",
+    "Security Compliance Analyst",
+    "Risk and Compliance Analyst",
+    "IT Auditor"
+   ],
+   "fields": [
+    "GRC",
+    "Governance, Risk and Compliance",
+    "IT Risk",
+    "IT Compliance",
+    "Cyber Risk",
+    "IT Audit"
+   ]
+  },
+  "cloud-security-eng": {
+   "titles": [
+    "Cloud Security Engineer",
+    "Cloud Security Analyst",
+    "Cloud Security Specialist",
+    "Cloud Security Consultant",
+    "Cloud Infrastructure Security Engineer",
+    "Cloud Platform Security Engineer",
+    "Cloud Native Security Engineer",
+    "AWS Security Engineer",
+    "Azure Security Engineer",
+    "GCP Security Engineer",
+    "Kubernetes Security Engineer",
+    "Container Security Engineer"
+   ],
+   "fields": [
+    "Cloud Security"
+   ]
+  },
+  "dfir-analyst": {
+   "titles": [
+    "DFIR Analyst",
+    "DFIR Consultant",
+    "Digital Forensics and Incident Response Analyst",
+    "Incident Response Analyst",
+    "Incident Response Consultant",
+    "Incident Responder",
+    "Cyber Incident Responder",
+    "Security Incident Response Engineer",
+    "Digital Forensics Analyst",
+    "Digital Forensic Examiner",
+    "Computer Forensics Analyst",
+    "Cyber Forensics Analyst",
+    "CSIRT Analyst"
+   ],
+   "fields": [
+    "DFIR",
+    "Digital Forensics",
+    "Incident Response",
+    "Cyber Forensics",
+    "Computer Forensics"
+   ]
+  },
+  "security-architect": {
+   "titles": [
+    "Security Architect",
+    "Cybersecurity Architect",
+    "Cyber Security Architect",
+    "Information Security Architect",
+    "IT Security Architect",
+    "Enterprise Security Architect",
+    "Infrastructure Security Architect",
+    "Network Security Architect",
+    "Security Solutions Architect",
+    "Zero Trust Architect",
+    "IT-Sicherheitsarchitekt"
+   ],
+   "fields": []
+  },
+  "iam-eng": {
+   "titles": [
+    "IAM Engineer",
+    "Identity and Access Management Engineer",
+    "Identity and Access Management Analyst",
+    "Identity Engineer",
+    "Identity Security Engineer",
+    "Identity Governance Engineer",
+    "IAM Analyst",
+    "IAM Specialist",
+    "IAM Consultant",
+    "IAM Architect",
+    "Okta Engineer",
+    "SailPoint Engineer",
+    "SailPoint Developer",
+    "CyberArk Engineer",
+    "PAM Engineer"
+   ],
+   "fields": [
+    "Identity and Access Management",
+    "IAM",
+    "Identity Management",
+    "Identity Security"
+   ]
+  },
+  "malware-analyst": {
+   "titles": [
+    "Malware Analyst / Reverse Engineer",
+    "Malware Analyst",
+    "Malware Reverse Engineer",
+    "Reverse Engineer",
+    "Malware Researcher",
+    "Malware Research Engineer",
+    "Malware Analysis Engineer",
+    "Reverse Engineering Analyst",
+    "Reverse Engineering Specialist",
+    "Malware Analysis Specialist"
+   ],
+   "fields": [
+    "Malware Analysis",
+    "Reverse Engineering",
+    "Malware Research"
+   ]
+  },
+  "threat-intel-analyst": {
+   "titles": [
+    "Threat Intelligence Analyst",
+    "Threat Intel Analyst",
+    "Cyber Threat Intelligence Analyst",
+    "CTI Analyst",
+    "Cyber Threat Analyst",
+    "Cyber Intelligence Analyst",
+    "Threat Intelligence Specialist",
+    "Threat Intelligence Researcher",
+    "Threat Intelligence Engineer",
+    "Cyber Threat Intelligence Specialist",
+    "Threat Analyst",
+    "OSINT Analyst"
+   ],
+   "fields": [
+    "Threat Intelligence",
+    "Cyber Threat Intelligence",
+    "Cyber Intelligence"
+   ]
+  },
+  "infosec-analyst": {
+   "titles": [
+    "Information Security Analyst",
+    "InfoSec Analyst",
+    "IT Security Analyst",
+    "Cybersecurity Analyst",
+    "Cyber Security Analyst",
+    "Security Analyst",
+    "Information Security Specialist",
+    "IT Security Specialist",
+    "Cybersecurity Specialist",
+    "Cyber Security Specialist",
+    "IT-Sicherheitsanalyst"
+   ],
+   "fields": [
+    "Information Security",
+    "IT Security",
+    "InfoSec"
+   ]
+  },
+  "ciso": {
+   "titles": [
+    "Chief Information Security Officer",
+    "CISO",
+    "Chief Security Officer",
+    "Head of Information Security",
+    "Head of Cybersecurity",
+    "Head of IT Security",
+    "VP of Information Security",
+    "VP of Security",
+    "Chief Cybersecurity Officer"
+   ],
+   "fields": []
+  },
+  "security-consultant": {
+   "titles": [
+    "Security Consultant",
+    "Cyber Security Consultant",
+    "Cybersecurity Consultant",
+    "Information Security Consultant",
+    "IT Security Consultant",
+    "Cyber Risk Consultant",
+    "Security Advisor",
+    "Cybersecurity Advisor",
+    "Information Security Advisor",
+    "Security Risk Consultant",
+    "IT-Sicherheitsberater"
+   ],
+   "fields": [
+    "Cybersecurity Consulting",
+    "Security Consulting",
+    "Cyber Risk Advisory"
+   ]
+  },
+  "network-security-eng": {
+   "titles": [
+    "Network Security Engineer",
+    "Network Security Specialist",
+    "Network Security Administrator",
+    "Network Security Analyst",
+    "Firewall Engineer",
+    "Firewall Administrator",
+    "Palo Alto Firewall Engineer",
+    "Fortinet Engineer",
+    "SASE Engineer",
+    "Zero Trust Network Engineer",
+    "Perimeter Security Engineer",
+    "Network Security Consultant"
+   ],
+   "fields": [
+    "Network Security"
+   ]
+  },
+  "vuln-researcher": {
+   "titles": [
+    "Vulnerability Researcher",
+    "Vulnerability Research Engineer",
+    "Security Researcher",
+    "Security Research Engineer",
+    "Offensive Security Researcher",
+    "Exploit Developer",
+    "Exploit Development Engineer",
+    "Fuzzing Engineer",
+    "Bug Bounty Hunter"
+   ],
+   "fields": [
+    "Vulnerability Research",
+    "Security Research",
+    "Exploit Development"
+   ]
+  },
+  "detection-eng": {
+   "titles": [
+    "Detection Engineer",
+    "Detection and Response Engineer",
+    "Security Detection Engineer",
+    "Threat Detection Engineer",
+    "SIEM Engineer",
+    "SIEM Content Engineer",
+    "Detection Content Engineer",
+    "Security Analytics Engineer",
+    "SIEM Use Case Developer"
+   ],
+   "fields": [
+    "Detection Engineering",
+    "Threat Detection"
+   ]
+  },
+  "threat-hunter": {
+   "titles": [
+    "Threat Hunter",
+    "Cyber Threat Hunter",
+    "Threat Hunting Analyst",
+    "Threat Hunting Engineer",
+    "Threat Hunting Specialist",
+    "Cyber Threat Hunting Analyst",
+    "Threat Hunt Analyst"
+   ],
+   "fields": [
+    "Threat Hunting"
+   ]
+  },
+  "crypto-eng": {
+   "titles": [
+    "Cryptography Engineer",
+    "Cryptographic Engineer",
+    "Applied Cryptography Engineer",
+    "Applied Cryptographer",
+    "Cryptographer",
+    "Cryptography Software Engineer",
+    "Cryptographic Protocol Engineer",
+    "Post-Quantum Cryptography Engineer",
+    "PKI Engineer"
+   ],
+   "fields": [
+    "Cryptography",
+    "Applied Cryptography"
+   ]
+  },
+  "ot-security-eng": {
+   "titles": [
+    "OT / ICS Security Engineer",
+    "OT Security Engineer",
+    "ICS Security Engineer",
+    "OT Cybersecurity Engineer",
+    "Industrial Cybersecurity Engineer",
+    "Industrial Control Systems Security Engineer",
+    "SCADA Security Engineer",
+    "OT Security Specialist",
+    "OT Security Analyst",
+    "ICS Cybersecurity Analyst",
+    "OT Security Consultant"
+   ],
+   "fields": [
+    "OT Security",
+    "ICS Security",
+    "OT Cybersecurity",
+    "Industrial Cybersecurity"
+   ]
+  },
+  "security-mgr": {
+   "titles": [
+    "Security Engineering Manager",
+    "Manager, Security Engineering",
+    "Information Security Manager",
+    "IT Security Manager",
+    "Cybersecurity Manager",
+    "Cyber Security Manager",
+    "Head of Security Engineering",
+    "Security Program Manager",
+    "SOC Manager",
+    "IT-Sicherheitsmanager"
+   ],
+   "fields": []
+  },
+  "network-engineer": {
+   "titles": [
+    "Network Engineer",
+    "Network Administrator",
+    "Network Support Engineer",
+    "Network Infrastructure Engineer",
+    "Network Systems Engineer",
+    "Network Implementation Engineer",
+    "LAN/WAN Engineer",
+    "Routing and Switching Engineer",
+    "Cisco Network Engineer",
+    "Network Specialist",
+    "Network Analyst",
+    "Netzwerkadministrator",
+    "Netzwerkingenieur"
+   ],
+   "fields": [
+    "Network Engineering",
+    "Networking",
+    "Network Administration",
+    "Netzwerktechnik"
+   ]
+  },
+  "network-architect": {
+   "titles": [
+    "Network Architect",
+    "Network Solutions Architect",
+    "Enterprise Network Architect",
+    "Network Infrastructure Architect",
+    "Network Design Architect",
+    "Network Design Engineer",
+    "Network Technical Architect",
+    "Data Center Network Architect"
+   ],
+   "fields": []
+  },
+  "it-support": {
+   "titles": [
+    "IT Support Specialist",
+    "IT Support Technician",
+    "IT Support Engineer",
+    "IT Support Analyst",
+    "Help Desk Technician",
+    "Help Desk Analyst",
+    "IT Help Desk Specialist",
+    "Service Desk Analyst",
+    "Service Desk Technician",
+    "IT Service Desk Agent",
+    "IT Technician",
+    "1st Line Support Analyst",
+    "First Line Support Engineer",
+    "L1 Support Engineer",
+    "IT-Supporter"
+   ],
+   "fields": [
+    "IT Support",
+    "Information Technology",
+    "Help Desk",
+    "Service Desk"
+   ]
+  },
+  "desktop-support": {
+   "titles": [
+    "Desktop Support Technician",
+    "Desktop Support Engineer",
+    "Desktop Support Specialist",
+    "Desktop Support Analyst",
+    "Desktop Engineer",
+    "Desktop Technician",
+    "Deskside Support Technician",
+    "Deskside Support Engineer",
+    "End User Support Technician",
+    "PC Technician",
+    "Computer Technician"
+   ],
+   "fields": [
+    "Desktop Support",
+    "End User Support"
+   ]
+  },
+  "endpoint-engineer": {
+   "titles": [
+    "Endpoint Engineer",
+    "Endpoint Management Engineer",
+    "Endpoint Administrator",
+    "Intune Engineer",
+    "SCCM Engineer",
+    "MECM Engineer",
+    "Modern Workplace Engineer",
+    "End User Computing Engineer",
+    "EUC Engineer",
+    "Workplace Engineer",
+    "Client Engineer",
+    "MDM Engineer",
+    "MDM Administrator",
+    "Jamf Administrator",
+    "Device Management Engineer"
+   ],
+   "fields": [
+    "Endpoint Management",
+    "End User Computing",
+    "Modern Workplace"
+   ]
+  },
+  "telecom-engineer": {
+   "titles": [
+    "Telecom Engineer",
+    "Telecommunications Engineer",
+    "Telecom Technician",
+    "Telecommunications Technician",
+    "Telecom Network Engineer",
+    "Telecom Specialist",
+    "Telecommunications Specialist",
+    "Telecom Analyst",
+    "Circuit Provisioning Engineer",
+    "Transmission Engineer",
+    "PBX Technician"
+   ],
+   "fields": [
+    "Telecommunications",
+    "Telecom",
+    "Telecommunications Engineering"
+   ]
+  },
+  "voip-engineer": {
+   "titles": [
+    "VoIP Engineer",
+    "Voice Engineer",
+    "Voice Network Engineer",
+    "VoIP Administrator",
+    "VoIP Technician",
+    "VoIP Support Engineer",
+    "Voice over IP Engineer",
+    "IP Telephony Engineer",
+    "Telephony Engineer",
+    "Cisco Voice Engineer",
+    "CUCM Engineer",
+    "SIP Engineer"
+   ],
+   "fields": [
+    "VoIP"
+   ]
+  },
+  "uc-engineer": {
+   "titles": [
+    "Unified Communications Engineer",
+    "UC Engineer",
+    "Unified Communications Specialist",
+    "Unified Communications Administrator",
+    "UC Administrator",
+    "Collaboration Engineer",
+    "Cisco Collaboration Engineer",
+    "Collaboration Systems Engineer",
+    "Microsoft Teams Engineer",
+    "Teams Voice Engineer",
+    "Contact Center Engineer",
+    "Video Conferencing Engineer"
+   ],
+   "fields": [
+    "Unified Communications"
+   ]
+  },
+  "wireless-engineer": {
+   "titles": [
+    "Wireless Network Engineer",
+    "Wireless Engineer",
+    "WLAN Engineer",
+    "Wireless LAN Engineer",
+    "Wi-Fi Engineer",
+    "WiFi Engineer",
+    "Wireless Network Specialist",
+    "Wireless Network Administrator",
+    "Wireless Design Engineer"
+   ],
+   "fields": [
+    "Wireless Networking"
+   ]
+  },
+  "rf-engineer": {
+   "titles": [
+    "RF Engineer",
+    "Radio Frequency Engineer",
+    "RF Design Engineer",
+    "RF Systems Engineer",
+    "RF Optimization Engineer",
+    "RF Planning Engineer",
+    "Radio Network Engineer",
+    "RAN Engineer",
+    "Radio Access Network Engineer",
+    "Drive Test Engineer",
+    "Antenna Engineer",
+    "Hochfrequenzingenieur"
+   ],
+   "fields": [
+    "RF Engineering",
+    "Radio Frequency Engineering",
+    "Wireless Communications"
+   ]
+  },
+  "datacenter-tech": {
+   "titles": [
+    "Datacenter Technician",
+    "Data Center Technician",
+    "Data Centre Technician",
+    "Data Center Operations Technician",
+    "Data Center Hardware Technician",
+    "Data Center Infrastructure Technician",
+    "DC Technician",
+    "Server Technician",
+    "Smart Hands Technician",
+    "Rack and Stack Technician"
+   ],
+   "fields": [
+    "Data Center Operations",
+    "Data Center",
+    "Data Centre"
+   ]
+  },
+  "noc-engineer": {
+   "titles": [
+    "NOC Engineer",
+    "NOC Technician",
+    "NOC Analyst",
+    "NOC Specialist",
+    "NOC Support Engineer",
+    "Network Operations Center Engineer",
+    "Network Operations Center Technician",
+    "Network Operations Engineer",
+    "Network Operations Analyst",
+    "Network Operations Technician",
+    "Network Monitoring Engineer"
+   ],
+   "fields": [
+    "Network Operations"
+   ]
+  },
+  "network-automation-engineer": {
+   "titles": [
+    "Network Automation Engineer",
+    "Network Automation Developer",
+    "Network Automation Specialist",
+    "NetDevOps Engineer",
+    "Network DevOps Engineer",
+    "Network Development Engineer",
+    "Network Reliability Engineer",
+    "Network Programmability Engineer"
+   ],
+   "fields": [
+    "Network Automation"
+   ]
+  },
+  "field-service-tech": {
+   "titles": [
+    "Field Service Technician",
+    "Field Service Engineer",
+    "Field Technician",
+    "IT Field Technician",
+    "IT Field Engineer",
+    "Field Support Technician",
+    "Field Support Engineer",
+    "Onsite Support Technician",
+    "On-Site IT Technician"
+   ],
+   "fields": [
+    "Field Service"
+   ]
+  },
+  "it-ops-manager": {
+   "titles": [
+    "IT Operations Manager",
+    "Manager, IT Operations",
+    "IT Manager",
+    "IT Infrastructure Manager",
+    "Infrastructure Operations Manager",
+    "IT Service Manager",
+    "IT Services Manager",
+    "IT Service Delivery Manager",
+    "IT Support Manager",
+    "Service Desk Manager",
+    "Technology Operations Manager",
+    "Head of IT Operations",
+    "IT-Leiter"
+   ],
+   "fields": []
+  },
+  "network-security-engineer": {
+   "titles": [
+    "Network Security Engineer",
+    "Network Security Specialist",
+    "Network Security Administrator",
+    "Network Security Analyst",
+    "Firewall Engineer",
+    "Firewall Administrator",
+    "Perimeter Security Engineer",
+    "Network Security Consultant",
+    "IDS/IPS Engineer",
+    "VPN Engineer"
+   ],
+   "fields": [
+    "Network Security"
+   ]
+  },
+  "qa": {
+   "titles": [
+    "QA Engineer",
+    "Quality Assurance Engineer",
+    "Software QA Engineer",
+    "Software Quality Assurance Engineer",
+    "Software Quality Engineer",
+    "QA Test Engineer",
+    "Test Engineer",
+    "Software Test Engineer",
+    "Software Testing Engineer",
+    "Testing Engineer",
+    "Software Tester",
+    "Softwaretester",
+    "Testingenieur"
+   ],
+   "fields": [
+    "Quality Assurance",
+    "QA",
+    "Software Testing",
+    "Software Quality Assurance",
+    "Testing",
+    "Qualitätssicherung"
+   ]
+  },
+  "sdet": {
+   "titles": [
+    "Software Development Engineer in Test (SDET)",
+    "SDET",
+    "Software Development Engineer in Test",
+    "SDE in Test",
+    "SDE-T",
+    "Software Development Engineer - Test",
+    "Software Engineer in Test",
+    "Software Developer in Test",
+    "Developer in Test",
+    "SDET Engineer",
+    "Test Developer"
+   ],
+   "fields": []
+  },
+  "test-automation-eng": {
+   "titles": [
+    "Test Automation Engineer",
+    "QA Automation Engineer",
+    "Automation Test Engineer",
+    "Automation QA Engineer",
+    "Automation Testing Engineer",
+    "Automation Tester",
+    "QA Automation Tester",
+    "Test Automation Developer",
+    "Test Automation Specialist",
+    "Selenium Automation Engineer",
+    "Selenium Tester",
+    "Testautomatisierer"
+   ],
+   "fields": [
+    "Test Automation",
+    "QA Automation",
+    "Automation Testing"
+   ]
+  },
+  "performance-test-eng": {
+   "titles": [
+    "Performance / Load Test Engineer",
+    "Performance Test Engineer",
+    "Performance Testing Engineer",
+    "Performance Tester",
+    "Performance Test Analyst",
+    "Performance Test Specialist",
+    "Performance QA Engineer",
+    "Performance Engineer",
+    "Load Test Engineer",
+    "Load and Performance Test Engineer",
+    "Non-Functional Test Engineer",
+    "JMeter Performance Tester",
+    "LoadRunner Performance Engineer"
+   ],
+   "fields": [
+    "Performance Testing",
+    "Load Testing"
+   ]
+  },
+  "manual-qa": {
+   "titles": [
+    "Manual QA Tester",
+    "Manual Tester",
+    "Manual Test Engineer",
+    "Manual Testing Engineer",
+    "Manual QA Engineer",
+    "Manual QA Analyst",
+    "Manual Software Tester",
+    "QA Tester",
+    "Quality Assurance Tester",
+    "Functional Tester",
+    "Functional Test Engineer",
+    "Regression Tester",
+    "Testing Executive"
+   ],
+   "fields": [
+    "Manual Testing"
+   ]
+  },
+  "qa-lead": {
+   "titles": [
+    "QA Lead",
+    "Quality Assurance Lead",
+    "QA Team Lead",
+    "Test Lead",
+    "Test Team Lead",
+    "Testing Lead",
+    "Software Test Lead",
+    "QA Test Lead",
+    "QA Automation Lead",
+    "Lead QA Engineer",
+    "Lead Test Engineer",
+    "Lead QA Analyst"
+   ],
+   "fields": []
+  },
+  "qa-manager": {
+   "titles": [
+    "Quality Assurance Manager",
+    "QA Manager",
+    "Manager, Quality Assurance",
+    "QA Engineering Manager",
+    "Quality Engineering Manager",
+    "Software QA Manager",
+    "Software Quality Manager",
+    "Test Manager",
+    "Testing Manager",
+    "Testmanager",
+    "Head of QA",
+    "Head of Quality Assurance",
+    "Head of Testing",
+    "Director of QA"
+   ],
+   "fields": []
+  },
+  "game-qa": {
+   "titles": [
+    "Game QA Tester",
+    "Game Tester",
+    "Games Tester",
+    "Video Game Tester",
+    "Video Game QA Tester",
+    "Games QA Tester",
+    "Game Test Analyst",
+    "Game QA Analyst",
+    "Game QA Engineer",
+    "Functionality QA Tester",
+    "Compliance QA Tester",
+    "Game Quality Assurance Tester",
+    "Spieletester"
+   ],
+   "fields": [
+    "Game QA",
+    "Game Testing",
+    "Games Testing"
+   ]
+  },
+  "qa-analyst": {
+   "titles": [
+    "QA Analyst",
+    "Quality Assurance Analyst",
+    "Quality Analyst",
+    "Test Analyst",
+    "Software Test Analyst",
+    "QA Test Analyst",
+    "Software QA Analyst",
+    "Functional Test Analyst",
+    "Functional QA Analyst",
+    "Software Quality Analyst",
+    "UAT Analyst",
+    "Testanalyst"
+   ],
+   "fields": [
+    "Test Analysis"
+   ]
+  },
+  "mobile-qa": {
+   "titles": [
+    "Mobile QA Engineer",
+    "Mobile Tester",
+    "Mobile App Tester",
+    "Mobile Application Tester",
+    "Mobile Test Engineer",
+    "Mobile Testing Engineer",
+    "Mobile QA Tester",
+    "Mobile QA Analyst",
+    "Mobile App QA Engineer",
+    "iOS QA Engineer",
+    "Android QA Engineer",
+    "iOS Tester",
+    "Android Tester"
+   ],
+   "fields": [
+    "Mobile Testing",
+    "Mobile QA",
+    "Mobile App Testing"
+   ]
+  },
+  "api-test-eng": {
+   "titles": [
+    "API Test Engineer",
+    "API Tester",
+    "API Testing Engineer",
+    "API QA Engineer",
+    "API Automation Tester",
+    "API Automation Test Engineer",
+    "Backend QA Engineer",
+    "Backend Test Engineer",
+    "Web Services Tester",
+    "Integration Test Engineer",
+    "Microservices QA Engineer"
+   ],
+   "fields": [
+    "API Testing"
+   ]
+  },
+  "test-architect": {
+   "titles": [
+    "Test Architect",
+    "QA Architect",
+    "Test Automation Architect",
+    "Automation Test Architect",
+    "QA Automation Architect",
+    "Automation Architect",
+    "Quality Architect",
+    "Quality Engineering Architect",
+    "Software Test Architect",
+    "Testarchitekt"
+   ],
+   "fields": []
+  },
+  "accessibility-tester": {
+   "titles": [
+    "Accessibility Test Engineer",
+    "Accessibility Tester",
+    "Accessibility Testing Engineer",
+    "Accessibility QA Engineer",
+    "Accessibility QA Analyst",
+    "Digital Accessibility Tester",
+    "Accessibility Auditor",
+    "Accessibility Analyst",
+    "Section 508 Tester",
+    "508 Compliance Tester",
+    "Trusted Tester"
+   ],
+   "fields": [
+    "Accessibility Testing"
+   ]
+  },
+  "game-qa-lead": {
+   "titles": [
+    "Game QA Lead",
+    "Games QA Lead",
+    "Game Test Lead",
+    "Games Test Lead",
+    "Lead Game Tester",
+    "Video Game QA Lead",
+    "Game QA Manager",
+    "Game QA Supervisor"
+   ],
+   "fields": []
+  },
+  "localization-qa": {
+   "titles": [
+    "Localization QA Tester (LQA)",
+    "Localization QA Tester",
+    "LQA Tester",
+    "Localization Tester",
+    "Localisation Tester",
+    "Localisation QA Tester",
+    "Localization QA Analyst",
+    "Linguistic QA Tester",
+    "Linguistic Tester",
+    "Linguistic Quality Assurance Tester",
+    "Language QA Tester",
+    "LQA Specialist",
+    "Game Localization Tester",
+    "Localization Test Engineer"
+   ],
+   "fields": [
+    "Localization QA",
+    "Localization Testing",
+    "Linguistic QA",
+    "LQA"
+   ]
+  },
+  "pm": {
+   "titles": [
+    "Product Manager",
+    "PM",
+    "Produktmanager",
+    "Software Product Manager",
+    "Digital Product Manager",
+    "SaaS Product Manager",
+    "B2B Product Manager",
+    "Consumer Product Manager",
+    "E-commerce Product Manager",
+    "Web Product Manager",
+    "IT Product Manager"
+   ],
+   "fields": [
+    "Product Management",
+    "Product",
+    "Produktmanagement"
+   ]
+  },
+  "associate-pm": {
+   "titles": [
+    "Associate Product Manager",
+    "APM",
+    "Rotational Product Manager",
+    "Assistant Product Manager",
+    "Product Management Trainee",
+    "Product Manager Trainee",
+    "Product Trainee",
+    "Product Management Apprentice",
+    "Trainee Produktmanagement"
+   ],
+   "fields": []
+  },
+  "senior-pm": {
+   "titles": [
+    "Senior Product Manager",
+    "Lead Product Manager",
+    "Lead PM",
+    "Product Lead"
+   ],
+   "fields": []
+  },
+  "technical-pm": {
+   "titles": [
+    "Technical Product Manager",
+    "Technical PM",
+    "Product Manager - Technical",
+    "PM-T",
+    "PMT",
+    "Technischer Produktmanager"
+   ],
+   "fields": [
+    "Technical Product Management"
+   ]
+  },
+  "group-pm": {
+   "titles": [
+    "Group Product Manager",
+    "GPM",
+    "Group PM",
+    "Manager, Product Management",
+    "Product Group Manager"
+   ],
+   "fields": []
+  },
+  "principal-pm": {
+   "titles": [
+    "Principal Product Manager",
+    "Principal PM",
+    "Principal Product Lead"
+   ],
+   "fields": []
+  },
+  "director-product": {
+   "titles": [
+    "Director of Product Management",
+    "Director of Product",
+    "Product Director",
+    "Director, Product Management",
+    "Director, Product",
+    "Product Management Director",
+    "Head of Product Management",
+    "Leiter Produktmanagement"
+   ],
+   "fields": []
+  },
+  "vp-product": {
+   "titles": [
+    "VP of Product",
+    "VP Product",
+    "VP of Product Management",
+    "VP Product Management",
+    "SVP of Product",
+    "SVP Product",
+    "Head of Product"
+   ],
+   "fields": []
+  },
+  "cpo": {
+   "titles": [
+    "Chief Product Officer",
+    "CPO",
+    "Chief Product & Technology Officer",
+    "CPTO"
+   ],
+   "fields": []
+  },
+  "product-owner": {
+   "titles": [
+    "Product Owner",
+    "PO",
+    "Technical Product Owner",
+    "Digital Product Owner",
+    "Business Product Owner",
+    "Agile Product Owner",
+    "IT Product Owner",
+    "Scrum Product Owner",
+    "SAFe Product Owner",
+    "Proxy Product Owner"
+   ],
+   "fields": []
+  },
+  "growth-pm": {
+   "titles": [
+    "Growth Product Manager",
+    "Growth PM",
+    "Product Manager, Growth",
+    "Growth Product Lead",
+    "Growth Product Owner",
+    "Monetization Product Manager",
+    "Product Manager, Monetization",
+    "Retention Product Manager",
+    "Acquisition Product Manager"
+   ],
+   "fields": [
+    "Growth Product Management",
+    "Product Growth"
+   ]
+  },
+  "platform-pm": {
+   "titles": [
+    "Platform Product Manager",
+    "Platform PM",
+    "Product Manager, Platform",
+    "Platform Product Owner",
+    "Developer Platform Product Manager",
+    "Product Manager, Developer Platform",
+    "Infrastructure Product Manager",
+    "Product Manager, Infrastructure",
+    "Developer Tools Product Manager",
+    "Product Manager, Developer Tools",
+    "Cloud Platform Product Manager",
+    "SDK Product Manager"
+   ],
+   "fields": [
+    "Platform Product Management"
+   ]
+  },
+  "data-pm": {
+   "titles": [
+    "Data Product Manager",
+    "Data PM",
+    "Product Manager, Data",
+    "Data Product Owner",
+    "Data Product Lead",
+    "Data Platform Product Manager",
+    "Product Manager, Data Platform",
+    "Analytics Product Manager",
+    "Product Manager, Analytics",
+    "Data & Analytics Product Manager"
+   ],
+   "fields": [
+    "Data Product Management"
+   ]
+  },
+  "ai-pm": {
+   "titles": [
+    "AI Product Manager",
+    "AI PM",
+    "ML Product Manager",
+    "Machine Learning Product Manager",
+    "AI/ML Product Manager",
+    "Artificial Intelligence Product Manager",
+    "Product Manager, AI",
+    "Product Manager, Machine Learning",
+    "Product Manager - AI/ML",
+    "AI Product Owner"
+   ],
+   "fields": [
+    "AI Product Management",
+    "ML Product Management"
+   ]
+  },
+  "product-ops": {
+   "titles": [
+    "Product Operations Manager",
+    "Product Ops Manager",
+    "Product Operations Specialist",
+    "Product Ops Specialist",
+    "Product Operations Lead",
+    "Product Ops Lead",
+    "Product Operations Analyst",
+    "Product Operations Coordinator",
+    "ProdOps Manager",
+    "Head of Product Operations"
+   ],
+   "fields": [
+    "Product Operations",
+    "Product Ops"
+   ]
+  },
+  "api-pm": {
+   "titles": [
+    "API Product Manager",
+    "API PM",
+    "Product Manager, API",
+    "Product Manager - APIs",
+    "API Platform Product Manager",
+    "API Product Owner",
+    "Integrations Product Manager",
+    "Product Manager, Integrations"
+   ],
+   "fields": [
+    "API Product Management"
+   ]
+  },
+  "payments-pm": {
+   "titles": [
+    "Payments Product Manager",
+    "Payments PM",
+    "Product Manager, Payments",
+    "Payment Product Manager",
+    "Digital Payments Product Manager",
+    "Fintech Product Manager",
+    "Product Manager, Fintech",
+    "Checkout Product Manager",
+    "Product Manager, Checkout",
+    "Billing Product Manager",
+    "Payments Product Owner"
+   ],
+   "fields": [
+    "Payments Product Management",
+    "Fintech Product Management"
+   ]
+  },
+  "security-pm": {
+   "titles": [
+    "Security Product Manager",
+    "Security PM",
+    "Product Manager, Security",
+    "Cybersecurity Product Manager",
+    "Product Manager, Cybersecurity",
+    "Identity Product Manager",
+    "Product Manager, Identity",
+    "Privacy Product Manager",
+    "Security Product Owner"
+   ],
+   "fields": [
+    "Security Product Management"
+   ]
+  },
+  "product-designer": {
+   "titles": [
+    "Product Designer",
+    "Digital Product Designer",
+    "UI/UX Designer",
+    "UX/UI Designer",
+    "UI UX Designer",
+    "UX UI Designer",
+    "Mobile Product Designer",
+    "Mobile App Designer",
+    "App Designer",
+    "UX/UI Product Designer"
+   ],
+   "fields": [
+    "Product Design",
+    "UI/UX Design",
+    "UX/UI Design",
+    "UI UX Design",
+    "UI/UX",
+    "UX/UI"
+   ]
+  },
+  "ux": {
+   "titles": [
+    "UX Designer",
+    "User Experience Designer",
+    "Experience Designer",
+    "UX Specialist",
+    "User Experience Specialist",
+    "UX Consultant",
+    "UX Design Specialist"
+   ],
+   "fields": [
+    "UX Design",
+    "User Experience Design",
+    "User Experience",
+    "UX"
+   ]
+  },
+  "ui-designer": {
+   "titles": [
+    "UI Designer",
+    "User Interface Designer",
+    "Interface Designer",
+    "Web UI Designer",
+    "Mobile UI Designer",
+    "GUI Designer",
+    "UI Visual Designer",
+    "Web Designer",
+    "Game UI Designer",
+    "UI Artist",
+    "HMI Designer"
+   ],
+   "fields": [
+    "UI Design",
+    "User Interface Design",
+    "Web Design"
+   ]
+  },
+  "ux-researcher": {
+   "titles": [
+    "UX Researcher",
+    "User Researcher",
+    "User Experience Researcher",
+    "Design Researcher",
+    "UX Research Specialist",
+    "UX Research Analyst",
+    "UX Research Scientist",
+    "Quantitative UX Researcher",
+    "Usability Researcher",
+    "Usability Specialist",
+    "Usability Analyst",
+    "Mixed Methods Researcher"
+   ],
+   "fields": [
+    "UX Research",
+    "User Research",
+    "User Experience Research",
+    "Design Research"
+   ]
+  },
+  "design-systems-designer": {
+   "titles": [
+    "Design Systems Designer",
+    "Design System Designer",
+    "Design Systems Product Designer",
+    "Product Designer, Design Systems",
+    "UI Designer, Design Systems",
+    "Design Systems Specialist",
+    "Design Systems Lead",
+    "UI Systems Designer"
+   ],
+   "fields": [
+    "Design Systems"
+   ]
+  },
+  "interaction-designer": {
+   "titles": [
+    "Interaction Designer",
+    "IxD Designer",
+    "UX Interaction Designer",
+    "Interaction Design Specialist",
+    "Interaktionsdesigner",
+    "UX Prototyper",
+    "Prototyper"
+   ],
+   "fields": [
+    "Interaction Design",
+    "IxD"
+   ]
+  },
+  "service-designer": {
+   "titles": [
+    "Service Designer",
+    "Service Design Consultant",
+    "Service Design Specialist",
+    "Service Design Strategist",
+    "Customer Experience Designer",
+    "CX Designer"
+   ],
+   "fields": [
+    "Service Design",
+    "Customer Experience Design"
+   ]
+  },
+  "content-designer": {
+   "titles": [
+    "Content Designer / UX Writer",
+    "Content Designer",
+    "UX Writer",
+    "UX Content Designer",
+    "Product Content Designer",
+    "UX Copywriter",
+    "Product Writer",
+    "Product Copywriter",
+    "UX Content Strategist",
+    "UX Texter"
+   ],
+   "fields": [
+    "UX Writing",
+    "Content Design",
+    "UX Content"
+   ]
+  },
+  "design-manager": {
+   "titles": [
+    "Design Manager",
+    "Product Design Manager",
+    "UX Design Manager",
+    "UX Manager",
+    "User Experience Manager",
+    "Manager, Product Design",
+    "Experience Design Manager",
+    "UX Research Manager"
+   ],
+   "fields": []
+  },
+  "bioinformatics-eng": {
+   "titles": [
+    "Bioinformatics Engineer",
+    "Bioinformatics Software Engineer",
+    "Bioinformatics Developer",
+    "Bioinformatics Pipeline Engineer",
+    "Bioinformatics Data Engineer",
+    "Bioinformatics Platform Engineer",
+    "Bioinformatics Programmer",
+    "Genomics Data Engineer",
+    "Genomics Software Engineer",
+    "NGS Pipeline Engineer",
+    "Research Software Engineer (Bioinformatics)"
+   ],
+   "fields": [
+    "Bioinformatics",
+    "Bioinformatics Engineering",
+    "Genomics Software"
+   ]
+  },
+  "fpga-eng": {
+   "titles": [
+    "FPGA Engineer",
+    "FPGA Design Engineer",
+    "FPGA Developer",
+    "Hardware Design Engineer",
+    "Hardware Engineer",
+    "RTL Design Engineer",
+    "RTL Engineer",
+    "Digital Design Engineer",
+    "ASIC Design Engineer",
+    "Digital IC Design Engineer",
+    "VLSI Design Engineer",
+    "Logic Design Engineer",
+    "Chip Design Engineer",
+    "FPGA-Entwickler",
+    "Hardwareentwickler"
+   ],
+   "fields": [
+    "FPGA",
+    "VLSI",
+    "Hardware Design",
+    "Hardware Engineering",
+    "Digital Design",
+    "RTL Design"
+   ]
+  },
+  "asic-verification-eng": {
+   "titles": [
+    "Design Verification Engineer",
+    "DV Engineer",
+    "ASIC Verification Engineer",
+    "Verification Engineer",
+    "SoC Verification Engineer",
+    "IP Verification Engineer",
+    "UVM Verification Engineer",
+    "Functional Verification Engineer",
+    "Pre-Silicon Verification Engineer",
+    "Hardware Verification Engineer",
+    "VLSI Verification Engineer",
+    "Chip Verification Engineer",
+    "Verifikationsingenieur"
+   ],
+   "fields": [
+    "Design Verification",
+    "ASIC Verification",
+    "Hardware Verification",
+    "VLSI Verification"
+   ]
+  },
+  "dba": {
+   "titles": [
+    "Database Administrator",
+    "DBA",
+    "Database Engineer",
+    "Database Reliability Engineer",
+    "DBRE",
+    "Oracle DBA",
+    "SQL Server DBA",
+    "PostgreSQL DBA",
+    "MySQL DBA",
+    "Cloud DBA",
+    "Oracle Database Administrator",
+    "Database Specialist",
+    "Datenbankadministrator"
+   ],
+   "fields": [
+    "Database Administration",
+    "Database Management",
+    "Databases"
+   ]
+  },
+  "sap-consultant": {
+   "titles": [
+    "SAP Consultant",
+    "SAP ABAP Developer",
+    "ABAP Developer",
+    "SAP Functional Consultant",
+    "SAP Technical Consultant",
+    "SAP FICO Consultant",
+    "SAP MM Consultant",
+    "SAP SD Consultant",
+    "SAP S/4HANA Consultant",
+    "SAP Basis Consultant",
+    "SAP Fiori Developer",
+    "SAP Analyst",
+    "ERP Consultant",
+    "ERP Developer",
+    "SAP-Berater"
+   ],
+   "fields": [
+    "SAP",
+    "ERP",
+    "SAP Consulting"
+   ]
+  },
+  "salesforce-dev": {
+   "titles": [
+    "Salesforce Developer",
+    "SFDC Developer",
+    "Salesforce Engineer",
+    "Apex Developer",
+    "Salesforce Platform Developer",
+    "Salesforce LWC Developer",
+    "Salesforce CRM Developer",
+    "Salesforce Technical Consultant",
+    "Salesforce Consultant",
+    "Salesforce Administrator",
+    "Salesforce Admin",
+    "Salesforce Commerce Cloud Developer",
+    "Salesforce Marketing Cloud Developer"
+   ],
+   "fields": [
+    "Salesforce",
+    "Salesforce Development",
+    "CRM"
+   ]
+  },
+  "servicenow-dev": {
+   "titles": [
+    "ServiceNow Developer",
+    "ServiceNow Engineer",
+    "ServiceNow Platform Developer",
+    "ServiceNow Administrator",
+    "ServiceNow Admin",
+    "ServiceNow Consultant",
+    "ServiceNow Technical Consultant",
+    "ServiceNow ITSM Developer",
+    "ServiceNow ITOM Developer",
+    "SNOW Developer"
+   ],
+   "fields": [
+    "ServiceNow"
+   ]
+  },
+  "rpa-dev": {
+   "titles": [
+    "RPA Developer",
+    "Automation Developer",
+    "RPA Engineer",
+    "UiPath Developer",
+    "Automation Anywhere Developer",
+    "Blue Prism Developer",
+    "Power Automate Developer",
+    "Intelligent Automation Developer",
+    "Process Automation Developer",
+    "Hyperautomation Developer",
+    "RPA Analyst",
+    "RPA Consultant"
+   ],
+   "fields": [
+    "RPA",
+    "Robotic Process Automation",
+    "Intelligent Automation",
+    "Process Automation"
+   ]
+  },
+  "lowcode-dev": {
+   "titles": [
+    "Low-Code Developer",
+    "Low-Code Engineer",
+    "Low-Code Application Developer",
+    "No-Code Developer",
+    "Power Apps Developer",
+    "Power Platform Developer",
+    "Power Platform Consultant",
+    "OutSystems Developer",
+    "Mendix Developer",
+    "Appian Developer",
+    "Pega Developer"
+   ],
+   "fields": [
+    "Low-Code Development",
+    "Power Platform",
+    "No-Code"
+   ]
+  },
+  "gis-eng": {
+   "titles": [
+    "GIS Engineer",
+    "GIS Developer",
+    "Geospatial Developer",
+    "Geospatial Engineer",
+    "Geospatial Software Engineer",
+    "GIS Analyst",
+    "GIS Specialist",
+    "GIS Programmer",
+    "Geospatial Analyst",
+    "Remote Sensing Engineer",
+    "Remote Sensing Analyst",
+    "Geospatial Data Engineer",
+    "Geoinformatiker"
+   ],
+   "fields": [
+    "GIS",
+    "Geospatial",
+    "Geographic Information Systems",
+    "Remote Sensing",
+    "Geoinformatics"
+   ]
+  },
+  "cae-simulation-eng": {
+   "titles": [
+    "Simulation Engineer",
+    "CAE Engineer",
+    "CAE Analyst",
+    "FEA Engineer",
+    "FEA Analyst",
+    "CFD Engineer",
+    "CFD Analyst",
+    "Computational Engineer",
+    "Multiphysics Simulation Engineer",
+    "Crash Simulation Engineer",
+    "Structural Simulation Engineer",
+    "Berechnungsingenieur",
+    "Simulationsingenieur"
+   ],
+   "fields": [
+    "Simulation",
+    "CAE",
+    "CFD",
+    "FEA",
+    "Computational Engineering"
+   ]
+  },
+  "dsp-eng": {
+   "titles": [
+    "DSP Engineer",
+    "DSP Software Engineer",
+    "Audio Software Engineer",
+    "Audio DSP Engineer",
+    "Signal Processing Engineer",
+    "Digital Signal Processing Engineer",
+    "DSP Algorithm Engineer",
+    "Audio Algorithm Engineer",
+    "Audio Plugin Developer",
+    "Audio Developer",
+    "Audio Software Developer"
+   ],
+   "fields": [
+    "Signal Processing",
+    "Digital Signal Processing",
+    "DSP",
+    "Audio Software"
+   ]
+  },
+  "iot-eng": {
+   "titles": [
+    "IoT Engineer",
+    "IoT Developer",
+    "IoT Software Engineer",
+    "IoT Application Developer",
+    "IoT Cloud Engineer",
+    "IoT Platform Engineer",
+    "IoT Systems Engineer",
+    "Industrial IoT Engineer",
+    "IIoT Engineer",
+    "Connected Devices Engineer",
+    "Internet of Things Engineer",
+    "IoT-Entwickler"
+   ],
+   "fields": [
+    "IoT",
+    "Internet of Things",
+    "Industrial IoT"
+   ]
+  },
+  "developer-advocate": {
+   "titles": [
+    "Developer Advocate",
+    "Developer Evangelist",
+    "Technical Evangelist",
+    "Technology Evangelist",
+    "DevRel Engineer",
+    "Developer Relations Engineer",
+    "Developer Relations Advocate",
+    "Developer Relations Specialist",
+    "Dev Advocate",
+    "Developer Educator",
+    "Community Developer Advocate"
+   ],
+   "fields": [
+    "Developer Relations",
+    "DevRel",
+    "Developer Advocacy"
+   ]
+  },
+  "devrel-manager": {
+   "titles": [
+    "Developer Relations Manager",
+    "DevRel Manager",
+    "Head of Developer Relations",
+    "Developer Community Manager",
+    "Developer Programs Manager",
+    "Developer Advocacy Manager",
+    "Developer Ecosystem Manager",
+    "Developer Marketing Manager"
+   ],
+   "fields": []
+  },
+  "technical-writer": {
+   "titles": [
+    "Technical Writer",
+    "Tech Writer",
+    "Technical Author",
+    "Documentation Engineer",
+    "Documentation Specialist",
+    "Documentation Writer",
+    "API Technical Writer",
+    "API Documentation Writer",
+    "Information Developer",
+    "Technical Communicator",
+    "Technical Content Writer",
+    "Programmer Writer",
+    "Docs Engineer",
+    "Technischer Redakteur"
+   ],
+   "fields": [
+    "Technical Writing",
+    "Technical Documentation",
+    "Documentation",
+    "Technical Communication"
+   ]
+  },
+  "sales-engineer": {
+   "titles": [
+    "Sales Engineer",
+    "Pre-Sales Engineer",
+    "Presales Consultant",
+    "Technical Sales Engineer",
+    "Technical Pre-Sales Consultant",
+    "Presales Specialist",
+    "Technical Sales Specialist",
+    "Pre-Sales Systems Engineer",
+    "Sales Engineering Specialist",
+    "Vertriebsingenieur"
+   ],
+   "fields": [
+    "Sales Engineering",
+    "Pre-Sales",
+    "Technical Sales"
+   ]
+  },
+  "solutions-engineer": {
+   "titles": [
+    "Solutions Engineer",
+    "Solution Engineer",
+    "Solutions Consultant",
+    "Solution Consultant",
+    "Technical Solutions Consultant",
+    "Technical Solutions Engineer",
+    "Customer Solutions Engineer",
+    "Partner Solutions Engineer",
+    "Field Solutions Engineer",
+    "Solutions Specialist"
+   ],
+   "fields": [
+    "Solutions Engineering",
+    "Solutions Consulting"
+   ]
+  },
+  "support-engineer": {
+   "titles": [
+    "Technical Support Engineer",
+    "Support Engineer",
+    "TSE",
+    "Product Support Engineer",
+    "Customer Support Engineer",
+    "Software Support Engineer",
+    "Application Support Engineer",
+    "Application Support Analyst",
+    "Production Support Engineer",
+    "Cloud Support Engineer",
+    "Escalation Engineer",
+    "L2 Support Engineer",
+    "Technical Support Analyst"
+   ],
+   "fields": [
+    "Technical Support",
+    "Application Support",
+    "Product Support"
+   ]
+  },
+  "tech-account-manager": {
+   "titles": [
+    "Technical Account Manager",
+    "TAM",
+    "Technical Account Engineer",
+    "Enterprise Technical Account Manager",
+    "Strategic Technical Account Manager",
+    "Technical Account Specialist",
+    "Technical Relationship Manager",
+    "Technical Customer Manager",
+    "Technischer Account Manager"
+   ],
+   "fields": [
+    "Technical Account Management"
+   ]
+  },
+  "implementation-engineer": {
+   "titles": [
+    "Implementation Engineer",
+    "Implementation Consultant",
+    "Implementation Specialist",
+    "Implementation Analyst",
+    "Technical Implementation Engineer",
+    "Customer Implementation Engineer",
+    "Solutions Implementation Engineer",
+    "Onboarding Engineer",
+    "Technical Onboarding Engineer",
+    "Professional Services Engineer",
+    "Professional Services Consultant"
+   ],
+   "fields": [
+    "Implementation",
+    "Professional Services",
+    "Customer Onboarding"
+   ]
+  },
+  "customer-success-engineer": {
+   "titles": [
+    "Customer Success Engineer",
+    "CSE",
+    "Technical Customer Success Manager",
+    "Technical CSM",
+    "Technical Success Manager",
+    "Customer Success Architect",
+    "Technical Customer Success Engineer",
+    "Customer Success Manager",
+    "Customer Success Specialist"
+   ],
+   "fields": [
+    "Customer Success"
+   ]
+  },
+  "scrum-master": {
+   "titles": [
+    "Scrum Master",
+    "Agile Scrum Master",
+    "Agile Delivery Manager",
+    "Iteration Manager",
+    "Agile Team Coach",
+    "Release Train Engineer",
+    "RTE",
+    "Agile Project Facilitator",
+    "Scrum Team Facilitator"
+   ],
+   "fields": [
+    "Scrum",
+    "Agile",
+    "Agile Project Management"
+   ]
+  },
+  "agile-coach": {
+   "titles": [
+    "Agile Coach",
+    "Enterprise Agile Coach",
+    "Agile Transformation Coach",
+    "Agile Transformation Consultant",
+    "Agile Consultant",
+    "Lean-Agile Coach",
+    "SAFe Program Consultant",
+    "SPC",
+    "Business Agility Coach",
+    "Ways of Working Coach",
+    "Kanban Coach",
+    "Agile Coach & Trainer"
+   ],
+   "fields": []
+  },
+  "technical-program-manager": {
+   "titles": [
+    "Technical Program Manager",
+    "TPM",
+    "Technical Programme Manager",
+    "Engineering Program Manager",
+    "EPM",
+    "Technical Project Manager",
+    "Software Program Manager",
+    "Infrastructure Program Manager",
+    "Hardware Program Manager",
+    "Technischer Projektleiter"
+   ],
+   "fields": [
+    "Technical Program Management"
+   ]
+  },
+  "program-manager": {
+   "titles": [
+    "Program Manager",
+    "Programme Manager",
+    "IT Program Manager",
+    "IT Programme Manager",
+    "Programme Delivery Manager",
+    "PgM",
+    "IT Project Manager",
+    "Project Manager",
+    "Delivery Program Manager",
+    "IT-Projektleiter",
+    "Projektmanager IT"
+   ],
+   "fields": [
+    "Program Management",
+    "Project Management",
+    "Programme Management",
+    "Projektmanagement"
+   ]
+  },
+  "data-governance": {
+   "titles": [
+    "Data Governance Manager",
+    "Data Governance Officer",
+    "Data Governance Specialist",
+    "Data Governance Consultant",
+    "Information Governance Manager",
+    "Data Governance and Privacy Manager",
+    "Data Management Manager",
+    "Data Governance Program Manager",
+    "Head of Data Governance"
+   ],
+   "fields": [
+    "Data Governance",
+    "Information Governance"
+   ]
+  },
+  "data-steward": {
+   "titles": [
+    "Data Steward",
+    "Business Data Steward",
+    "Technical Data Steward",
+    "Data Governance Analyst",
+    "Data Quality Analyst",
+    "Master Data Analyst",
+    "Master Data Specialist",
+    "MDM Analyst",
+    "Master Data Management Specialist",
+    "Metadata Analyst",
+    "Data Management Analyst",
+    "Data Custodian",
+    "Stammdatenmanager"
+   ],
+   "fields": [
+    "Data Stewardship",
+    "Master Data Management",
+    "Data Management"
+   ]
+  },
+  "ml-data-lead": {
+   "titles": [
+    "ML Data Lead",
+    "Machine Learning Data Lead",
+    "Training Data Lead",
+    "ML Data Manager",
+    "Training Data Manager",
+    "AI Data Manager",
+    "ML Data Specialist",
+    "AI Training Data Specialist",
+    "Dataset Curation Specialist",
+    "ML Data Strategist",
+    "Data Curation Engineer"
+   ],
+   "fields": []
+  },
+  "labeling-ops-manager": {
+   "titles": [
+    "Data Labeling Operations Manager",
+    "Data Labeling Manager",
+    "Data Annotation Manager",
+    "Annotation Operations Manager",
+    "Labeling Operations Manager",
+    "Data Operations Manager (AI)",
+    "Annotation Program Manager",
+    "Data Annotation Project Manager",
+    "Human Data Operations Manager",
+    "AI Data Operations Manager"
+   ],
+   "fields": [
+    "Data Annotation",
+    "Data Labeling",
+    "Annotation"
+   ]
+  },
+  "technical-recruiter": {
+   "titles": [
+    "Technical Recruiter",
+    "Tech Recruiter",
+    "IT Recruiter",
+    "Engineering Recruiter",
+    "Technical Sourcer",
+    "Technical Sourcing Specialist",
+    "Talent Sourcer",
+    "Recruiter",
+    "Talent Acquisition Specialist",
+    "Talent Acquisition Partner",
+    "Technical Talent Acquisition Partner",
+    "Tech Talent Partner",
+    "Personalberater IT",
+    "Technical Recruitment Consultant"
+   ],
+   "fields": [
+    "Talent Acquisition",
+    "Recruiting",
+    "Recruitment",
+    "Human Resources",
+    "HR"
+   ]
+  },
+  "motion-designer": {
+   "titles": [
+    "Motion Designer",
+    "Motion Graphics Designer",
+    "Motion Graphic Designer",
+    "Motion Graphics Artist",
+    "Motion Artist",
+    "UI Motion Designer",
+    "Product Motion Designer",
+    "Animation Designer",
+    "UI Animator",
+    "2D Animator",
+    "Motion Graphics Animator",
+    "Motion Design Specialist",
+    "Motion Designer & Video Editor"
+   ],
+   "fields": [
+    "Motion Design",
+    "Motion Graphics",
+    "Animation"
+   ]
+  },
+  "visual-designer": {
+   "titles": [
+    "Visual Designer",
+    "Graphic Designer",
+    "Digital Designer",
+    "Visual Communication Designer",
+    "Communication Designer",
+    "Kommunikationsdesigner",
+    "Grafikdesigner",
+    "Mediengestalter Digital und Print",
+    "Marketing Designer",
+    "Creative Designer",
+    "Multimedia Designer",
+    "Visual Design Specialist"
+   ],
+   "fields": [
+    "Graphic Design",
+    "Visual Design",
+    "Visual Communication",
+    "Communication Design"
+   ]
+  },
+  "ux-engineer": {
+   "titles": [
+    "UX Engineer",
+    "UX Developer",
+    "UI/UX Engineer",
+    "UI/UX Developer",
+    "UX/UI Developer",
+    "User Experience Engineer",
+    "User Experience Developer",
+    "Design Technologist",
+    "UX Technologist",
+    "UX Prototyper",
+    "Design Systems Engineer",
+    "Creative Technologist",
+    "Front-End Design Engineer"
+   ],
+   "fields": [
+    "UX Engineering",
+    "UI/UX Development",
+    "Creative Technology"
+   ]
+  },
+  "design-lead": {
+   "titles": [
+    "Lead Product Designer",
+    "Product Design Lead",
+    "Design Lead",
+    "Lead Designer",
+    "Lead UX Designer",
+    "UX Design Lead",
+    "UX Lead",
+    "Lead UI/UX Designer",
+    "Lead UX/UI Designer",
+    "Lead User Experience Designer",
+    "Lead Experience Designer"
+   ],
+   "fields": []
+  },
+  "design-director": {
+   "titles": [
+    "Design Director",
+    "Director of Design",
+    "Director of Product Design",
+    "Product Design Director",
+    "Director, Product Design",
+    "UX Director",
+    "Director of UX",
+    "Director of User Experience",
+    "UX Design Director",
+    "Director of Experience Design",
+    "Experience Design Director",
+    "Creative Director"
+   ],
+   "fields": []
+  },
+  "brand-designer": {
+   "titles": [
+    "Brand Designer",
+    "Brand Identity Designer",
+    "Visual Identity Designer",
+    "Identity Designer",
+    "Brand Design Specialist",
+    "Brand Experience Designer",
+    "Brand Graphic Designer",
+    "Logo Designer",
+    "Corporate Designer",
+    "Corporate Identity Designer",
+    "Art Director",
+    "Illustrator"
+   ],
+   "fields": [
+    "Brand Design",
+    "Brand Identity",
+    "Illustration"
+   ]
+  },
+  "accessibility-designer": {
+   "titles": [
+    "Accessibility Specialist",
+    "Digital Accessibility Specialist",
+    "Web Accessibility Specialist",
+    "Accessibility Consultant",
+    "Accessibility Designer",
+    "Accessibility UX Designer",
+    "Inclusive Designer",
+    "Inclusive Design Specialist",
+    "Accessibility Auditor",
+    "Accessibility Expert",
+    "Section 508 Specialist",
+    "Accessibility Lead"
+   ],
+   "fields": [
+    "Accessibility",
+    "Digital Accessibility",
+    "Inclusive Design"
+   ]
+  },
+  "design-ops": {
+   "titles": [
+    "DesignOps Manager",
+    "Design Operations Manager",
+    "Design Ops Manager",
+    "DesignOps Lead",
+    "Design Operations Lead",
+    "Design Operations Specialist",
+    "DesignOps Specialist",
+    "Design Program Manager",
+    "Head of Design Operations",
+    "Design Operations Coordinator",
+    "Design Producer",
+    "Creative Operations Manager"
+   ],
+   "fields": [
+    "Design Operations",
+    "DesignOps",
+    "Design Program Management"
+   ]
+  },
+  "conversation-designer": {
+   "titles": [
+    "Conversation Designer",
+    "Conversational Designer",
+    "Conversational UX Designer",
+    "Conversational AI Designer",
+    "Conversational Experience Designer",
+    "AI Conversation Designer",
+    "Chatbot Designer",
+    "Voice UX Designer",
+    "VUI Designer",
+    "Voice User Interface Designer",
+    "Voice Interaction Designer",
+    "Dialogue Designer",
+    "Conversation Design Specialist"
+   ],
+   "fields": [
+    "Conversation Design",
+    "Conversational Design",
+    "Conversational UX",
+    "Voice UX"
+   ]
+  },
+  "information-architect": {
+   "titles": [
+    "Information Architect",
+    "UX Information Architect",
+    "Information Architecture Specialist",
+    "Content Architect",
+    "Taxonomist",
+    "Taxonomy Specialist",
+    "Taxonomy Manager",
+    "Ontologist",
+    "Informationsarchitekt"
+   ],
+   "fields": [
+    "Information Architecture",
+    "Taxonomy"
+   ]
+  },
+  "vp-design": {
+   "titles": [
+    "VP of Design",
+    "VP Design",
+    "Vice President of Design",
+    "VP of Product Design",
+    "VP of UX",
+    "VP of User Experience",
+    "Head of Design",
+    "Head of Product Design",
+    "Head of UX",
+    "Global Head of Design",
+    "Chief Design Officer"
+   ],
+   "fields": []
+  },
+  "eng-mgr": {
+   "titles": [
+    "Engineering Manager",
+    "Software Engineering Manager",
+    "Software Development Manager",
+    "SDM",
+    "EM",
+    "Manager, Software Engineering",
+    "Manager, Software Development",
+    "Backend Engineering Manager",
+    "Frontend Engineering Manager",
+    "Mobile Engineering Manager",
+    "Teamleiter Softwareentwicklung",
+    "Teamleitung Softwareentwicklung"
+   ],
+   "fields": []
+  },
+  "senior-eng-mgr": {
+   "titles": [
+    "Senior Engineering Manager",
+    "Group Engineering Manager",
+    "Engineering Group Manager",
+    "Group Software Engineering Manager",
+    "Group Manager, Software Engineering",
+    "Group Manager, Software Development"
+   ],
+   "fields": []
+  },
+  "director-eng": {
+   "titles": [
+    "Director of Engineering",
+    "Engineering Director",
+    "Director, Engineering",
+    "Director of Software Engineering",
+    "Director, Software Engineering",
+    "Software Engineering Director",
+    "Director of Software Development",
+    "Director, Software Development",
+    "Bereichsleiter Softwareentwicklung"
+   ],
+   "fields": []
+  },
+  "vp-eng": {
+   "titles": [
+    "VP of Engineering",
+    "VP Engineering",
+    "VPE",
+    "Vice President of Engineering",
+    "VP of Software Engineering",
+    "VP, Software Engineering",
+    "VP of Software Development",
+    "SVP of Engineering",
+    "VP R&D",
+    "VP of R&D"
+   ],
+   "fields": []
+  },
+  "cto": {
+   "titles": [
+    "Chief Technology Officer",
+    "CTO",
+    "Chief Technical Officer",
+    "Technical Co-Founder",
+    "Co-Founder & CTO",
+    "CTO & Co-Founder",
+    "Fractional CTO",
+    "Interim CTO",
+    "Technischer Geschäftsführer"
+   ],
+   "fields": []
+  },
+  "lead-swe": {
+   "titles": [
+    "Lead Software Engineer",
+    "Lead Software Developer",
+    "Lead Developer",
+    "Lead Engineer",
+    "Software Engineering Lead",
+    "Lead Software Development Engineer",
+    "Development Lead",
+    "Dev Lead",
+    "Lead Programmer",
+    "Lead Member of Technical Staff",
+    "LMTS",
+    "Leitender Softwareentwickler"
+   ],
+   "fields": []
+  },
+  "staff-eng": {
+   "titles": [
+    "Staff Engineer",
+    "PMTS",
+    "Development Expert",
+    "Key Expert"
+   ],
+   "fields": []
+  },
+  "principal-eng": {
+   "titles": [
+    "Principal Engineer",
+    "Partner Software Engineer",
+    "Partner Architect",
+    "Consulting Member of Technical Staff",
+    "Chief Development Expert"
+   ],
+   "fields": []
+  },
+  "distinguished-eng": {
+   "titles": [
+    "Distinguished Engineer",
+    "DMTS",
+    "Distinguished Technologist"
+   ],
+   "fields": []
+  },
+  "eng-fellow": {
+   "titles": [
+    "Technical Fellow",
+    "Chief Scientist",
+    "Chief Technologist"
+   ],
+   "fields": []
+  },
+  "head-of-platform": {
+   "titles": [
+    "Head of Platform Engineering",
+    "Head of Platform",
+    "Director of Platform Engineering",
+    "Director, Platform Engineering",
+    "Platform Engineering Director",
+    "VP of Platform Engineering",
+    "Head of Infrastructure",
+    "Head of Infrastructure Engineering",
+    "Director of Infrastructure",
+    "Director of Infrastructure Engineering",
+    "Head of DevOps",
+    "Head of Site Reliability Engineering",
+    "Head of Developer Experience",
+    "Head of Cloud Infrastructure"
+   ],
+   "fields": []
+  },
+  "head-of-eng": {
+   "titles": [
+    "Head of Engineering",
+    "Head of Software Engineering",
+    "Head of Software Development",
+    "Head of Technology",
+    "Head of Tech",
+    "Engineering Head",
+    "Head - Engineering",
+    "Leiter Softwareentwicklung"
+   ],
+   "fields": []
+  },
+  "tpm": {
+   "titles": [
+    "Technical Program Manager",
+    "TPM",
+    "Technical Programme Manager",
+    "Engineering Program Manager",
+    "Engineering Programme Manager",
+    "Software Program Manager",
+    "Technical Project Manager",
+    "Technical Delivery Manager",
+    "Program Manager, Engineering",
+    "Technical Program Lead"
+   ],
+   "fields": [
+    "Technical Program Management",
+    "Engineering Program Management",
+    "Technical Project Management"
+   ]
+  },
+  "chief-architect": {
+   "titles": [
+    "Chief Architect",
+    "Chief Software Architect",
+    "Chief Technical Architect",
+    "Chief Technology Architect",
+    "Chief Enterprise Architect",
+    "Chief IT Architect",
+    "Head of Architecture",
+    "Head of Enterprise Architecture",
+    "Director of Architecture",
+    "VP of Architecture",
+    "Leiter IT-Architektur"
+   ],
+   "fields": []
+  },
+  "embedded-eng": {
+   "titles": [
+    "Embedded Systems Engineer",
+    "Embedded Software Engineer",
+    "Embedded Engineer",
+    "Embedded Developer",
+    "Embedded Software Developer",
+    "Embedded Systems Developer",
+    "Embedded C Developer",
+    "Embedded C++ Developer",
+    "Embedded Programmer",
+    "Embedded Linux Engineer",
+    "Embedded Linux Developer",
+    "AUTOSAR Developer",
+    "Embedded Softwareentwickler",
+    "Softwareentwickler Embedded Systems"
+   ],
+   "fields": [
+    "Embedded Systems",
+    "Embedded Software",
+    "Embedded Engineering",
+    "Embedded"
+   ]
+  },
+  "firmware-eng": {
+   "titles": [
+    "Firmware Engineer",
+    "Firmware Developer",
+    "Firmware Software Engineer",
+    "Embedded Firmware Engineer",
+    "Embedded Firmware Developer",
+    "Firmware Programmer",
+    "BIOS Engineer",
+    "UEFI Firmware Engineer",
+    "Device Driver Engineer",
+    "Device Driver Developer",
+    "Firmwareentwickler",
+    "Firmware-Entwickler"
+   ],
+   "fields": [
+    "Firmware",
+    "Firmware Engineering",
+    "Firmware Development"
+   ]
+  },
+  "robotics-eng": {
+   "titles": [
+    "Robotics Engineer",
+    "Robotics Software Engineer",
+    "Robotics Developer",
+    "Robotics Software Developer",
+    "Robotics Systems Engineer",
+    "ROS Developer",
+    "ROS Engineer",
+    "Robotics Programmer",
+    "Robot Programmer",
+    "Autonomy Engineer",
+    "Autonomy Software Engineer",
+    "Motion Planning Engineer",
+    "SLAM Engineer",
+    "Robotikingenieur"
+   ],
+   "fields": [
+    "Robotics",
+    "Robotics Engineering",
+    "Robotics Software",
+    "Autonomous Systems",
+    "Autonomy"
+   ]
+  },
+  "controls-eng": {
+   "titles": [
+    "Controls Engineer",
+    "Control Systems Engineer",
+    "Control Engineer",
+    "Motion Control Engineer",
+    "Controls Software Engineer",
+    "Control Software Engineer",
+    "Controls Algorithm Engineer",
+    "Mechatronics Engineer",
+    "GNC Engineer",
+    "Guidance, Navigation and Control Engineer",
+    "Ingenieur Regelungstechnik"
+   ],
+   "fields": [
+    "Controls",
+    "Control Systems",
+    "Controls Engineering",
+    "Mechatronics",
+    "Motion Control"
+   ]
+  },
+  "game-engine-eng": {
+   "titles": [
+    "Game Engine Programmer",
+    "Engine Programmer",
+    "Game Engine Developer",
+    "Game Engine Engineer",
+    "Game Engine Software Engineer",
+    "Core Engine Programmer",
+    "Core Technology Programmer",
+    "Physics Programmer",
+    "Game Physics Programmer",
+    "Game Tools Programmer",
+    "Engine Tools Programmer"
+   ],
+   "fields": [
+    "Game Engine Development",
+    "Engine Programming",
+    "Game Engine Programming"
+   ]
+  },
+  "graphics-eng": {
+   "titles": [
+    "Graphics Engineer",
+    "Rendering Engineer",
+    "Graphics Programmer",
+    "Rendering Programmer",
+    "Graphics Software Engineer",
+    "Rendering Software Engineer",
+    "Graphics Developer",
+    "3D Graphics Engineer",
+    "Computer Graphics Engineer",
+    "Real-Time Rendering Engineer",
+    "Shader Programmer",
+    "Graphics Driver Engineer"
+   ],
+   "fields": [
+    "Computer Graphics",
+    "Graphics Programming",
+    "Rendering",
+    "Real-Time Rendering"
+   ]
+  },
+  "blockchain-eng": {
+   "titles": [
+    "Blockchain Engineer",
+    "Blockchain Developer",
+    "Blockchain Software Engineer",
+    "Web3 Engineer",
+    "Web3 Developer",
+    "Blockchain Protocol Engineer",
+    "Blockchain Core Developer",
+    "Blockchain Infrastructure Engineer",
+    "Blockchain Architect",
+    "DLT Developer",
+    "Hyperledger Fabric Developer",
+    "Blockchain-Entwickler"
+   ],
+   "fields": [
+    "Blockchain",
+    "Web3",
+    "Blockchain Development",
+    "Blockchain Engineering"
+   ]
+  },
+  "smart-contract-eng": {
+   "titles": [
+    "Smart Contract Engineer",
+    "Smart Contract Developer",
+    "Solidity Developer",
+    "Solidity Engineer",
+    "Smart Contract Auditor",
+    "Smart Contract Security Engineer",
+    "DeFi Engineer",
+    "DeFi Developer",
+    "DeFi Protocol Engineer",
+    "Solana Developer",
+    "Rust Smart Contract Developer"
+   ],
+   "fields": [
+    "Smart Contracts",
+    "Smart Contract Development",
+    "Solidity",
+    "DeFi"
+   ]
+  },
+  "arvr-eng": {
+   "titles": [
+    "AR/VR Engineer",
+    "AR/VR Developer",
+    "XR Engineer",
+    "XR Developer",
+    "XR Software Engineer",
+    "VR Engineer",
+    "VR Developer",
+    "AR Developer",
+    "Virtual Reality Developer",
+    "Augmented Reality Developer",
+    "Mixed Reality Developer",
+    "Spatial Computing Engineer",
+    "Unity VR Developer",
+    "Immersive Technology Developer"
+   ],
+   "fields": [
+    "AR/VR",
+    "XR",
+    "Virtual Reality",
+    "Augmented Reality",
+    "Mixed Reality",
+    "Extended Reality"
+   ]
+  },
+  "quantum-eng": {
+   "titles": [
+    "Quantum Computing Engineer",
+    "Quantum Software Engineer",
+    "Quantum Engineer",
+    "Quantum Developer",
+    "Quantum Software Developer",
+    "Quantum Algorithms Researcher",
+    "Quantum Research Scientist",
+    "Quantum Computing Researcher",
+    "Quantum Computing Scientist",
+    "Quantum Control Engineer"
+   ],
+   "fields": [
+    "Quantum Computing",
+    "Quantum Software",
+    "Quantum Algorithms",
+    "Quantum Information Science",
+    "Quantum Engineering"
+   ]
+  }
+ },
+ "updated_at": "2026-10-11T21:14:45"
+}
